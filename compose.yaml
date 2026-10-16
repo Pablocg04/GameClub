@@ -1,0 +1,21 @@
+services:
+  gameclub:
+    container_name: gameclub
+    build: ./server
+    restart: unless-stopped
+    ports:
+      - "${GAMECLUB_PORT:-8001}:8000"
+    environment:
+      GAMECLUB_ROMS: /library/roms
+      GAMECLUB_DATA: /library/data
+      GAMECLUB_MEDIA: /library/media
+      GAMECLUB_API_TOKEN: ${GAMECLUB_API_TOKEN:-}
+    volumes:
+      - ./roms:/library/roms
+      - ./data:/library/data
+      - ./media:/library/media
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

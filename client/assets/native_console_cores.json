@@ -1,0 +1,77 @@
+{
+  "version": "console-1",
+  "platforms": {
+    "android-arm64-v8a": {
+      "nestopia": {
+        "source": "https://buildbot.libretro.com/nightly/android/latest/arm64-v8a/nestopia_libretro_android.so.zip",
+        "sha256": "a6eb776b9fbe37a1498c44b0458ae60d2070ef1b957db3eef164e90a481b88df",
+        "size": 808418,
+        "binary": "nestopia_libretro_android.so",
+        "binary_size": 5061536,
+        "binary_sha256": "6f0a4e149398eb2a64cea7e4b35e3e51199fb5b9f133f75508240dfd53f0214b"
+      },
+      "stella": {
+        "source": "https://buildbot.libretro.com/nightly/android/latest/arm64-v8a/stella_libretro_android.so.zip",
+        "sha256": "c6fb957ce13bcb29b6d34e55aa617d354db8f54103483fa0bebba2b2abe769bd",
+        "size": 1459112,
+        "binary": "stella_libretro_android.so",
+        "binary_size": 6558136,
+        "binary_sha256": "8ce39bf6042876badb461a1d544d224a539031de0ddd905554662e5d5f58ae78"
+      }
+    },
+    "android-armeabi-v7a": {
+      "nestopia": {
+        "source": "https://buildbot.libretro.com/nightly/android/latest/armeabi-v7a/nestopia_libretro_android.so.zip",
+        "sha256": "6893ca84f17c6dc924e4cefbaf7a9dc0b74885eedf190dff34ddcb61a11fde4d",
+        "size": 631437,
+        "binary": "nestopia_libretro_android.so",
+        "binary_size": 3092236,
+        "binary_sha256": "9a57152ef6e75bc115f9a697b03232eecca9b6e1e8a48a1183b1ecc89127cbf1"
+      },
+      "stella": {
+        "source": "https://buildbot.libretro.com/nightly/android/latest/armeabi-v7a/stella_libretro_android.so.zip",
+        "sha256": "55a0eedaf85e97d44553d2fb06b7e42323b1ffa9d11b777046446809c5adb425",
+        "size": 1117792,
+        "binary": "stella_libretro_android.so",
+        "binary_size": 3173716,
+        "binary_sha256": "9ffd9a48d68854fd649e984b6206978dd6a4bb76f8947e28d769397b0b8546da"
+      }
+    },
+    "android-x86_64": {
+      "nestopia": {
+        "source": "https://buildbot.libretro.com/nightly/android/latest/x86_64/nestopia_libretro_android.so.zip",
+        "sha256": "6a7c780470c2f265973f4d7805f1f8ab0d7bef33625f159aa40e99b09c6d2b7e",
+        "size": 804367,
+        "binary": "nestopia_libretro_android.so",
+        "binary_size": 5048016,
+        "binary_sha256": "77b995c60e789bb9182c268c0fe2046d964ee0b689363bb60775d1074c2df9f3"
+      },
+      "stella": {
+        "source": "https://buildbot.libretro.com/nightly/android/latest/x86_64/stella_libretro_android.so.zip",
+        "sha256": "aefddf3a4d5c82cfa60eccdff54940a568ad9631606430d44f1be33147b5233d",
+        "size": 1487145,
+        "binary": "stella_libretro_android.so",
+        "binary_size": 6627616,
+        "binary_sha256": "b32b280e3387cf691495f8fd9f9077fd972e387f163a5a23d15f2ac8c3eb220a"
+      }
+    },
+    "windows-x86_64": {
+      "nestopia": {
+        "source": "https://buildbot.libretro.com/nightly/windows/x86_64/latest/nestopia_libretro.dll.zip",
+        "sha256": "9068a4c2722814eacf9fb7cfaa3eba82808c4689d696fe0763f1ebc3bb7e4c96",
+        "size": 1057514,
+        "binary": "nestopia_libretro.dll",
+        "binary_size": 6758456,
+        "binary_sha256": "ee321794d6f271666beafa464a0c33fc8507dbc031a0384e0ceb8dc067cdc5d8"
+      },
+      "stella": {
+        "source": "https://buildbot.libretro.com/nightly/windows/x86_64/latest/stella_libretro.dll.zip",
+        "sha256": "dbc9df2562d432420e7ea2acb1c6c1bdd4a686f59e5b076bb65f0e3264a31b7e",
+        "size": 1883404,
+        "binary": "stella_libretro.dll",
+        "binary_size": 5871104,
+        "binary_sha256": "11a218b54082ea96595dba4a1779aebcc87ac77d3cd40769ac33aac8a8bdd6c1"
+      }
+    }
+  }
+}

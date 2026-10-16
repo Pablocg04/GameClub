@@ -1,0 +1,98 @@
+{
+  "source": "MAME 0.139 dff8aadd1c3f38215af3955746d6e19abe0ddcea",
+  "games": {
+    "wcbowl": {
+      "title": "World Class Bowling (v1.66)",
+      "bios": false,
+      "parents": [],
+      "roms": [
+        {
+          "name": "wcb_prm0.166",
+          "crc": "f6774112",
+          "size": 131072
+        },
+        {
+          "name": "wcb_prm1.166",
+          "crc": "931821ae",
+          "size": 131072
+        },
+        {
+          "name": "wcb_prm2.166",
+          "crc": "c54f5e40",
+          "size": 131072
+        },
+        {
+          "name": "wcb_prm3.166",
+          "crc": "dd72c796",
+          "size": 131072
+        },
+        {
+          "name": "wcb_snd.u88",
+          "crc": "e97a6d28",
+          "size": 131072
+        },
+        {
+          "name": "wcb_grom.0_0",
+          "crc": "6fcb4246",
+          "size": 524288
+        },
+        {
+          "name": "wcb_grom.0_1",
+          "crc": "2ae31f45",
+          "size": 524288
+        },
+        {
+          "name": "wcb_grom.0_2",
+          "crc": "bccc0f35",
+          "size": 524288
+        },
+        {
+          "name": "wcb_grom.0_3",
+          "crc": "ab1da462",
+          "size": 524288
+        },
+        {
+          "name": "wcb_grom.1_0",
+          "crc": "bdfafd1f",
+          "size": 524288
+        },
+        {
+          "name": "wcb_grom.1_1",
+          "crc": "7d6baa2e",
+          "size": 524288
+        },
+        {
+          "name": "wcb_grom.1_2",
+          "crc": "7513d3de",
+          "size": 524288
+        },
+        {
+          "name": "wcb_grom.1_3",
+          "crc": "e46877e6",
+          "size": 524288
+        },
+        {
+          "name": "wcb_srom.0",
+          "crc": "d42dd283",
+          "size": 524288
+        },
+        {
+          "name": "wcb_srom.1",
+          "crc": "7a69ab54",
+          "size": 524288
+        },
+        {
+          "name": "wcb_srom.2",
+          "crc": "346530a2",
+          "size": 524288
+        },
+        {
+          "name": "wcb_srom.3",
+          "crc": "1dfe3a31",
+          "size": 262144
+        }
+      ],
+      "disks": []
+    }
+  }
+}

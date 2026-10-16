@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp" android:height="180dp" android:viewportWidth="320" android:viewportHeight="180">
+    <path android:fillColor="#10111C" android:pathData="M0,0h320v180h-320z" />
+    <path android:fillColor="#25273D" android:pathData="M16,16h288v148h-288z" />
+    <path android:fillColor="#8C7AFF" android:pathData="M119,36h82q12,0 16,14l12,35q4,15 -8,20q-8,3 -15,-5l-16,-17h-60l-16,17q-7,8 -15,5q-12,-5 -8,-20l12,-35q4,-14 16,-14z" />
+    <path android:fillColor="#10111C" android:pathData="M119,52h8v10h10v8h-10v10h-8v-10h-10v-8h10z M190,52h9v9h-9z M203,65h9v9h-9z" />
+    <!-- GameClub en letras de trazos: no depende de fuentes del televisor. -->
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFF" android:strokeWidth="3" android:strokeLineJoin="round"
+        android:pathData="M57,127h-14v18h14v-9h-7 M65,145v-18h14v18 M65,136h14 M87,145v-18l7,9l7,-9v18 M123,127h-14v18h14 M109,136h11 M151,127h-14v18h14 M159,127v18h14 M181,127v18h14v-18 M203,145v-18h10q7,0 7,4q0,5 -7,5h-10 M213,136q8,0 8,5q0,4 -8,4h-10" />
+</vector>

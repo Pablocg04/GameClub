@@ -1,0 +1,34 @@
+GameClub - reproductor nativo de arcade y consolas
+
+SDL 3.4.18 - https://github.com/libsdl-org/SDL/tree/release-3.4.18
+
+Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
+
+This software is provided 'as-is', without any express or implied
+warranty. In no event will the authors be held liable for any damages
+arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software
+   in a product, an acknowledgment in the product documentation would be
+   appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+
+libretro API header: RetroArch 1.22.2, MIT license.
+https://github.com/libretro/RetroArch/blob/v1.22.2/libretro-common/include/libretro.h
+
+Native cores are unmodified builds from https://buildbot.libretro.com/.
+Their exact SHA-256 registry is server/app/native_cores.json in the GameClub source.
+Core source and licenses:
+MAME 2003-Plus: https://github.com/libretro/mame2003-plus-libretro
+MAME 2003: https://github.com/libretro/mame2003-libretro
+FinalBurn Neo: https://github.com/libretro/FBNeo
+MAME: https://github.com/libretro/mame
+Nestopia UE (GPL-2.0): https://github.com/libretro/nestopia
+Stella (GPL-2.0): https://github.com/libretro/stella

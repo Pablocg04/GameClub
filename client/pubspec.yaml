@@ -1,0 +1,38 @@
+name: gameclub
+description: Biblioteca de videojuegos para Android y Windows conectada a tu Raspberry.
+publish_to: none
+version: 0.8.1+21
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^5.8.0
+  file_picker: ^10.0.0
+  shared_preferences: ^2.5.0
+  path_provider: ^2.1.5
+  path: ^1.9.1
+  open_filex: ^4.7.0
+  xml: ^7.0.1
+  webview_windows: ^0.4.0
+  webview_flutter: ^4.10.0
+  webview_flutter_android: ^4.14.1
+  archive: ^4.0.7
+  crypto: ^3.0.7
+  window_manager: ^0.5.1
+dev_dependencies:
+  integration_test:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  image: ^4.5.4
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/native-notices.txt
+    - assets/native_console_cores.json
+    - assets/native-cores/android-arm64-v8a/
+    - assets/native-cores/android-armeabi-v7a/
+    - assets/native-cores/android-x86_64/
+    - assets/native-cores/windows-x86_64/

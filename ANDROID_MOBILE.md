@@ -1,7 +1,7 @@
-# GameClub móvil · 0.8.1
+# GameClub móvil · 0.9.0
 
-Instala `dist/android-mobile-0.8.1/GameClub-Android.apk` en el teléfono o la tablet.
-La variante de televisión está en `dist/android-tv-0.8.1/GameClub-AndroidTV.apk`.
+Instala `dist/android-mobile-0.9.0/GameClub-Android.apk` en el teléfono o la tablet.
+La variante de televisión está en `dist/android-tv-0.9.0/GameClub-AndroidTV.apk`.
 Ambas se compilan desde una base compartida; sus menús, orientación y lanzador
 se seleccionan durante la compilación.
 
@@ -42,7 +42,10 @@ de esas consolas siguen siendo los de su motor.
 Los dos APK conservan `com.gameclub.gameclub`, para actualizar la instalación
 anterior y preservar conexión, caché y guardados. Son alternativas por dispositivo:
 instala el APK móvil en el teléfono y el de TV en el televisor.
-La versión es **0.8.1**, código **21**, Android 7/API 24+, ARM32/ARM64/x86_64.
+La versión es **0.9.0**, código **22**, Android 7/API 24+, ARM32/ARM64/x86_64.
+Visual Pinball requiere Android 13+ ARM64 y la app oficial externa: GameClub
+prepara e importa el paquete VPXZ. Los pinballs MAME mantienen el motor nativo.
+Requisitos y guía: [PINBALL.md](PINBALL.md).
 Incluye la corrección del lápiz NDS y las cachés. Revisión: [VERIFICATION.md](VERIFICATION.md).
 Carátulas: Libretro → LaunchBox → GameTDB y subida manual, sin cuenta ni claves. Consulta
 [THUMBNAILS.md](THUMBNAILS.md).

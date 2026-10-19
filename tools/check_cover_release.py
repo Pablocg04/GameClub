@@ -66,7 +66,7 @@ def main():
     adb('shell', 'am', 'force-stop', 'com.gameclub.gameclub')
     adb('shell', 'am', 'start', '-n', 'com.gameclub.gameclub/.MainActivity')
     try:
-        wait('GameClub · 0.8.1')
+        wait('GameClub · 0.9.0')
         tap(wait('Ajustes'))
         tap(find('Servidor', scroll=True))
         adb('shell', 'input', 'keyevent', 'KEYCODE_MOVE_END', *(['KEYCODE_DEL']*100))

@@ -19,7 +19,7 @@ def main():
     registry = json.loads((root/'client/assets/native_console_cores.json').read_text(encoding='utf-8'))
     packages = {f'client/assets/native-cores/{platform}/{core}.zip': entry
         for platform, entries in registry['platforms'].items() for core, entry in entries.items()}
-    blocked = {'.nes','.a26','.rom','.bin','.sta','.gb','.gbc','.gba','.nds','.dsi','.sfc','.smc','.chd','.iso','.7z','.rar','.exe','.dll','.so','.aar','.apk','.pem','.p12','.jks','.keystore'}
+    blocked = {'.nes','.a26','.rom','.bin','.sta','.vpx','.vpxz','.directb2s','.gb','.gbc','.gba','.nds','.dsi','.sfc','.smc','.chd','.iso','.7z','.rar','.exe','.dll','.so','.aar','.apk','.pem','.p12','.jks','.keystore'}
     secrets = re.compile(r'(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)')
     size = 0
     for relative in files:

@@ -13,6 +13,7 @@ import 'api.dart';
 import 'integrated_player.dart';
 import 'native_console.dart';
 import 'game_files.dart';
+import 'pinball_player.dart';
 import 'player_host.dart';
 import 'scrape_tools.dart';
 import 'screenshots_gallery.dart';
@@ -94,6 +95,7 @@ class _LibraryPageState extends State<LibraryPage> {
   String? uploadStatus;
   int tab = 0, revision = 0;
   bool loading = true, busy = false, showEmpty = false;
+  bool pinballOnly = false;
   double? progress;
   PlayerHost? playerHost;
   String ndsProfile = Platform.isAndroid ? 'fast' : 'balanced';
@@ -187,7 +189,8 @@ class _LibraryPageState extends State<LibraryPage> {
         api.list('/api/systems', {'include_empty': true}),
         api.list('/api/games', {
           if (selectedSystem != null) 'system_id': selectedSystem,
-          'favorites': tab == 1
+          'favorites': tab == 1,
+          if (pinballOnly) 'category': 'pinball'
         }),
       ]);
       final config = await api.dio.get<Json>('/api/settings');
@@ -281,6 +284,11 @@ class _LibraryPageState extends State<LibraryPage> {
                       const SizedBox(height: 12),
                       const Text(
                           'Todos los archivos seleccionados se guardarán en la carpeta de esta consola.'),
+                      if (value == 'vpinball') ...[
+                        const SizedBox(height: 12),
+                        const Text(
+                            'Un ZIP/VPXZ por mesa: incluye el .vpx y sus ROMs ZIP (también la ROM padre si la necesita). Puedes añadir el panel .directb2s, música y el script standalone. No subas las ROMs ZIP por separado. Un .vpx suelto solo sirve para mesas autosuficientes.'),
+                      ],
                     ]),
                 actions: [
                   TextButton(
@@ -523,6 +531,21 @@ class _LibraryPageState extends State<LibraryPage> {
   Future<void> openGame(Json game) async {
     final television = TelevisionScope.of(context);
     await perform(() async {
+      if (game['system_id'] == 'vpinball') {
+        await PinballPlayer(api, onProgress: (text, value) {
+          if (mounted) {
+            setState(() {
+              uploadStatus = text;
+              progress = value;
+            });
+          }
+        }).play(game);
+        if (Platform.isAndroid) {
+          notify(
+              'Paquete enviado a Visual Pinball. Confirma la importación y abre la mesa allí.');
+        }
+        return;
+      }
       if (game['system_id'] == 'mame' ||
           nativeConsoleCores.containsKey(game['system_id'])) {
         void updateProgress(String text, double? value) {
@@ -657,11 +680,13 @@ class _LibraryPageState extends State<LibraryPage> {
                             ? 'Todavía no hay descripción disponible.'
                             : game['description'] as String),
                         const SizedBox(height: 16),
-                        Text((integratedCores.containsKey(game['system_id']) ||
-                                nativeConsoleCores
-                                    .containsKey(game['system_id']))
-                            ? 'Se juega dentro de GameClub, sin instalar otro emulador. El reproductor incluye controles, menú de ajustes y partidas guardadas locales.'
-                            : 'Se ejecuta en tu dispositivo mediante el emulador configurado. Los controles de juego los proporciona ese emulador.'),
+                        Text(game['system_id'] == 'vpinball'
+                            ? 'Mesa Visual Pinball + PinMAME. En PC se prepara un motor portátil verificado y se abre la mesa a pantalla completa. Android usa el reproductor oficial (Android 13+ ARM64) para importar y jugar.'
+                            : (integratedCores.containsKey(game['system_id']) ||
+                                    nativeConsoleCores
+                                        .containsKey(game['system_id']))
+                                ? 'Se juega dentro de GameClub, sin instalar otro emulador. El reproductor incluye controles, menú de ajustes y partidas guardadas locales.'
+                                : 'Se ejecuta en tu dispositivo mediante el emulador configurado. Los controles de juego los proporciona ese emulador.'),
                         if (game['system_id'] == 'mame')
                           const Padding(
                               padding: EdgeInsets.only(top: 8),
@@ -695,11 +720,15 @@ class _LibraryPageState extends State<LibraryPage> {
                     autofocus: TelevisionScope.of(context),
                     onPressed: () => Navigator.pop(context, 'play'),
                     icon: const Icon(Icons.play_arrow),
-                    label: Text((integratedCores
-                                .containsKey(game['system_id']) ||
-                            nativeConsoleCores.containsKey(game['system_id']))
-                        ? 'Jugar en GameClub'
-                        : 'Abrir con emulador')),
+                    label: Text(game['system_id'] == 'vpinball'
+                        ? (Platform.isAndroid
+                            ? 'Importar en VPX'
+                            : 'Jugar pinball')
+                        : (integratedCores.containsKey(game['system_id']) ||
+                                nativeConsoleCores
+                                    .containsKey(game['system_id']))
+                            ? 'Jugar en GameClub'
+                            : 'Abrir con emulador')),
               ],
             ));
     if (!mounted) return;
@@ -766,8 +795,24 @@ class _LibraryPageState extends State<LibraryPage> {
                   : const {},
               child: TextField(
                 focusNode: tv ? tvSearch : null,
-                decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.search),
+                decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: IconButton(
+                        tooltip: pinballOnly
+                            ? 'Quitar filtro de pinball MAME'
+                            : 'Pinballs de MAME',
+                        isSelected: pinballOnly,
+                        icon: const Icon(Icons.sports_baseball_outlined),
+                        onPressed: busy
+                            ? null
+                            : () {
+                                setState(() {
+                                  pinballOnly = !pinballOnly;
+                                  selectedSystem = pinballOnly ? 'mame' : null;
+                                  tab = 0;
+                                });
+                                reload();
+                              }),
                     hintText: 'Buscar en la biblioteca',
                     border: OutlineInputBorder()),
                 onChanged: (value) => setState(() {
@@ -795,6 +840,7 @@ class _LibraryPageState extends State<LibraryPage> {
                       selectedSystem = index == 0
                           ? null
                           : visibleSystems[index - 1]['id'] as String;
+                      if (selectedSystem != 'mame') pinballOnly = false;
                       reload();
                     },
                     onDown: () => tvGridKey.currentState?.focusSelected(),
@@ -815,6 +861,7 @@ class _LibraryPageState extends State<LibraryPage> {
                                     ? null
                                     : (_) {
                                         selectedSystem = null;
+                                        pinballOnly = false;
                                         reload();
                                       })),
                         ...visibleSystems.map((s) => Padding(
@@ -826,6 +873,9 @@ class _LibraryPageState extends State<LibraryPage> {
                                   ? null
                                   : (_) {
                                       selectedSystem = s['id'] as String;
+                                      if (selectedSystem != 'mame') {
+                                        pinballOnly = false;
+                                      }
                                       reload();
                                     },
                             ))),
@@ -930,6 +980,7 @@ class _LibraryPageState extends State<LibraryPage> {
       api.dio.close(force: true);
       api = GameClubApi(server.text.trim(), token.text.trim());
       selectedSystem = null;
+      pinballOnly = false;
       await reload();
     });
   }
@@ -1119,6 +1170,8 @@ class _LibraryPageState extends State<LibraryPage> {
       const Text('Emuladores',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
       const Text(
+          'Visual Pinball: un ZIP/VPXZ por mesa con su .vpx, ROM ZIP y panel opcional. PC incluye descarga del motor portátil; Android 13+ ARM64 requiere Visual Pinball oficial. El icono de bola en la búsqueda filtra los pinballs de MAME.'),
+      const Text(
           'NES y Atari 2600: motores nativos Nestopia UE y Stella incluidos en la app. Start inicia; en Atari equivale a RESET y Select a GAME SELECT.'),
       const Padding(
           padding: EdgeInsets.symmetric(vertical: 12),
@@ -1156,7 +1209,8 @@ class _LibraryPageState extends State<LibraryPage> {
         ...systems
             .where((s) =>
                 !integratedCores.containsKey(s['id']) &&
-                !nativeConsoleCores.containsKey(s['id']))
+                !nativeConsoleCores.containsKey(s['id']) &&
+                s['id'] != 'vpinball')
             .map((s) => ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(s['name'] as String),
@@ -1212,7 +1266,7 @@ class _LibraryPageState extends State<LibraryPage> {
               ? const EdgeInsets.symmetric(horizontal: 24, vertical: 12)
               : EdgeInsets.zero,
           child: Scaffold(
-            appBar: AppBar(title: const Text('GameClub · 0.8.1'), actions: [
+            appBar: AppBar(title: const Text('GameClub · 0.9.0'), actions: [
               IconButton(
                   tooltip: 'Escanear biblioteca',
                   onPressed: busy

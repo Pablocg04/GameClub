@@ -1,5 +1,22 @@
 # Componentes de terceros
 
+## Visual Pinball y PinMAME · 0.9.0
+
+El motor Windows se descarga sin modificaciones desde la distribución oficial
+de [Visual Pinball](https://github.com/vpinball/vpinball), tag
+`v10.8.1-5436-af26b2d93` (BGFX Windows MinGW x64). URL, tamaño, SHA-256 y huellas
+por archivo: `server/app/pinball_runtime.json`. Los avisos originales se conservan
+en la distribución descargada, incluidos `docs/license.txt` y los de sus plugins.
+La mayoría de fuentes Visual Pinball usan GPL-3.0-or-later; los archivos aún no
+relicenciados conservan su licencia histórica derivada de MAME, según el aviso
+original `docs/license.txt`. Sus componentes y scripts mantienen sus licencias
+respectivas. Fuentes de PinMAME:
+<https://github.com/vpinball/pinmame>.
+
+En Android se abre la aplicación oficial externa de VPX; GameClub no redistribuye
+su APK. Las mesas, paneles, sonidos y ROMs del usuario no forman parte de GameClub.
+Guía y requisitos: [PINBALL.md](PINBALL.md).
+
 ## Reproductor nativo de arcade y consolas · 0.7.0
 
 - **SDL 3.4.18**, licencia zlib, sin modificaciones:

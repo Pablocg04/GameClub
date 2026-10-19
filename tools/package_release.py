@@ -31,7 +31,7 @@ def main():
         verify_assets(lambda name: (source/'data/flutter_assets'/name).read_bytes())
         target = root/'dist'/f'windows-{version}'
         shutil.copytree(source, target, dirs_exist_ok=True)
-        for document in ('MAME_NATIVE.md', 'NATIVE_CONSOLES.md', 'THIRD_PARTY_NOTICES.md', 'THUMBNAILS.md', 'VERIFICATION.md'):
+        for document in ('MAME_NATIVE.md', 'NATIVE_CONSOLES.md', 'THIRD_PARTY_NOTICES.md', 'THUMBNAILS.md', 'VERIFICATION.md', 'PINBALL.md'):
             shutil.copy2(root/document, target/document)
         print(target/'gameclub.exe', flush=True)
         if args.archive:

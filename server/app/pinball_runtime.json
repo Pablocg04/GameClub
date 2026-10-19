@@ -1,0 +1,1429 @@
+{
+  "version": "v10.8.1-5436-af26b2d93",
+  "platforms": {
+    "windows-x86_64": {
+      "source": "https://github.com/vpinball/vpinball/releases/download/v10.8.1-5436-af26b2d93/VPinballX_BGFX-10.8.1-5436-af26b2d93-windows-mingw-x64-Release.zip",
+      "size": 212800616,
+      "sha256": "97b387dc16e1129b2bbabc0e842140aece9f2a65627e5b30db9f0c65c3d3ea35",
+      "binary": "VPinballX_BGFX64.exe",
+      "files": {
+        "altsound64.dll": {
+          "size": 1294758,
+          "sha256": "13674afdace9a50a1510c84349973906b3b645f95a9b8610bca630e86c953ee7"
+        },
+        "assets/14seg-d-williams.png": {
+          "size": 14183,
+          "sha256": "da99261db94fbe9f96a3e3b1f4e84cc940a119403437309a6fc3aa07cecc2179"
+        },
+        "assets/14seg-d.png": {
+          "size": 14144,
+          "sha256": "0abba2d2350294cab8d5682ac6b6171fc1c4bd8aa9ce00b85a3b42a59d56e69a"
+        },
+        "assets/14seg-dc-gts.png": {
+          "size": 15710,
+          "sha256": "ad3eaec0d244fe5fed7069808e7feb68844b08a232defefa10405fe56fea19ed"
+        },
+        "assets/14seg-dc-williams.png": {
+          "size": 15081,
+          "sha256": "4f4a8d8ab0b7192b6a7b3086d8ca230f5f0748763171563a207f4bc3adcd3cb5"
+        },
+        "assets/14seg-williams.png": {
+          "size": 13430,
+          "sha256": "20ca1a197446821ae57c21ea32c66c8dff5f9529d23f744204e885b592a5eaaa"
+        },
+        "assets/14seg.png": {
+          "size": 13430,
+          "sha256": "20ca1a197446821ae57c21ea32c66c8dff5f9529d23f744204e885b592a5eaaa"
+        },
+        "assets/16seg.png": {
+          "size": 13537,
+          "sha256": "17c4850c7f6a2db2d95c6f165552d9330b42130f3c524ddcd477756a35306506"
+        },
+        "assets/7seg-atari.png": {
+          "size": 7801,
+          "sha256": "fb17f10a6bea790071bd430f5422cbfdf8b703364588a7368ff22dd9e0cc083b"
+        },
+        "assets/7seg-bally.png": {
+          "size": 7397,
+          "sha256": "7cbfd7b106233bc5663aadc314648642d084c635495ac74a0b0947224b40b2cd"
+        },
+        "assets/7seg-c-atari.png": {
+          "size": 8695,
+          "sha256": "98a1be5a1333239ddb58595532bafe7d4ca15f61599ae060f7d80c9992b44b71"
+        },
+        "assets/7seg-c-bally.png": {
+          "size": 8224,
+          "sha256": "14c7d75ba5b11f80fe7598871963b28d3d05853e1ecd19e66edb8ea41b742ee3"
+        },
+        "assets/7seg-c-williams.png": {
+          "size": 8263,
+          "sha256": "ce820057b8a71cd9af1268525d824f797ce8f83f3b1a2f47181db097233f5e70"
+        },
+        "assets/7seg-gts.png": {
+          "size": 7830,
+          "sha256": "e615680eca8f23ea9e53e5202be636a06a96e9223e2b79f38ac1cf807e929784"
+        },
+        "assets/7seg-williams.png": {
+          "size": 7369,
+          "sha256": "f2c3adb5b483d080824811f13f6cf7b64867f3b5a45ef8d23805f128d09f64b6"
+        },
+        "assets/9seg-c-gts.png": {
+          "size": 10837,
+          "sha256": "e066082dbb57e90521a5b6877adb2656b0b078ad4202691344fd7a0d5f122e9b"
+        },
+        "assets/9seg-gts.png": {
+          "size": 10027,
+          "sha256": "8fbfc64acb1e06d926e6f8d9d09a17ec645f53259c910365a6418a567358ea42"
+        },
+        "assets/alphaseg/extract-segs.py": {
+          "size": 6280,
+          "sha256": "d39c422d2e28df509c66dff5f01a337ee714133d30e640510d3b8d42a18d72c4"
+        },
+        "assets/alphaseg/SegDisplays.svg": {
+          "size": 53176,
+          "sha256": "9f42ad914cb059309de7101cadcb97ac2239dae53f7f4d9ee1a31dce99884b96"
+        },
+        "assets/AODither.webp": {
+          "size": 12528,
+          "sha256": "bebe77fa6c8d200e4fd0da1b3124bf2c5e1502350a33486e76c60d3eeb902065"
+        },
+        "assets/BallEnv.exr": {
+          "size": 351874,
+          "sha256": "ff8d9049684e5d8d0bcb06b87dfca27610213672e23d5cb2a16fa6fb5af6d75c"
+        },
+        "assets/blankTable.vpx": {
+          "size": 17575936,
+          "sha256": "934aed884ac4105e57a9651db3aa6c734edb87bce703bd5c0c76574059358ea3"
+        },
+        "assets/BumperBase.webp": {
+          "size": 72600,
+          "sha256": "17243d3b51dec3fedbb64c82845f6dff416fb87ec44d1a7847083c44346324e3"
+        },
+        "assets/BumperCap.webp": {
+          "size": 27126,
+          "sha256": "fe2f3096cdb2f081f7bffe4cc047158fddfaace2ce60c879d5f95c6781c9530e"
+        },
+        "assets/BumperRing.webp": {
+          "size": 83510,
+          "sha256": "ef6e4d1ea119c4e64df6fdafcab82ddfec6d783381820fd8b82c0021ec1e9916"
+        },
+        "assets/BumperSkirt.webp": {
+          "size": 70550,
+          "sha256": "8348badfb837e505c7533a2db0d206351217f8d70833f04c1d7dd2c65e6de311"
+        },
+        "assets/EnvMap.webp": {
+          "size": 100408,
+          "sha256": "87f64f02080be0828dffaa5220b6d047e0c4c253e2b58310a41f00acd99edcca"
+        },
+        "assets/exampleTable.vpx": {
+          "size": 18894848,
+          "sha256": "b8b3f441d0c9b6503357d157c852d78591bf125d06df0237560c4dfce86debb6"
+        },
+        "assets/KickerCup.webp": {
+          "size": 66806,
+          "sha256": "8c12b5a612274e1bcbd97e2cc4cc067284b3c1c508a46373d2718f2a81133abc"
+        },
+        "assets/KickerGottlieb.webp": {
+          "size": 20708,
+          "sha256": "ee6c3ac42f7cfce374baa225e01c02fb6161547433bb65c8e994063833d2743b"
+        },
+        "assets/KickerHoleWood.webp": {
+          "size": 22656,
+          "sha256": "e29fceb050972c3b311797777d08a94eadc56c35c1f67ead12d885b339a53e71"
+        },
+        "assets/KickerT1.webp": {
+          "size": 90210,
+          "sha256": "f857cb8be7a0fa8ad6f22ae741e8d009775c1d3f343fbe9862d128dab9275124"
+        },
+        "assets/KickerWilliams.webp": {
+          "size": 21190,
+          "sha256": "6d8edb74045f45e4ddd1fa5ef11c80001e54d76537fdbb0a231d16db75c74a39"
+        },
+        "assets/LiberationSans-Regular.ttf": {
+          "size": 350200,
+          "sha256": "e5b0af421ea2bfbc1ac8d251d647268087ae82786234c57f757d1f0b90fa8b49"
+        },
+        "assets/lightSeqTable.vpx": {
+          "size": 851968,
+          "sha256": "29d4f00480e0dda8f18269401ae4be95a4b0a75f99da2c7be2709d3b5da08c77"
+        },
+        "assets/strippedTable.vpx": {
+          "size": 323584,
+          "sha256": "9f6c38d8d19ccd2c8f85de38faf62a7c7d1976c8899dfc5b36668bae32e05dbb"
+        },
+        "assets/TableSizes.csv": {
+          "size": 4059,
+          "sha256": "e5f7499cf16ae6abcbc5313cb238af5db486548077ec6376c521d32bb480db31"
+        },
+        "assets/vpinball.png": {
+          "size": 30764,
+          "sha256": "e2cdf6197118d803445a2621e8f68ab645a06f81e9ccd8200ad7e744d1bf97de"
+        },
+        "assets/web/app.js": {
+          "size": 88619,
+          "sha256": "fd01218ebdc0d423e5933985efc300081a7fa2a07b60386d6830f336ade93fde"
+        },
+        "assets/web/code-editor.html": {
+          "size": 3806,
+          "sha256": "243178ba897bd4507e1964d60f2c036e4df32ce3c4f51e5c592c1ccd6d1f7d95"
+        },
+        "assets/web/monaco/codicon.ttf": {
+          "size": 121972,
+          "sha256": "9d25513c861704be650eacef8c4588aceabdc8b668857747b5e42b299e926918"
+        },
+        "assets/web/monaco/monaco.js": {
+          "size": 3714442,
+          "sha256": "d736e43ab85dba3e29991295fee7893b3a97c19f3a8a785768d1f85414c51626"
+        },
+        "assets/web/monaco/style.css": {
+          "size": 309120,
+          "sha256": "e897faabc7756779a8973485d3607e9b266d238953ec80e39292f2c2d7d17ca6"
+        },
+        "assets/web/monaco-editor.js": {
+          "size": 3543,
+          "sha256": "06054cbca87eaf883df2cf4bc657be2178699b9087b7b1e40462e6cb605729c7"
+        },
+        "assets/web/styles.css": {
+          "size": 18942,
+          "sha256": "d903106068b97277042ccb0e53d8b7afcc8bb21e3635dee62a961b932ac5fc09"
+        },
+        "assets/web/vpx.html": {
+          "size": 17495,
+          "sha256": "ec2193558bec1936acdcd8102a0b538a2f0db9910e2879f766fb2a083df646a5"
+        },
+        "dmdutil64.dll": {
+          "size": 698963,
+          "sha256": "8b9d1a6c0aa59d6fa1465c2a9476dbe4f2a8d6033d9bb9d6006776015558df1e"
+        },
+        "docs/Accelerometer Velocity Input Tech Note.md": {
+          "size": 22804,
+          "sha256": "01f7338f950d38ba9704ca4791413b8ec1e4796af8287a5baf6dab930960df23"
+        },
+        "docs/Accelerometer Velocity Input User Guide.md": {
+          "size": 3528,
+          "sha256": "2d9894756bf91bddb1bd917ffac9b37f486abd18992a3ec52a62ced24ecae43d"
+        },
+        "docs/Build Differences.md": {
+          "size": 3534,
+          "sha256": "219bfb89bf5cca09e6c5d97b6fab507b7d8e22acf79cda48c9ca255637b4a1d2"
+        },
+        "docs/Changelog.txt": {
+          "size": 164491,
+          "sha256": "1b37ce06a6026f8243d34f1ac491a73179e270196f28c6361c211a8195be8e41"
+        },
+        "docs/Changelog_Scripts.txt": {
+          "size": 23933,
+          "sha256": "632ccd04ed485170a1ac1b1e7631197287a8649918b16cc13a5ca49a0bec9126"
+        },
+        "docs/Command Line.md": {
+          "size": 2031,
+          "sha256": "245c56b9d59d8e52ba40cb10d5d12768f68d8e02b54402eddc153dff4c490115"
+        },
+        "docs/CommandLineParameters.txt": {
+          "size": 1936,
+          "sha256": "efa6d08f3bca54bfb2553d34603f343660f9a84e04a1af073d291de84acf20e9"
+        },
+        "docs/CommandReference.txt": {
+          "size": 56489,
+          "sha256": "378e40ab9b9deec442c3699f09fdaee1ac18333f46f6d527789123e61378530d"
+        },
+        "docs/FileLayout.md": {
+          "size": 10983,
+          "sha256": "bc86c4460e052dbf504d9a87a0f54c9ebfd862f44ba9510db185a40b603eb50e"
+        },
+        "docs/Hotkeys.txt": {
+          "size": 1965,
+          "sha256": "3e453efe79edfb267cf8591dcbef37b85bd54484fbebaa498b1d6461be1c5901"
+        },
+        "docs/img/Latency.svg": {
+          "size": 77027,
+          "sha256": "66506cf41d20a755fd26ac59b54076fc0af7c80827853691c78638c9fda1ffdb"
+        },
+        "docs/img/Lights-Position.webp": {
+          "size": 4318,
+          "sha256": "1482bc0e10ccbde56d56e652b7ecafe25fb1206e85a915c1ada572c85fc1278d"
+        },
+        "docs/img/LiveUI-Overview.webp": {
+          "size": 144110,
+          "sha256": "a83cd8d7c6b5d80ee92b7ea5b17d8a53b18fdb66ea72c05c1b40d93b75ba96ac"
+        },
+        "docs/img/Space-references.svg": {
+          "size": 12932,
+          "sha256": "acf78c044dce34bc5a31f932a945953e0dd34bb32e25bfe42474504ab1d71617"
+        },
+        "docs/img/Upgrade10.8-AlphaMask.png": {
+          "size": 821,
+          "sha256": "c5bfa69d426aa5e9496859436823043f1b0cd4a4686b77f3c0c1ebe3254f4021"
+        },
+        "docs/img/Upgrade10.8-BallEquirectangular.png": {
+          "size": 168541,
+          "sha256": "4780a5b238efb3449ddae5e6588b8afec30903d86abae6d9fa822abc18359e18"
+        },
+        "docs/img/Upgrade10.8-BallMapOption.png": {
+          "size": 1434,
+          "sha256": "10b89be4ddac9f0ced41f76e4eb9d8a828aa57760f80a15237df5fd067a032b8"
+        },
+        "docs/img/Upgrade10.8-BallNoShadows.png": {
+          "size": 78210,
+          "sha256": "6445500cbda9f880f01bf9e441f433a3f8b440a0fb06299324233b940a624a56"
+        },
+        "docs/img/Upgrade10.8-BallShadows.png": {
+          "size": 75471,
+          "sha256": "9976666e0f238a1c5ef188ad61d109b60230b4fc6cae845b79690cbfc92fe5d5"
+        },
+        "docs/img/Upgrade10.8-BallShadowsOption.png": {
+          "size": 1530,
+          "sha256": "cd53dbe8ef6df1f6726085ddb9ef129f401c879b02521c668a2644f4f4b86a37"
+        },
+        "docs/img/Upgrade10.8-BallSphereMap.png": {
+          "size": 177505,
+          "sha256": "246018a951f6a1e1b501beb1fbd7ff497c3ebecc4bff37286075e7faa40377b8"
+        },
+        "docs/img/Upgrade10.8-DepthMask.webp": {
+          "size": 84154,
+          "sha256": "e8f0f71a345cf475cb510282c43f9e9882becb30a52c813c1db4693a8480fe85"
+        },
+        "docs/img/Upgrade10.8-DepthMaskAfter.webp": {
+          "size": 43674,
+          "sha256": "f01d9f92bcd3a0015e650e1393992c61977dd0a46b5d0956265517912fd73725"
+        },
+        "docs/img/Upgrade10.8-DepthMaskBefore.webp": {
+          "size": 45442,
+          "sha256": "13a8fb955b7c3e5bb0edd5535390e83b1ccbce9643638090f74078830e66065e"
+        },
+        "docs/img/Upgrade10.8-LightFading.gif": {
+          "size": 1170198,
+          "sha256": "1f42c094cd4a0c3214700e2c9d175016648fdd64a40f2d36acfe074582bc2aa7"
+        },
+        "docs/img/Upgrade10.8-LightOption.png": {
+          "size": 1794,
+          "sha256": "51d331241cf56982ec84ef279bd91dfb8373f4fbe56da0d272434617346f5eda"
+        },
+        "docs/img/Upgrade10.8-NoDepthMask.webp": {
+          "size": 83966,
+          "sha256": "3be6bea06e9982f21e10c2fa77ba8d5141fd99debea0cd1751f76ebc6ab519cc"
+        },
+        "docs/img/Upgrade10.8-ReflectionsExample.png": {
+          "size": 493911,
+          "sha256": "0a988b7e8d95f41b42e4732d09814fbdf8c3bfee3ea31971302f7155aad80fbb"
+        },
+        "docs/img/Upgrade10.8-ReflectionsOption.png": {
+          "size": 9280,
+          "sha256": "d6458c2b87831bb306e9200b65cede2807438120ed7064ddafac4d63efe50b1e"
+        },
+        "docs/img/ViewSetup-Camera.webp": {
+          "size": 41260,
+          "sha256": "bba9780097034295e97b9dcf9319cd59764ea4f51b4ba10d5560ae5e244b62c0"
+        },
+        "docs/img/ViewSetup-CameraDef.svg": {
+          "size": 11976,
+          "sha256": "f0f4dfe8b47aeff4a41e93e6a84b758ba3c78a33cdaa548fe5f32d28ef2e812c"
+        },
+        "docs/img/ViewSetup-Window.webp": {
+          "size": 62974,
+          "sha256": "024bc6fbcf5a1c291d01b490385260ebac6d5539d6a17747288cd01b03f6588d"
+        },
+        "docs/img/ViewSetup-WindowDef.svg": {
+          "size": 18525,
+          "sha256": "54efbebb056039d906a278dd7072132b62e5e499756bbf40eb4a1ed6bef98d70"
+        },
+        "docs/img/VisualPinball.svg": {
+          "size": 30737,
+          "sha256": "866a47e40689cc6c2645fd331deef7a14837e495484dd7a1f83cfbcc5a457ed6"
+        },
+        "docs/JP's VPX8 Physics Rev3.1 Elasticity_Test.vpx": {
+          "size": 999424,
+          "sha256": "146a336153f06700ee12613f0bf96b637add39ea2317fc54c3bc834dc3eeb9cc"
+        },
+        "docs/JP's VPX8 Physics Rev3.1.pdf": {
+          "size": 726717,
+          "sha256": "fd865cf7350c4b9dc8e37f5cf980825a35e8b77a18a4c9b3214308d93dab69fc"
+        },
+        "docs/JP's VPX8 Rev3.1 Physics Materials.mat": {
+          "size": 1664,
+          "sha256": "b57132a7ac99cc5266a796e9839c2579adfb18f2d0301a19976fb286bdc7086c"
+        },
+        "docs/JP's VPX8 Rev3.1 script addons vbs.txt": {
+          "size": 9748,
+          "sha256": "831787dc97e9d10c0cc6aec2e6302af86729869d39a9d2b04edf923de62c8a71"
+        },
+        "docs/JP's VPX8 Rev3.1 Table physics.vpp": {
+          "size": 940,
+          "sha256": "4f41f1d51a6d036f3965be10d86d531cbe0ba61d335d9fff5724f23f3cb455ef"
+        },
+        "docs/Latency.md": {
+          "size": 9461,
+          "sha256": "b4cca64f0c56c6eb75e3f19bfd9359e1f605762ca38c3bd36d3560da970212b7"
+        },
+        "docs/layoutGuideline.txt": {
+          "size": 3253,
+          "sha256": "a32e587f401d2aa05ba020f6122c3fae58bacf68e6a24f9a17e7e255670660b6"
+        },
+        "docs/license.txt": {
+          "size": 17821,
+          "sha256": "85cc246ca7321803710b2d3d1f1eebc34c1c69b39ecee54692dd4795def7c93a"
+        },
+        "docs/Lights.md": {
+          "size": 2030,
+          "sha256": "48699df4fb7a735dce2b36ad4e2adc36c1a0b8f014f56eb8ea3b126b817c04f7"
+        },
+        "docs/LiveUI.md": {
+          "size": 4248,
+          "sha256": "bb0346f9cdb4683c4d8efd0ebbdeb672142fec2b371362bb7582455831b15317"
+        },
+        "docs/New Plunger Documentation.pdf": {
+          "size": 555960,
+          "sha256": "ea96d2af986c73488b2409f44b9a3649041b90ee8a86f2fe329441ad5d8dd1bd"
+        },
+        "docs/Nudge Test and Calibration.vpx": {
+          "size": 4747264,
+          "sha256": "4f1d1c95e84bc14f55fe5521eeecb12a63e54f3b3bf0cf75f29ac41ad20ec609"
+        },
+        "docs/Open Pinball Device User Guide.md": {
+          "size": 7402,
+          "sha256": "7eaa0d124a9c12a2994af7ce90da6918adfc65003bc86401aa05e13af1b28cb9"
+        },
+        "docs/PhysicsPM5.txt": {
+          "size": 8058,
+          "sha256": "28c7414963b37a4c7a0875a22825f00b2b344e5a4a0fc3f2aee0adcf4c4147af"
+        },
+        "docs/PhysicValues.txt": {
+          "size": 2771,
+          "sha256": "081aaef2cbc1b547794ff8a0565246bd4218121281fc527c2cfeed5cd1fc086e"
+        },
+        "docs/Plunger Velocity Input Tech Note.md": {
+          "size": 9668,
+          "sha256": "2d172ad830ee9dd1802bf9b415e0093e62026ca7f8337624fc65009e88dcf0b9"
+        },
+        "docs/Plunger Velocity Input User Guide.md": {
+          "size": 2241,
+          "sha256": "4bd093d89968de88bc4481ee662b8b15f49a6112a64a05c7976765a35655f241"
+        },
+        "docs/README.md": {
+          "size": 1073,
+          "sha256": "1dff59c2259da574ed924485bb43a6358f7f693cb1719fb0528bb16e3cc2af02"
+        },
+        "docs/RegistryKeys.txt": {
+          "size": 1177,
+          "sha256": "be183e682594bb5b64c99a52de7cd910ed910477ee12f5d4cd7bd3629f443f2b"
+        },
+        "docs/Screen Size Calibration.vpx": {
+          "size": 512000,
+          "sha256": "4e2f52c7046eaa7a5e5530ef801682a3726070e2204e7865b9e17e3e8f82e43c"
+        },
+        "docs/Script API Reference.md": {
+          "size": 59891,
+          "sha256": "5b5432f8542c8123c85a405cbac2a879b75705fe3f4c5b52a50f56bd14f41882"
+        },
+        "docs/Scripts.txt": {
+          "size": 18137,
+          "sha256": "14fbddb6daf498b07eb3a4b90f8b926ea17644818f8e375c2a50d2f4d6dffd99"
+        },
+        "docs/Stereo.md": {
+          "size": 9048,
+          "sha256": "5e067b44697f8eaa08a3d91807fba4b68973ed083c6520aaf5d82228774313fa"
+        },
+        "docs/Upgrading Table 10.8.1.md": {
+          "size": 4491,
+          "sha256": "9ad039ef60de4da91c81193302b734962d9f9fc80eb976ec1819265157bde7e1"
+        },
+        "docs/Upgrading Table 10.8.md": {
+          "size": 9073,
+          "sha256": "dbd767417362e93d08b8341c190310f95ecc6b9f5cc88c7df26ecfa4351dc7ae"
+        },
+        "docs/View Setup.md": {
+          "size": 3184,
+          "sha256": "8e9b2853bc189218524d51d380d2c42c4f51123145570e3806713ba92e983b99"
+        },
+        "docs/vp10_issues.txt": {
+          "size": 198,
+          "sha256": "547953b12cad213c4cafc33a75871c9b187dfee91d0f876d741b2142b28512a6"
+        },
+        "dof64.dll": {
+          "size": 22834683,
+          "sha256": "d4d11c376e192d9061762e5175e54bb3984ee85987fa0019f8c8d4d52392e5fe"
+        },
+        "freeimage64.dll": {
+          "size": 10346339,
+          "sha256": "5dd31de09775a24d01510114e8523d1be5257f0bd39e481ab0b262d66567698e"
+        },
+        "hidapi64.dll": {
+          "size": 136313,
+          "sha256": "af1a53af447cf2e9c8bf5a3a0c55c25019c09356b1a9bfe28eb18e6140470c2c"
+        },
+        "libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "libwinpthread-1.dll": {
+          "size": 63135,
+          "sha256": "0bf76de7b957fc1f87f8be9c8c46af4588db204b0600a3e7abe7243c790f8dfd"
+        },
+        "openxr_loader64.dll": {
+          "size": 1187879,
+          "sha256": "595fd3cdbb7054380a47eaac36e05c81f7274a987a078b75a612836d2ef16f7b"
+        },
+        "pinmame64.dll": {
+          "size": 50952126,
+          "sha256": "2a2afead9d682ec9c4d5229483044794bdda610c4f34ec4fe3e042143bb33c36"
+        },
+        "plugins/alphadmd/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/alphadmd/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/alphadmd/plugin-alphadmd64.dll": {
+          "size": 166206,
+          "sha256": "d2fa476394c80e74b954cc217e3988bda899dd72835b0485021ef72bbd4a55d1"
+        },
+        "plugins/alphadmd/plugin.cfg": {
+          "size": 396,
+          "sha256": "bd967da936d71f143cfb3263f5d5b3ca45fb03457ed5391a19f7ea024710cde7"
+        },
+        "plugins/altsound/altsound64.dll": {
+          "size": 1294758,
+          "sha256": "13674afdace9a50a1510c84349973906b3b645f95a9b8610bca630e86c953ee7"
+        },
+        "plugins/altsound/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/altsound/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/altsound/libwinpthread-1.dll": {
+          "size": 63135,
+          "sha256": "0bf76de7b957fc1f87f8be9c8c46af4588db204b0600a3e7abe7243c790f8dfd"
+        },
+        "plugins/altsound/plugin-altsound64.dll": {
+          "size": 276626,
+          "sha256": "c758aee82901bd9c513cc953520d1b74c166eec69bc20a05765ec6c344a1062e"
+        },
+        "plugins/altsound/plugin.cfg": {
+          "size": 449,
+          "sha256": "9de3dc8ef085cc151de831903192f0d329bf45de768b2edfb2d8dc2307b6f926"
+        },
+        "plugins/b2s/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/b2s/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/b2s/plugin-b2s64.dll": {
+          "size": 1050371,
+          "sha256": "03990865b2ee52162d98ef9f2149459830b691b8c4f6f7d201565e2aedb7998b"
+        },
+        "plugins/b2s/plugin.cfg": {
+          "size": 379,
+          "sha256": "09da42a3374bd500d695ab08d43000990ff5b942bb59ab79933f4e5f6c9de80a"
+        },
+        "plugins/b2slegacy/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/b2slegacy/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/b2slegacy/libwinpthread-1.dll": {
+          "size": 63135,
+          "sha256": "0bf76de7b957fc1f87f8be9c8c46af4588db204b0600a3e7abe7243c790f8dfd"
+        },
+        "plugins/b2slegacy/plugin-b2slegacy64.dll": {
+          "size": 1473745,
+          "sha256": "e8660e68803648aa29b3e5463618f96a40839f41ee08730d97c063f205ef0fa5"
+        },
+        "plugins/b2slegacy/plugin.cfg": {
+          "size": 431,
+          "sha256": "f8bfa41516bebeb439ec4c14fb5b0e478ce0f9cfc772fcbd16f7c74ba7730aeb"
+        },
+        "plugins/b2slegacy/SDL364.dll": {
+          "size": 5801099,
+          "sha256": "baa02681b8708767f2ac282c070001fd25cef5f64b03e59e7fa44c9411d47737"
+        },
+        "plugins/dmdutil/dmdutil64.dll": {
+          "size": 698963,
+          "sha256": "8b9d1a6c0aa59d6fa1465c2a9476dbe4f2a8d6033d9bb9d6006776015558df1e"
+        },
+        "plugins/dmdutil/libcargs64.dll": {
+          "size": 98809,
+          "sha256": "2b392a61ed0b2ad2f4684d0a9b959df276eaa71021fb4069a6e3b7abfd0c7765"
+        },
+        "plugins/dmdutil/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/dmdutil/libserialport64-0.dll": {
+          "size": 291988,
+          "sha256": "309b76a2616c6c2d48b38cc44b3361fdad5eadb31eb65547a6b6edf71e10b120"
+        },
+        "plugins/dmdutil/libsockpp64.dll": {
+          "size": 163498,
+          "sha256": "4503e19e01c629321f6f1cbcbbf376478777d8f1e03c6dcf8fecf31bcc1fa325"
+        },
+        "plugins/dmdutil/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/dmdutil/libusb64-1.0.dll": {
+          "size": 1115202,
+          "sha256": "f9926137dc5557bee95d148358d7e0398c1e2e53e42d4158ae38a2d92bf6f849"
+        },
+        "plugins/dmdutil/libwinpthread-1.dll": {
+          "size": 63135,
+          "sha256": "0bf76de7b957fc1f87f8be9c8c46af4588db204b0600a3e7abe7243c790f8dfd"
+        },
+        "plugins/dmdutil/plugin-dmdutil64.dll": {
+          "size": 251883,
+          "sha256": "b3ce759eb548c04b84aa6c0769a4c0a9513f197c0cf9c545adb1c707473bea7c"
+        },
+        "plugins/dmdutil/plugin.cfg": {
+          "size": 440,
+          "sha256": "c1905b1a7ce53bfbae890014539d337685113d304600e1f51451c42d38fdfcbe"
+        },
+        "plugins/dmdutil/pupdmd64.dll": {
+          "size": 388099,
+          "sha256": "70b870095bf58b2bf55d11aa759c2338767f84cbb3a332444b890b190d45da82"
+        },
+        "plugins/dmdutil/serum64.dll": {
+          "size": 1184421,
+          "sha256": "0516c15f4ebbcf5fbac3d0c411b306c90dcb4a0019d6611db948b4b338aba864"
+        },
+        "plugins/dmdutil/vni64.dll": {
+          "size": 294154,
+          "sha256": "241a360b620ddc9453c7e96b34669160c78978e01de795643a026fbf3e6241de"
+        },
+        "plugins/dmdutil/zedmd64.dll": {
+          "size": 507348,
+          "sha256": "f3d40859ad0ded359e9d354357727215c3e5779830334edcabad33f19cb14e63"
+        },
+        "plugins/dof/dof64.dll": {
+          "size": 22834683,
+          "sha256": "d4d11c376e192d9061762e5175e54bb3984ee85987fa0019f8c8d4d52392e5fe"
+        },
+        "plugins/dof/hidapi64.dll": {
+          "size": 136313,
+          "sha256": "af1a53af447cf2e9c8bf5a3a0c55c25019c09356b1a9bfe28eb18e6140470c2c"
+        },
+        "plugins/dof/libftdi164.dll": {
+          "size": 168945,
+          "sha256": "677c4dc72ec6dd6beeed736936b750f60d03c67468eab709e67a2acf81c77658"
+        },
+        "plugins/dof/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/dof/libserialport64-0.dll": {
+          "size": 291988,
+          "sha256": "309b76a2616c6c2d48b38cc44b3361fdad5eadb31eb65547a6b6edf71e10b120"
+        },
+        "plugins/dof/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/dof/libusb64-1.0.dll": {
+          "size": 1115202,
+          "sha256": "f9926137dc5557bee95d148358d7e0398c1e2e53e42d4158ae38a2d92bf6f849"
+        },
+        "plugins/dof/libwinpthread-1.dll": {
+          "size": 63135,
+          "sha256": "0bf76de7b957fc1f87f8be9c8c46af4588db204b0600a3e7abe7243c790f8dfd"
+        },
+        "plugins/dof/plugin-dof64.dll": {
+          "size": 254756,
+          "sha256": "3d71fca4d9a796d4418dc151df71743cbe1de79e018f0bcc3b5a79c8b7a6958b"
+        },
+        "plugins/dof/plugin.cfg": {
+          "size": 406,
+          "sha256": "720dbadd42d6ff6ef9adaabad96d24b3913b38d34c9fe98236ff2b0c6352e0f3"
+        },
+        "plugins/flexdmd/assets/bm_army-12.fnt": {
+          "size": 10439,
+          "sha256": "4f1283f9a7f5e1ecf2c26f0d792dfdea4c390a8ae601c33779e32a53372ae794"
+        },
+        "plugins/flexdmd/assets/bm_army-12.png": {
+          "size": 1528,
+          "sha256": "dcbe32da28d7c5f2cf04b5cd7922ed68e150b47ee752b1619396ae88a6390a85"
+        },
+        "plugins/flexdmd/assets/colors.png": {
+          "size": 4594,
+          "sha256": "3e180505944f206b49c575677f749af62f0559e8de9499d4d9a74a9075a0742a"
+        },
+        "plugins/flexdmd/assets/dmds/black.png": {
+          "size": 221,
+          "sha256": "64fed6122b5c4ec3340b9c41c87bfd494ae350582d14325972b203496ca413ba"
+        },
+        "plugins/flexdmd/assets/teeny_tiny_pixls-5.fnt": {
+          "size": 11137,
+          "sha256": "4f22bcd62ef47303b2c55fa55e8a2a750140dd5e5cf992f58bfe009adf850dff"
+        },
+        "plugins/flexdmd/assets/teeny_tiny_pixls-5.png": {
+          "size": 784,
+          "sha256": "a19dbac9a7f06c16253efc3aac371ac554bdae17f11fa1aa552670f686444067"
+        },
+        "plugins/flexdmd/assets/udmd-f12by24.fnt": {
+          "size": 7543,
+          "sha256": "10f1d155912e9324cd7729258ec6eab1d8fe91c8c000ec71253584feae3fc465"
+        },
+        "plugins/flexdmd/assets/udmd-f12by24.png": {
+          "size": 3136,
+          "sha256": "c47c4f76021f7c82ade2ed4ca296cde48f8862b43eb9ae0944e4b4e6b6a29ff6"
+        },
+        "plugins/flexdmd/assets/udmd-f14by26.fnt": {
+          "size": 7544,
+          "sha256": "9fa534e6c3e4b7ee0a3e8385050ee4eb355156d88bc39d7e4daeacaf64197978"
+        },
+        "plugins/flexdmd/assets/udmd-f14by26.png": {
+          "size": 2739,
+          "sha256": "3909de9e49a43e394af10fffd63a73ff28d48a9295f3e824e4c41eb3bec9396d"
+        },
+        "plugins/flexdmd/assets/udmd-f4by5.fnt": {
+          "size": 7353,
+          "sha256": "bee8ae46789201319145faba6ea14d7619a295de3bf35e55a6cde289a21995b5"
+        },
+        "plugins/flexdmd/assets/udmd-f4by5.png": {
+          "size": 574,
+          "sha256": "c9a1422d42a3a5ae8ca063735a915ec602739c57b896b771dafaa856dbab148f"
+        },
+        "plugins/flexdmd/assets/udmd-f5by7.fnt": {
+          "size": 7355,
+          "sha256": "b1b13c976979bba4a685137239541281d1d185353a177bdc5c010ff1033df226"
+        },
+        "plugins/flexdmd/assets/udmd-f5by7.png": {
+          "size": 7061,
+          "sha256": "cf829973c16a75274bdc30492e7a432eef0aaca303a94ec87f4845011a3fc67e"
+        },
+        "plugins/flexdmd/assets/udmd-f6by12.fnt": {
+          "size": 7421,
+          "sha256": "2aed063576e825931e05ddcad7fcf8965a0efb4e9b6d79665126a86c0824f5d9"
+        },
+        "plugins/flexdmd/assets/udmd-f6by12.png": {
+          "size": 2686,
+          "sha256": "30e77b498b4957ad30daca10754e6297821458d15c2fed3a9f558d772eec072a"
+        },
+        "plugins/flexdmd/assets/udmd-f7by13.fnt": {
+          "size": 7422,
+          "sha256": "cc926ccf2e08520b6a4d402ff619e67a4297306441ed8787c00131d7dd7b405f"
+        },
+        "plugins/flexdmd/assets/udmd-f7by13.png": {
+          "size": 2330,
+          "sha256": "776273d9c3c5a670fbce29f15888950da411162d053ac4ca3dc5368ffb2f38d9"
+        },
+        "plugins/flexdmd/assets/udmd-f7by5.fnt": {
+          "size": 7358,
+          "sha256": "2c6111758d31e994078d42e8ea4c543721798fb0c8b0de35ab96c0bf1651cd59"
+        },
+        "plugins/flexdmd/assets/udmd-f7by5.png": {
+          "size": 1899,
+          "sha256": "2212497bbdbd23065cc2773b0ecc6907d11915185e90b797d09f5ffca5c5cc93"
+        },
+        "plugins/flexdmd/assets/zx_spectrum-7.fnt": {
+          "size": 10900,
+          "sha256": "9473b8bf9dce8693c45843140a8c1291869435f440ba9126b39976522886e7df"
+        },
+        "plugins/flexdmd/assets/zx_spectrum-7.png": {
+          "size": 1162,
+          "sha256": "b2d6701d2d234910b4ef22dbe66f31d87f3bb1773e1dc001edaba8e1b6ec892e"
+        },
+        "plugins/flexdmd/avcodec64-62.dll": {
+          "size": 105233805,
+          "sha256": "e1ecf2e9d8cf0f8a30f2dc085205f1e69cbb1887ac4e0962ba3c0802d99468ba"
+        },
+        "plugins/flexdmd/avformat64-62.dll": {
+          "size": 27353851,
+          "sha256": "0544ad8886cd84cd76e0a6bf944e01b41ec21e43feb65463e3e4972e1805aa79"
+        },
+        "plugins/flexdmd/avutil64-60.dll": {
+          "size": 4374356,
+          "sha256": "656c013df498e9d7a70402caef82822253176d256dfbb89e3135cd40394f07fd"
+        },
+        "plugins/flexdmd/libbz2-1.dll": {
+          "size": 107741,
+          "sha256": "1790bf6473c9d48db14c1f0ee8124142327556d281299ea2a72ee361118ee01a"
+        },
+        "plugins/flexdmd/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/flexdmd/libiconv-2.dll": {
+          "size": 1141951,
+          "sha256": "94ec68fb8d342b6c91b6b48a8d95092819cdcd006a7166e0b68062f946afd08a"
+        },
+        "plugins/flexdmd/liblzma-5.dll": {
+          "size": 192506,
+          "sha256": "ad9656bf86fb3673fa6af18fa357531096af3d76eccb4a56c4cd6a6171da1554"
+        },
+        "plugins/flexdmd/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/flexdmd/libwinpthread-1.dll": {
+          "size": 63135,
+          "sha256": "0bf76de7b957fc1f87f8be9c8c46af4588db204b0600a3e7abe7243c790f8dfd"
+        },
+        "plugins/flexdmd/plugin-flexdmd64.dll": {
+          "size": 920679,
+          "sha256": "399c49ea63f1ba9c9d5fa2df3674464e39a656ae0bf375ce1d7614e8ca788a44"
+        },
+        "plugins/flexdmd/plugin.cfg": {
+          "size": 425,
+          "sha256": "a3aa72f21dd4ab1f379a8559aba4eda0a0719dc10869907109f52d9bcf27dbb3"
+        },
+        "plugins/flexdmd/SDL364.dll": {
+          "size": 5801099,
+          "sha256": "baa02681b8708767f2ac282c070001fd25cef5f64b03e59e7fa44c9411d47737"
+        },
+        "plugins/flexdmd/SDL3_image64.dll": {
+          "size": 446426,
+          "sha256": "3f02525232c4c073858ba662b45a85f12f30c5d1144d298102f5e78b137be737"
+        },
+        "plugins/flexdmd/swresample64-6.dll": {
+          "size": 603938,
+          "sha256": "49094cc3f9aa51c1be179b2249decf58259e0d64d8951ba6cafdea3d43b2ea58"
+        },
+        "plugins/flexdmd/swscale64-9.dll": {
+          "size": 7106534,
+          "sha256": "c82cdafdce48027b0f2fef5f9c803ef5a1d0d4291d5e4832651a53596d2b860f"
+        },
+        "plugins/flexdmd/zlib1.dll": {
+          "size": 127291,
+          "sha256": "11cd91171765cd65f1c3362e3df67e5f5a618a6b88c8cdec899b802eaf1c7b0d"
+        },
+        "plugins/helloscript/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/helloscript/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/helloscript/plugin-helloscript64.dll": {
+          "size": 86508,
+          "sha256": "098b8c56345f98c454ccec421c7d99f37803c2d52b99432323800330abc3017b"
+        },
+        "plugins/helloscript/plugin.cfg": {
+          "size": 459,
+          "sha256": "a32e00529ad06d0e11512aa25cb17923dc1e4048af85b84131a24c1bb450cf17"
+        },
+        "plugins/helloworld/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/helloworld/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/helloworld/plugin-helloworld64.dll": {
+          "size": 77488,
+          "sha256": "100990dda2f66b09c5a93e5d4390521da451cc803c3a56a68788d64c38cba0cc"
+        },
+        "plugins/helloworld/plugin.cfg": {
+          "size": 432,
+          "sha256": "d21e0fe118ceffd90387cee8674df077a3fa5cbf580600f096cb8c803045b282"
+        },
+        "plugins/inspector/assets/display-stream.js": {
+          "size": 2069,
+          "sha256": "6f0d3e809881ef52bb0191368e79b75ebf35fc5f19af878eca17b5c86346e4f2"
+        },
+        "plugins/inspector/assets/displays.html": {
+          "size": 35499,
+          "sha256": "c9f1aa1046a5d9caaeed89885bb50e51c9ca528e65397c7b36c92efee4c9c498"
+        },
+        "plugins/inspector/assets/index.html": {
+          "size": 12651,
+          "sha256": "9945161a890906e6ab468c584d3ed9d1a1fcff49476ff1dd13e53bfae5d8736a"
+        },
+        "plugins/inspector/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/inspector/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/inspector/plugin-inspector64.dll": {
+          "size": 584749,
+          "sha256": "34972468fe45661d74e097e1c76446c7805f1595d26cfc21ef68d0c25209b9d1"
+        },
+        "plugins/inspector/plugin.cfg": {
+          "size": 427,
+          "sha256": "e6960506d7c920768c5647a9b0d50fe08ed103a0b84fc3c0751a4183b2683a22"
+        },
+        "plugins/pinmame/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/pinmame/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/pinmame/libwinpthread-1.dll": {
+          "size": 63135,
+          "sha256": "0bf76de7b957fc1f87f8be9c8c46af4588db204b0600a3e7abe7243c790f8dfd"
+        },
+        "plugins/pinmame/pinmame64.dll": {
+          "size": 50952126,
+          "sha256": "2a2afead9d682ec9c4d5229483044794bdda610c4f34ec4fe3e042143bb33c36"
+        },
+        "plugins/pinmame/plugin-pinmame64.dll": {
+          "size": 708180,
+          "sha256": "4a19417cb44e61fadce88aeeefed240f693b7fb80376620f61e1b3dbb75faea5"
+        },
+        "plugins/pinmame/plugin.cfg": {
+          "size": 397,
+          "sha256": "57f1c13d29dca6965773b3d06c048172bf53505e56622c5cb8b17b3363c709fe"
+        },
+        "plugins/pup/avcodec64-62.dll": {
+          "size": 105233805,
+          "sha256": "e1ecf2e9d8cf0f8a30f2dc085205f1e69cbb1887ac4e0962ba3c0802d99468ba"
+        },
+        "plugins/pup/avformat64-62.dll": {
+          "size": 27353851,
+          "sha256": "0544ad8886cd84cd76e0a6bf944e01b41ec21e43feb65463e3e4972e1805aa79"
+        },
+        "plugins/pup/avutil64-60.dll": {
+          "size": 4374356,
+          "sha256": "656c013df498e9d7a70402caef82822253176d256dfbb89e3135cd40394f07fd"
+        },
+        "plugins/pup/libbz2-1.dll": {
+          "size": 107741,
+          "sha256": "1790bf6473c9d48db14c1f0ee8124142327556d281299ea2a72ee361118ee01a"
+        },
+        "plugins/pup/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/pup/libiconv-2.dll": {
+          "size": 1141951,
+          "sha256": "94ec68fb8d342b6c91b6b48a8d95092819cdcd006a7166e0b68062f946afd08a"
+        },
+        "plugins/pup/liblzma-5.dll": {
+          "size": 192506,
+          "sha256": "ad9656bf86fb3673fa6af18fa357531096af3d76eccb4a56c4cd6a6171da1554"
+        },
+        "plugins/pup/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/pup/libwinpthread-1.dll": {
+          "size": 63135,
+          "sha256": "0bf76de7b957fc1f87f8be9c8c46af4588db204b0600a3e7abe7243c790f8dfd"
+        },
+        "plugins/pup/plugin-pup64.dll": {
+          "size": 1145430,
+          "sha256": "eecd28fc1d320287d9c3dc0359effb61f3d00a9670b0b5963046f29bf26c08f7"
+        },
+        "plugins/pup/plugin.cfg": {
+          "size": 373,
+          "sha256": "98fc0b11296f4743a5ad49d510465867c8a59c70e07051ef363bbd65860635b8"
+        },
+        "plugins/pup/pupdmd64.dll": {
+          "size": 388099,
+          "sha256": "70b870095bf58b2bf55d11aa759c2338767f84cbb3a332444b890b190d45da82"
+        },
+        "plugins/pup/SDL364.dll": {
+          "size": 5801099,
+          "sha256": "baa02681b8708767f2ac282c070001fd25cef5f64b03e59e7fa44c9411d47737"
+        },
+        "plugins/pup/SDL3_image64.dll": {
+          "size": 446426,
+          "sha256": "3f02525232c4c073858ba662b45a85f12f30c5d1144d298102f5e78b137be737"
+        },
+        "plugins/pup/SDL3_ttf64.dll": {
+          "size": 3213863,
+          "sha256": "22dffe3d7921b58459922c1e3bc343f24ec1bbd26d98c3d3901d3f7c5be54467"
+        },
+        "plugins/pup/swresample64-6.dll": {
+          "size": 603938,
+          "sha256": "49094cc3f9aa51c1be179b2249decf58259e0d64d8951ba6cafdea3d43b2ea58"
+        },
+        "plugins/pup/swscale64-9.dll": {
+          "size": 7106534,
+          "sha256": "c82cdafdce48027b0f2fef5f9c803ef5a1d0d4291d5e4832651a53596d2b860f"
+        },
+        "plugins/pup/zlib1.dll": {
+          "size": 127291,
+          "sha256": "11cd91171765cd65f1c3362e3df67e5f5a618a6b88c8cdec899b802eaf1c7b0d"
+        },
+        "plugins/remote-control/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/remote-control/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/remote-control/plugin-remote-control64.dll": {
+          "size": 236881,
+          "sha256": "47f5abdda580f80fbae20d82a5457ac3761652b0f9382cfa556e52f77a873a47"
+        },
+        "plugins/remote-control/plugin.cfg": {
+          "size": 519,
+          "sha256": "39de986eaf08de0a77047aa48d9d1f5fa43f0fa8cb85620d726f17e6ab9bfdf3"
+        },
+        "plugins/scoreview/layouts/Glass-Cracked-1.webp": {
+          "size": 153942,
+          "sha256": "f2bb95ca565c78502c975082d0f8ac183cda88c9a5568032916bc0f4fa79dedd"
+        },
+        "plugins/scoreview/layouts/Glass-Cracked-2.webp": {
+          "size": 238038,
+          "sha256": "f21a892ff209998093a41d44f26faad2a8dd6ed6fb3919ded86f461a003a61ae"
+        },
+        "plugins/scoreview/layouts/Glass-Dirty-1.webp": {
+          "size": 271162,
+          "sha256": "c28df23e37b477ad7f82a0cdfa73d1a172577ccd005d90e2a9dca43bf0c80f5d"
+        },
+        "plugins/scoreview/layouts/Glass-Dirty-2.webp": {
+          "size": 260076,
+          "sha256": "14c67b678bf101d0c8b8fcd18a8856ca78c96f47a1cc34448e458605ce3d48f3"
+        },
+        "plugins/scoreview/layouts/lay16x9-lcd.scv": {
+          "size": 172,
+          "sha256": "1c186775994d683d5caa8bd370ea102202c3bad52dce25784c483a7e6e2cf961"
+        },
+        "plugins/scoreview/layouts/lay192x256-crt.scv": {
+          "size": 299,
+          "sha256": "e5bba6a8855ce0771aeb775ec4f28c8b0213a33648b39af8a98c4333cefed84b"
+        },
+        "plugins/scoreview/layouts/lay4x1-alpha2x16.scv": {
+          "size": 831,
+          "sha256": "e9726c413cf44baea4ed1993fecdd1716dba0e5564f47ca40615fa08616630bd"
+        },
+        "plugins/scoreview/layouts/lay4x1-alpha2x20.scv": {
+          "size": 973,
+          "sha256": "f4429ee8ae2880868d16cd338588960b08c41c9ebd8b27d8557c2a1cf4707deb"
+        },
+        "plugins/scoreview/layouts/lay4x1-alpha4x6CB.scv": {
+          "size": 1581,
+          "sha256": "701909ef21d8f7fb55f21f34f337309273c236e2f43be5b739b953d7f85e8d47"
+        },
+        "plugins/scoreview/layouts/lay4x1-alpha4x7.scv": {
+          "size": 1307,
+          "sha256": "d4526e0b3757039ac5f7227550f91d2a4fbf22ed68eef02c97d31bd66c07716a"
+        },
+        "plugins/scoreview/layouts/lay4x1-alpha4x7CB.scv": {
+          "size": 1778,
+          "sha256": "97ccaebfe151ecdae2eba1052f2ce9e5574ac559a2657afce5ee60c6f25a8e5b"
+        },
+        "plugins/scoreview/layouts/lay4x1-dmd128x16.scv": {
+          "size": 281,
+          "sha256": "5fcfbb3bb9e29fbddbf55c6a25b12d9c4464e48e0f6a0431f9a282ba32298969"
+        },
+        "plugins/scoreview/layouts/lay4x1-dmd128x32.scv": {
+          "size": 281,
+          "sha256": "e3450b0706a1218c6b3aecf40386f55986300d8d162490527b756db35b2322b5"
+        },
+        "plugins/scoreview/layouts/lay4x1-dmd192x64.scv": {
+          "size": 293,
+          "sha256": "e1894a18ea338b59e99dc683b19564a28fe824433b81d10a0c9047317002e5ba"
+        },
+        "plugins/scoreview/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/scoreview/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/scoreview/plugin-scoreview64.dll": {
+          "size": 431027,
+          "sha256": "392c2f11bf8a800c84873478c47bc67bb9e7077396d801f9fbc968e6ed23c645"
+        },
+        "plugins/scoreview/plugin.cfg": {
+          "size": 445,
+          "sha256": "76210ad1bd8125a4713639091b6c86290da1c13fdf9a3f4ea686eed24914a63c"
+        },
+        "plugins/serum/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/serum/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/serum/libwinpthread-1.dll": {
+          "size": 63135,
+          "sha256": "0bf76de7b957fc1f87f8be9c8c46af4588db204b0600a3e7abe7243c790f8dfd"
+        },
+        "plugins/serum/plugin-serum64.dll": {
+          "size": 291798,
+          "sha256": "f4d1771cec74d56a233559360b44818ea9cdc637d237dda571ef1b9a6ad29738"
+        },
+        "plugins/serum/plugin.cfg": {
+          "size": 402,
+          "sha256": "bdf4d1f9f15b2bfb57374b325161b5facdc9703c29b65ff90cdf63bbf4097ec2"
+        },
+        "plugins/serum/serum64.dll": {
+          "size": 1184421,
+          "sha256": "0516c15f4ebbcf5fbac3d0c411b306c90dcb4a0019d6611db948b4b338aba864"
+        },
+        "plugins/upscaledmd/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/upscaledmd/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/upscaledmd/plugin-upscaledmd64.dll": {
+          "size": 608783,
+          "sha256": "d6786b4866b1e42841be43a309cd4efc4290834ed8536d61c3d5c227d7c9c7b2"
+        },
+        "plugins/upscaledmd/plugin.cfg": {
+          "size": 449,
+          "sha256": "93384e0511a5a0197bf382b87110a2c5cf023e5a6f4c1834f1999ea77e6e01fd"
+        },
+        "plugins/vni/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/vni/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/vni/plugin-vni64.dll": {
+          "size": 289635,
+          "sha256": "5051ad5579a4bc0909b7e9f7dc3388956181f069c43d60c073555d678a5136fa"
+        },
+        "plugins/vni/plugin.cfg": {
+          "size": 380,
+          "sha256": "bbfebc343f92c6f0bd987843d76cf5d83ed556b40dfea7a38c52865c9eeef382"
+        },
+        "plugins/vni/vni64.dll": {
+          "size": 294154,
+          "sha256": "241a360b620ddc9453c7e96b34669160c78978e01de795643a026fbf3e6241de"
+        },
+        "plugins/wmp/libgcc_s_seh-1.dll": {
+          "size": 151654,
+          "sha256": "80940372431cc76224dfda06e2d33f01e49af3b4e7c499c535be856ebcadd273"
+        },
+        "plugins/wmp/libstdc++-6.dll": {
+          "size": 2661272,
+          "sha256": "69200d6d96b903dac4c873031813485a0455828be8101479efc56008862420cc"
+        },
+        "plugins/wmp/plugin-wmp64.dll": {
+          "size": 861990,
+          "sha256": "4a779855a81792038125a2bbe0f04b5253c009a989ba0bf61996d9c0e4e6be2e"
+        },
+        "plugins/wmp/plugin.cfg": {
+          "size": 387,
+          "sha256": "096b030d3cb74a99220bdf2ef9b8fab065b3395247751a379dd3a3b7c1ae509a"
+        },
+        "scripts/6803.vbs": {
+          "size": 8788,
+          "sha256": "472b75fd486282a9533bd5c999d965544cb0803655ecc0f996de01d8a79a38e6"
+        },
+        "scripts/ALI.vbs": {
+          "size": 4865,
+          "sha256": "6a68589e5e6f12cd311c3fc765ec5b245735cf81518aa6e1a59dac91d1b9da09"
+        },
+        "scripts/alving.vbs": {
+          "size": 6283,
+          "sha256": "63a758ecb79e879924831f2140476a31531c5c9f90b116253356b2e856ba143d"
+        },
+        "scripts/antar.vbs": {
+          "size": 4579,
+          "sha256": "b565dc8f169e6202c30cbdb99918b05a61a70135cbd6bcd0b960bc5cc820d851"
+        },
+        "scripts/Atari.vbs": {
+          "size": 5202,
+          "sha256": "2c957f2395ec26f56f15a8c4fefe0036db92a45e5bde12249e6d6241e67de673"
+        },
+        "scripts/Atari1.vbs": {
+          "size": 5306,
+          "sha256": "393e14301bd82a6d32f590fe4bf1102fc935a186a7d1795f3c379eb0aa2dc74b"
+        },
+        "scripts/Atari1b.vbs": {
+          "size": 5243,
+          "sha256": "0086cce9254b6aee33fcec223eb434e4497a6ab004bd2c8220b7a10460aaeca5"
+        },
+        "scripts/Atari2.vbs": {
+          "size": 4925,
+          "sha256": "b06f3cfa2252cec5b4ded12f3eaeab7dae9c7df8eb3e7a00f1e0f1f57dfd4a37"
+        },
+        "scripts/B2B.vbs": {
+          "size": 18402,
+          "sha256": "f5c6927187855a6a2c0e3c3c6c3c3b236337efa6ed4fef1b399613eb520aa3f4"
+        },
+        "scripts/B2Bcollision.vbs": {
+          "size": 15325,
+          "sha256": "ea382fc88870f2175a193042bfa7598901026e23993e057c774042116ab8b854"
+        },
+        "scripts/b2s.vbs": {
+          "size": 6838,
+          "sha256": "ddbd07f3279e26f9fe1e91bb3eb9805fea9d2714fedf0deb72bdad2b162b8493"
+        },
+        "scripts/Bally.vbs": {
+          "size": 6705,
+          "sha256": "d3ff448412b07a97722f7c34ad36e4364955d09595c381133eb24eabfaf7c18c"
+        },
+        "scripts/BallyG.vbs": {
+          "size": 5096,
+          "sha256": "4249cb4dc6d86d52932cae66e74728bfa47e0a224f2bea6a832f6d52424f0e05"
+        },
+        "scripts/capcom.vbs": {
+          "size": 5563,
+          "sha256": "03323ded224c5e67b0f7703978529889339e1fd7f73ebdd15002a4a6b794a95e"
+        },
+        "scripts/Class1812.vbs": {
+          "size": 4975,
+          "sha256": "61fd1d667b910cf003b7eef6f2aec5afefcbfd24dd46637242c7659c055e36e3"
+        },
+        "scripts/controller.vbs": {
+          "size": 13336,
+          "sha256": "991fdf65d306fdf54fa64c6c4107edeeda6d32990f7df0ffa5ea6b870ea5f9db"
+        },
+        "scripts/core.vbs": {
+          "size": 104526,
+          "sha256": "d380c476c555cdcc4c13e160841211a6aefb5bcb271d807fc04ec42a6945bd72"
+        },
+        "scripts/de.vbs": {
+          "size": 5664,
+          "sha256": "8858b4509a600f77a8a5844f138ed1c71f19b023550660efd62e308588e84d04"
+        },
+        "scripts/de2.vbs": {
+          "size": 5707,
+          "sha256": "96fc634c7d6529a0566c753e296b287a1402636b38aa9bef63afebbf49f20b04"
+        },
+        "scripts/FPVPX.vbs": {
+          "size": 1106,
+          "sha256": "bf2843e824d3f133f765b20da31b9771ade294306cf09453f79de622bfeed1b8"
+        },
+        "scripts/GamePlan.vbs": {
+          "size": 6851,
+          "sha256": "3be90fc221aaacbf0eed59e41982dcc4097dd05412983ccd1b4e47f0774c0cd9"
+        },
+        "scripts/gts1.vbs": {
+          "size": 6240,
+          "sha256": "554da222cdff8080854c9bf59ad891fd8f44f2a3013deba4f6f0d62058ca3d78"
+        },
+        "scripts/gts3.vbs": {
+          "size": 6054,
+          "sha256": "66c329fa86e97d2f10a8036a9a6527be6a67ce59bb3591962aa1c8a9da101314"
+        },
+        "scripts/Hankin.vbs": {
+          "size": 6805,
+          "sha256": "5b8efc194795a0998c1d9691c161ef67c52287c16e68b187f43182b138775e7e"
+        },
+        "scripts/idsa.vbs": {
+          "size": 4592,
+          "sha256": "49daa695bc6cb2a50b082f9edc42b250ae4b84444303ddf2b14f01ded12bf1fa"
+        },
+        "scripts/inder.vbs": {
+          "size": 6546,
+          "sha256": "3ed3317e548b3d3b5fce73a24ec3f5e4c5ad1edcb68752962e816ffe423c20b4"
+        },
+        "scripts/inder_atleta.vbs": {
+          "size": 5755,
+          "sha256": "6d90d621b88648d02d5c2e559d310999111ecdf915bf289f277729ea303d6962"
+        },
+        "scripts/inder_centaur.vbs": {
+          "size": 6030,
+          "sha256": "f5f2bb6b61a6a5d1b3f4277c6a261d6403e110cb592f8022547d1076c13c117a"
+        },
+        "scripts/inder_skateboard.vbs": {
+          "size": 6479,
+          "sha256": "89298a26e03cde3c9ad0acc18d7d0340a49e585555f5d1df0579343b10410f2a"
+        },
+        "scripts/ironballs.vbs": {
+          "size": 3488,
+          "sha256": "88389f0229c21b04e1873f3dfa606e10ae2b4eaf32f988a84d0ba9a2d6e3d16d"
+        },
+        "scripts/joctronic.vbs": {
+          "size": 5161,
+          "sha256": "f85b3072c417a48f61a9b53ce58783b91c4150740563d0c27f96f897e01cc2f1"
+        },
+        "scripts/juegos.vbs": {
+          "size": 4561,
+          "sha256": "98ee5b5817b1d0961c964649c58bb7b2290cf15282df54a952b324be7b5927ac"
+        },
+        "scripts/juegos2.vbs": {
+          "size": 4559,
+          "sha256": "2ae97eb5ed893f859826bc8e5c5878f7dbf2ac6c07e29081ac2ed6c34be3ad02"
+        },
+        "scripts/jvh.vbs": {
+          "size": 5156,
+          "sha256": "0b5f7ef7ff348a9957b0c9f098771a0e13604fafe5afdf7a5ab97b375571374b"
+        },
+        "scripts/lancelot.vbs": {
+          "size": 4660,
+          "sha256": "a1215f45dd40f32078d48eb9056f43559ae9967ae10360eee38dd03b777e3a22"
+        },
+        "scripts/LTD.vbs": {
+          "size": 4317,
+          "sha256": "9335fa82824d7e7cd62d06cc62b5d0345b7f1af72a846e22d0027c7395319137"
+        },
+        "scripts/LTD3.vbs": {
+          "size": 2898,
+          "sha256": "24fe498d0335ded05feb7a9936194aa7d153923daedf9b74016c7c9c424e85f2"
+        },
+        "scripts/LTD4a.vbs": {
+          "size": 5475,
+          "sha256": "156d9280b673e1b6af6fb1d416123466c5722b032f546d602697bac5f5bdab2e"
+        },
+        "scripts/LTDPecmen.vbs": {
+          "size": 4930,
+          "sha256": "f9a71edaa9ef51bd73ef9d8b353ebba7e169d944b9b1a92ecb993bb2f9b5e361"
+        },
+        "scripts/mac.vbs": {
+          "size": 4609,
+          "sha256": "9e9fe95907b9d2be2f35f98888ecc3c8f184472ea2b59ea546721b969b28cde1"
+        },
+        "scripts/mrgame.vbs": {
+          "size": 4680,
+          "sha256": "3557585a947fb5636e954da8a1d1f245004dac9c7532c1c76fad4768c31a4cac"
+        },
+        "scripts/nuova.vbs": {
+          "size": 5521,
+          "sha256": "07a101b2e7f622d37e6af46430bedc4168953e3a2b297c56286b57a3396dca15"
+        },
+        "scripts/PDB.vbs": {
+          "size": 5956,
+          "sha256": "290eaff6e0a326f7de6236dc6a4bfebd8daa7fc38cbc9ac67043740bd93724fa"
+        },
+        "scripts/peyper.vbs": {
+          "size": 4577,
+          "sha256": "751efad88ccec38c3214b66ce2bae61e9ae9e726195207fec8ab9efff21affae"
+        },
+        "scripts/Play1.vbs": {
+          "size": 6196,
+          "sha256": "ecff72188d858baefe0846393a2098ef13a19f1f2deec69a51961457fd50d716"
+        },
+        "scripts/Play2.vbs": {
+          "size": 5627,
+          "sha256": "5511e8309b384f987f58d5338524b04f9247e22eb682f43168a4418265c68cc6"
+        },
+        "scripts/Play4.vbs": {
+          "size": 4613,
+          "sha256": "b3e5c3094aaaff55e868c51e8935d39ebece4debbae7863cf50b67e6d9b28b62"
+        },
+        "scripts/playbar.vbs": {
+          "size": 5596,
+          "sha256": "169a95f918d88b91cb820a5c27074c25f90d4e0f364384d09baff0a7264dabba"
+        },
+        "scripts/s11.vbs": {
+          "size": 6417,
+          "sha256": "5582155ffbdaeeeb3d86fcb54d7738d9ea5f9c24951b607e30a316f88dfd5f91"
+        },
+        "scripts/s4.vbs": {
+          "size": 6817,
+          "sha256": "2cd807cf63bb492cc076ea4f77a745966e1697097d25f0bc63bbc88165eeb626"
+        },
+        "scripts/s6.vbs": {
+          "size": 6978,
+          "sha256": "51540940fc31d7afccbee636815c40369fa852b86116339c641073845a6ad24a"
+        },
+        "scripts/s7.vbs": {
+          "size": 6852,
+          "sha256": "88e6f2500f75315b9f5ad01581d9f24a926ad12af43730af01d8bfab8e5cfe03"
+        },
+        "scripts/s8_StillCrazy.vbs": {
+          "size": 4889,
+          "sha256": "4cdfa6b9ee90a2eb9508eda8a5e6732a2ab62510f53958b9224928ca65018f45"
+        },
+        "scripts/sam.vbs": {
+          "size": 11581,
+          "sha256": "79b5fa7e0747864c58b59f7ee872416147e77a529d9375fa552dc3f63a82726c"
+        },
+        "scripts/sega.vbs": {
+          "size": 6739,
+          "sha256": "d6e508aac5163fc6d93155e630a1ef5e9c57c3ef3416ada8930dca046daf4924"
+        },
+        "scripts/sega2.vbs": {
+          "size": 5329,
+          "sha256": "786524789eccb014ca104fc501ee9cbf8e0bad71fcc4ec95496b109886cb17dd"
+        },
+        "scripts/sleic.vbs": {
+          "size": 4556,
+          "sha256": "9e6dba6269c8ebf2bc167084c8bcc98ffc50d322623d25e8b1047673ace8084c"
+        },
+        "scripts/solarwars.vbs": {
+          "size": 4584,
+          "sha256": "f43a04a8a2f97dc2cc526fb33accf13e326966ff7c3226fd2c96876c2b6dcc55"
+        },
+        "scripts/spinball.vbs": {
+          "size": 6400,
+          "sha256": "4c216a4fd0cb2af0987f5afef2d4cc8d8dc15af65c477b032093b04b53561fe7"
+        },
+        "scripts/stern.vbs": {
+          "size": 6646,
+          "sha256": "b835ce5b0c11c6d268f58c92e534c1677e64cb47e103b33179b82c6c337be0e5"
+        },
+        "scripts/sys80.vbs": {
+          "size": 6825,
+          "sha256": "5e14a206222039389c220aac40bf410e35fd7c730786bb6686d1b8ab6494de8c"
+        },
+        "scripts/taito.vbs": {
+          "size": 6385,
+          "sha256": "85c9b5899eabe1a1b56f7f5faf1cd4c00304fb7a4f266db3583436fd74c9f6d1"
+        },
+        "scripts/UltraDMD_Options.vbs": {
+          "size": 20594,
+          "sha256": "d8ffec0279d49bb2c1d30f5e3a7a66096046b5f60c73c709ab19fea5a93e262d"
+        },
+        "scripts/vbsdoc_outdated.html": {
+          "size": 427521,
+          "sha256": "fd572f530b8731a3100c2b786dded7d84d72f0dc31d10bdd55889a0ccd0abd9b"
+        },
+        "scripts/VPMKeys.vbs": {
+          "size": 6361,
+          "sha256": "563f599c5d5adf22ac0f9ba8cf2ffe90491fe868b72233f7e7b4960b81e8f4c1"
+        },
+        "scripts/WPC.vbs": {
+          "size": 8476,
+          "sha256": "1a290886eb2c2fd2c13f82e5f8a1961fdc95238122096642d32fddf1cfbb1a8d"
+        },
+        "scripts/wpc_ph.vbs": {
+          "size": 6409,
+          "sha256": "582b0d9aeab5cb506e64b380c3c0da0a538dc01d07f82acb94542eef444639a1"
+        },
+        "scripts/zac.vbs": {
+          "size": 3822,
+          "sha256": "826c37f0ea950127fd2c3599f19ebb9c27581860c7b083aa4018359f876d2336"
+        },
+        "scripts/zac1.vbs": {
+          "size": 3491,
+          "sha256": "c5bb048820503dce3d16b7aaf5fb2e051a687df08bf05dbd864614ce7fad27ae"
+        },
+        "scripts/zac2.vbs": {
+          "size": 5760,
+          "sha256": "934284ced2628b7e97b0b6e69f8bb7d8b76c51b306973f3bdb318553faf05b81"
+        },
+        "scripts/zacproto.vbs": {
+          "size": 4140,
+          "sha256": "31a6874ab20702324ffea2f4d7b691f4b36a97e58519060ac08d0d1afa9b3cf2"
+        },
+        "SDL364.dll": {
+          "size": 5801099,
+          "sha256": "baa02681b8708767f2ac282c070001fd25cef5f64b03e59e7fa44c9411d47737"
+        },
+        "SDL3_image64.dll": {
+          "size": 446426,
+          "sha256": "3f02525232c4c073858ba662b45a85f12f30c5d1144d298102f5e78b137be737"
+        },
+        "SDL3_ttf64.dll": {
+          "size": 3213863,
+          "sha256": "22dffe3d7921b58459922c1e3bc343f24ec1bbd26d98c3d3901d3f7c5be54467"
+        },
+        "VPinballX_BGFX64.exe": {
+          "size": 39128214,
+          "sha256": "c3ea9b96e08c4560d3a65a10f8eac11bc2d5034f3ce5d6535a35b22f0933ff25"
+        },
+        "winevbs64.dll": {
+          "size": 1002249,
+          "sha256": "aa1d0625e349cd5615a52535a4a504055b96654bf217285a49bae5a076dceb15"
+        }
+      }
+    }
+  }
+}

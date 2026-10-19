@@ -1,4 +1,20 @@
-# GameClub 0.8.1
+# GameClub 0.9.0
+
+- Nuevo sistema **Visual Pinball · PinMAME**: un ZIP/VPXZ por mesa con ROMs,
+  panel B2S opcional, música y script standalone.
+- Windows prepara y verifica el motor oficial portátil VPX BGFX x64, ejecuta la
+  mesa a pantalla completa y conserva configuración/NVRAM por juego y servidor.
+- Android 13+ ARM64 prepara el paquete para importarlo en Visual Pinball oficial;
+  informa de dispositivos incompatibles antes de descargarlo.
+- Filtro de pinballs MAME por familias conocidas, manteniendo el motor arcade.
+- Catálogo LaunchBox de pinball y reconstrucción de índices de carátulas.
+- Guía: [PINBALL.md](https://github.com/Pablocg04/GameClub/blob/master/PINBALL.md).
+
+Verificación: 87 pruebas del servidor, 32 del cliente y análisis Flutter limpio;
+Attack from Mars con ROM hija/padre en Windows, partida, flippers, salida y NVRAM.
+VPX Android ARM64 físico sigue pendiente de comprobar.
+
+## Correcciones anteriores · 0.8.1
 
 - Corregido el lápiz táctil de Nintendo DS en Android, incluida la liberación al
   levantar/cancelar el dedo o abrir el menú.

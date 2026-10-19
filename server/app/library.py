@@ -7,6 +7,8 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from .systems import SYSTEMS
+from .pinball import is_arcade_pinball
+import zipfile
 
 
 class Library:
@@ -113,6 +115,12 @@ class Library:
                               if line.strip() and not line.lstrip().startswith("#")])
                     referenced.update((p.parent / name.replace("\\", "/")).resolve() for name in names)
                 for path in files:
+                    if config['id'] == 'vpinball' and path.suffix.lower() in {'.zip', '.vpxz'}:
+                        try:
+                            with zipfile.ZipFile(path) as package:
+                                if not any(name.lower().endswith('.vpx') for name in package.namelist()): continue
+                        except (zipfile.BadZipFile, OSError):
+                            continue
                     if path.resolve() in referenced:
                         continue
                     if config["id"] == "mame" and path.suffix.lower() == ".chd" and (
@@ -150,6 +158,8 @@ class Library:
         result["favorite"] = bool(result["favorite"])
         result["filename"] = Path(result["path"]).name
         result['revision'] = str(result.pop('modified_ns', 0))
+        result['category'] = ('pinball' if result['system_id'] == 'vpinball' or
+            result['system_id'] == 'mame' and is_arcade_pinball(result['path']) else None)
         result["cover_url"] = f"/api/games/{result['id']}/cover" if result["cover"] else None
         result.pop("cover")
         return result

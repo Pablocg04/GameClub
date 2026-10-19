@@ -12,8 +12,12 @@
         </activity>
         <activity android:name=".NativeGameActivity" android:exported="false" android:process=":emulation" android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" android:screenOrientation="fullUser" android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|screenLayout|density|uiMode|navigation" android:hardwareAccelerated="true" />
         <meta-data android:name="flutterEmbedding" android:value="2" />
+        <provider android:name="androidx.core.content.FileProvider" android:authorities="${applicationId}.pinball.files" android:exported="false" android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/gameclub_pinball_paths" />
+        </provider>
     </application>
     <queries>
+        <package android:name="org.vpinball.vpinball_bgfx" />
         <intent><action android:name="android.intent.action.VIEW" /><data android:mimeType="*/*" /></intent>
         <intent><action android:name="android.intent.action.PROCESS_TEXT" /><data android:mimeType="text/plain" /></intent>
     </queries>

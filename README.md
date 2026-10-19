@@ -6,11 +6,11 @@ Código: <https://github.com/Pablocg04/GameClub>. Descargas:
 Biblioteca de videojuegos alojada en una Raspberry Pi 5, con cliente para **Windows y Android**.
 La Raspberry organiza y entrega los archivos; los emuladores se ejecutan en el dispositivo de juego.
 
-## Android y Android TV · 0.8.1
+## Android y Android TV · 0.9.0
 
-- **Móvil/tablet:** `dist/android-mobile-0.8.1/GameClub-Android.apk`.
+- **Móvil/tablet:** `dist/android-mobile-0.9.0/GameClub-Android.apk`.
   Controles clásicos grandes y juego vertical u horizontal. [ANDROID_MOBILE.md](ANDROID_MOBILE.md).
-- **Android TV / Google TV:** `dist/android-tv-0.8.1/GameClub-AndroidTV.apk`.
+- **Android TV / Google TV:** `dist/android-tv-0.9.0/GameClub-AndroidTV.apk`.
   Launcher de TV, orientación horizontal y navegación por mando. [ANDROID_TV.md](ANDROID_TV.md).
 
 Son dos variantes de la misma base y conservan los datos al actualizar el paquete
@@ -25,7 +25,7 @@ recibe mandos Bluetooth/USB, adapta la navegación al conectar un mando y los me
 conservan su foco. Los controles táctiles arcade tienen cruceta, A/B/X/Y, L/R y
 Select/Start. Consulta [MAME_NATIVE.md](MAME_NATIVE.md).
 
-El paquete Windows publicado está en `dist/windows-0.8.1/` e incluye el host nativo.
+El paquete Windows está en `dist/windows-0.9.0/` e incluye el host nativo.
 **0.7.0 añade NES y Atari 2600 nativas**, con Nestopia UE y Stella incluidos en
 las tres apps. Consulta [NATIVE_CONSOLES.md](NATIVE_CONSOLES.md).
 
@@ -37,11 +37,15 @@ Todas las fuentes funcionan sin cuenta ni claves.
 ventanas con teclado y la recuperación de catálogos incompletos.** Consulta el
 informe reproducible [VERIFICATION.md](VERIFICATION.md).
 
-## Versión · 0.8.1
+**0.9.0 añade Visual Pinball · PinMAME**, subida de un paquete por mesa y motor
+portátil verificado en Windows. Android 13+ ARM64 importa la mesa en VPX oficial.
+El icono de bola filtra los pinballs de vídeo de MAME. Consulta [PINBALL.md](PINBALL.md).
+
+## Versión · 0.9.0
 
 Implementado:
 
-- Catálogo de 18 sistemas, incluidos NES y Atari 2600, mostrando por defecto solo consolas con juegos.
+- Catálogo de 19 sistemas, incluidos NES, Atari 2600 y Visual Pinball, mostrando por defecto solo sistemas con juegos.
 - Interfaz adaptable, carátulas, búsqueda, favoritos y ajustes de conexión.
 - Galería de capturas en la ficha: descarga automática de Libretro, ampliación
   con zoom y subida múltiple de imágenes propias, guardadas en la Raspberry.
@@ -114,6 +118,7 @@ caché con límites y verificación por hash. El idioma actual de la interfaz es
 | `switch` | Nintendo Switch |
 | `wii` | Nintendo Wii |
 | `wiiu` | Nintendo Wii U |
+| `vpinball` | Visual Pinball · PinMAME |
 
 Dreamcast, Mega Drive, Saturn, PS3 y OpenBOR no se crean automáticamente.
 `Pack Emuladores/` y `roms/` permanecen fuera de Git; sus archivos son biblioteca local.

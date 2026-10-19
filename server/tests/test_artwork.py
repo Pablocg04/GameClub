@@ -105,7 +105,7 @@ def test_catalog_repairs_incomplete_sqlite_and_corrupt_archive(tmp_path, monkeyp
     with zipfile.ZipFile(buffer, 'w') as zipped: zipped.writestr('Metadata.xml', xml)
     catalog.folder.mkdir(parents=True)
     db = sqlite3.connect(catalog.database)
-    db.execute('PRAGMA user_version=1'); db.close()
+    db.execute('PRAGMA user_version=2'); db.close()
     catalog.archive.parent.mkdir(parents=True)
     catalog.archive.write_bytes(b'incomplete-download')
     original = httpx.Client

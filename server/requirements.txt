@@ -3,3 +3,4 @@ uvicorn>=0.34,<1
 python-multipart>=0.0.20,<1
 httpx>=0.28,<1
 pillow>=11,<13
+olefile>=0.47,<1

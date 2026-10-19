@@ -19,7 +19,7 @@ def test_empty_library_and_auth(client):
     assert client.get("/api/systems", headers={"Authorization": ""}).status_code == 401
     assert client.get("/api/systems").json() == []
     systems = client.get("/api/systems?include_empty=true").json()
-    assert len(systems) == 18
+    assert len(systems) == 19
     assert "dreamcast" not in {s["id"] for s in systems}
     assert not (client.app.state.library.roms / "dreamcast").exists()
 

@@ -27,6 +27,8 @@ from .artwork_catalogs import LaunchBoxCatalog, GameTDB
 from .arcade import ArcadeCatalog, ArcadeSelector, CORES
 from .mame_web import MameWebAssets, plan as mame_web_plan, VERSION as MAME_WEB_VERSION
 from .native import NativeAssets, HistoricalMameCatalog, BowlingAudioCatalog, VERSION as NATIVE_VERSION
+from .pinball import inspect_package, plan as pinball_plan, MAX_PACKAGE
+from .pinball_runtime import PinballAssets
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -74,6 +76,7 @@ def create_app(roms=None, data=None, media=None, token=None):
     arcade_selector = ArcadeSelector(library)
     native_arcade_selector = ArcadeSelector(library, native=True)
     native_assets = NativeAssets(library.data)
+    pinball_assets = PinballAssets(library.data)
     historical_mame = HistoricalMameCatalog(library)
     bowling_audio = BowlingAudioCatalog(library)
     thumbnails = LibretroThumbnails(library.data)
@@ -86,7 +89,7 @@ def create_app(roms=None, data=None, media=None, token=None):
         yield
         await bulk.shutdown()
 
-    app = FastAPI(title="GameClub", version="0.8.1", lifespan=lifespan)
+    app = FastAPI(title="GameClub", version="0.9.0", lifespan=lifespan)
     app.state.library = library
     app.state.scraper = artwork
     app.state.providers = providers
@@ -209,6 +212,21 @@ def create_app(roms=None, data=None, media=None, token=None):
         return {"version": NATIVE_VERSION, "platforms": native_assets.metadata,
                 "systems": {"nes": "nestopia", "atari2600": "stella"}}
 
+    @app.get('/api/player/pinball', dependencies=auth)
+    def pinball_engine_info():
+        return pinball_assets.info
+
+    @app.get('/api/player/pinball/{platform}', dependencies=auth)
+    async def pinball_engine(platform: str):
+        return FileResponse(await pinball_assets.get(platform, 'vpx'), media_type='application/zip')
+
+    @app.get('/api/games/{id}/pinball', dependencies=auth)
+    def pinball_manifest(id: str):
+        game = find_game(id)
+        if game['system_id'] != 'vpinball':
+            raise HTTPException(422, 'Este juego no es una mesa Visual Pinball')
+        return pinball_plan(library, game)
+
     @app.get("/api/player/native/{platform}/{core}", dependencies=auth)
     async def native_engine_asset(platform: str, core: str):
         return FileResponse(await native_assets.get(platform, core), media_type="application/zip",
@@ -216,7 +234,7 @@ def create_app(roms=None, data=None, media=None, token=None):
 
     @app.get("/health")
     def health():
-        return {"status": "ok", "version": "0.8.1"}
+        return {"status": "ok", "version": "0.9.0"}
 
     @app.get("/api/player", dependencies=auth)
     def player_info():
@@ -287,8 +305,9 @@ def create_app(roms=None, data=None, media=None, token=None):
         return {"game_count": library.scan()}
 
     @app.get("/api/games", dependencies=auth)
-    def games(system_id: str | None = None, q: str = "", favorites: bool = False):
-        return library.games(system_id, q, favorites)
+    def games(system_id: str | None = None, q: str = "", favorites: bool = False,
+              category: Literal['pinball'] | None = None):
+        return [game for game in library.games(system_id, q, favorites) if category is None or game.get('category') == category]
 
     @app.patch("/api/games/{id}", dependencies=auth)
     def update(id: str, changes: GameUpdate):
@@ -317,8 +336,12 @@ def create_app(roms=None, data=None, media=None, token=None):
             with temp.open("xb") as output:
                 while chunk := file.file.read(1024 * 1024):
                     output.write(chunk)
+                    if system_id == 'vpinball' and output.tell() > MAX_PACKAGE:
+                        raise HTTPException(413, 'Máximo 4 GiB por paquete de pinball')
             if temp.stat().st_size == 0:
                 raise HTTPException(422, "El archivo está vacío")
+            if system_id == 'vpinball':
+                inspect_package(temp, name)
             # Serializar publicación y escaneos evita sobrescribir juegos existentes.
             with library.lock:
                 if dest.exists():

@@ -15,6 +15,7 @@ def main():
     parser.add_argument("--build", action="store_true")
     parser.add_argument("--server-only", action="store_true", help="Actualiza código y metadatos, sin transferir motores ni ROMs")
     parser.add_argument("--artwork-cache", action="store_true", help="Precarga índices públicos de carátulas, sin imágenes ni ROMs")
+    parser.add_argument("--pinball-cache", action="store_true", help="Precarga el motor oficial VPX fijado, sin mesas ni ROMs")
     parser.add_argument("--check-artwork", action="store_true", help="Comprueba las fuentes públicas dentro del contenedor")
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -38,8 +39,13 @@ def main():
                 mkdir(posixpath.dirname(checker))
                 sftp.put(str(root/'tools/check_artwork_sources.py'), checker)
             files = list((root / "server/app").glob("*.py")) + list((root / "server/app").glob("*.json")) + list((root / "server/app").glob("*.gz"))
+            files.append(root/'server/requirements.txt')
             if not args.server_only:
                 files += sorted((root / "data/native-cores/v1").glob("*/*.zip"))
+            if args.pinball_cache:
+                runtime = root/'data/pinball-runtime/v1/windows-x86_64/vpx.zip'
+                if not runtime.is_file(): raise FileNotFoundError('Prepara primero el motor con tools/fetch_pinball_runtime.py')
+                files.append(runtime)
             for file in files:
                 target = posixpath.join(remote, file.relative_to(root).as_posix())
                 if file.suffix == ".zip":

@@ -1,4 +1,34 @@
-# Revisión funcional · GameClub 0.8.1
+# Revisión funcional · GameClub 0.9.0
+
+## Visual Pinball · 0.9.0
+
+- **87 pruebas Python y 32 Flutter superadas**, análisis Flutter limpio.
+- Validación de paquete por mesa, OLE/BIFF, detección de ROM, rutas, dependencias,
+  subida/descarga autenticadas y filtro MAME.
+- Extracción de mesa y ROMs, conservación de NVRAM y exportación VPXZ.
+- **Attack from Mars g5k 1.3.11 en Windows**: paquete completo preparado por
+  GameClub; motor VPX BGFX fijado por SHA-256, ROM `afm_113b` con padre `afm_113`,
+  texturas, física, audio, panel B2S, créditos, partida, bola, puntuación y ambos
+  flippers comprobados. Salida a GameClub y reapertura conservando NVRAM.
+- La primera inicialización muestra `Factory settings restored`; salir y volver
+  a abrir completa el arranque. La mesa incluye un marcador propio además de
+  ScoreView: se puede desactivar o recolocar este último en los ajustes VPX.
+- Compilaciones release Windows, móvil y TV; APKs 0.9.0/22 con los tres ABI,
+  lanzadores diferenciados y FileProvider pinball no exportado.
+- Tres comprobaciones de integración Android: requisito de VPX oficial antes de
+  descargar, rechazo de archivos ajenos a la carpeta de exportación y generación
+  del URI FileProvider de un VPXZ válido hasta detectar la app ausente. El AVD
+  x86_64 anuncia también ARM64 por traducción; esta prueba no ejecuta el motor VPX.
+- VPX Android ARM64 físico sigue pendiente. La entrega Android requiere la app
+  oficial externa y confirmación de importación.
+- **Raspberry desplegada en 0.9.0**: API y sistema VPX disponibles; descarga real
+  del motor de 212 800 616 bytes con SHA-256 correcto y siete pinballs MAME
+  reconocidos por el filtro. Índices de carátulas precargados (2 358 mesas en
+  LaunchBox). El despliegue no transfiere mesas ni ROMs del escritorio.
+
+Guía y banco reproducible: [PINBALL.md](PINBALL.md).
+
+## Revisión anterior · 0.8.1
 
 ## Fallos reproducidos y corregidos
 

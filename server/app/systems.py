@@ -20,6 +20,7 @@ SYSTEMS = [
     system("psp", "PSP", ".iso .cso .chd .pbp", 61, "PPSSPP"),
     system("psvita", "PlayStation Vita", ".vpk .zip", 62, "Vita3K"),
     system("psx", "PlayStation", ".cue .bin .chd .pbp .iso .m3u", 57, "DuckStation"),
+    system("vpinball", "Visual Pinball · PinMAME", ".zip .vpxz .vpx", 10001, "Visual Pinball X + PinMAME"),
     system("snes", "Super Nintendo", ".sfc .smc .zip .7z", 4, "Snes9x / RetroArch"),
     system("switch", "Nintendo Switch", ".nsp .xci .nsz .xcz", 225, "Emulador compatible con tu dispositivo"),
     system("wii", "Nintendo Wii", ".iso .wbfs .rvz .gcz .ciso", 16, "Dolphin"),

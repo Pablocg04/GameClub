@@ -25,6 +25,8 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import kotlin.math.abs
+import java.io.File
+import androidx.core.content.FileProvider
 
 class MainActivity : FlutterActivity(), InputManager.InputDeviceListener {
     private var sink: EventChannel.EventSink? = null
@@ -138,6 +140,28 @@ class MainActivity : FlutterActivity(), InputManager.InputDeviceListener {
                 "nativePlatform" -> {
                     val abi = Build.SUPPORTED_ABIS.first { it == "arm64-v8a" || it == "armeabi-v7a" || it == "x86_64" }
                     result.success("android-$abi")
+                }
+                "pinballCapabilities" -> {
+                    val compatible = Build.VERSION.SDK_INT >= 33 && Build.SUPPORTED_ABIS.contains("arm64-v8a")
+                    val installed = try { packageManager.getApplicationInfo("org.vpinball.vpinball_bgfx", 0); true }
+                        catch (_: PackageManager.NameNotFoundException) { false }
+                    result.success(mapOf("compatible" to compatible, "installed" to installed,
+                        "reason" to if (compatible) "" else "Visual Pinball Android requiere Android 13 o posterior y ARM64. Los pinballs de MAME utilizan el motor arcade actual."))
+                }
+                "openPinball" -> {
+                    val path = call.argument<String>("path")
+                    val file = path?.let { File(it).canonicalFile }
+                    val folder = File(cacheDir, "pinball-share").canonicalFile
+                    if (file == null || !file.isFile || !file.path.startsWith(folder.path + File.separator) || file.extension != "vpxz") {
+                        result.error("pinball", "Paquete de pinball no disponible", null)
+                    } else try {
+                        val uri = FileProvider.getUriForFile(this, "$packageName.pinball.files", file)
+                        startActivity(Intent(Intent.ACTION_VIEW).setPackage("org.vpinball.vpinball_bgfx")
+                            .setDataAndType(uri, "application/x-vpxz").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
+                        result.success(null)
+                    } catch (_: ActivityNotFoundException) {
+                        result.error("pinball", "Instala Visual Pinball oficial para importar y jugar esta mesa", null)
+                    }
                 }
                 "playNative" -> {
                     if (nativeResult != null) { result.error("busy", "Ya hay un juego abierto", null); return@setMethodCallHandler }

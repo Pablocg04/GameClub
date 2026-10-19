@@ -25,6 +25,7 @@ LAUNCHBOX_SYSTEMS = {
     'Sony PSP': 61, 'Sony Playstation Vita': 62, 'Sony PlayStation Vita': 62,
     'Sony Playstation': 57, 'Sony PlayStation': 57, 'Super Nintendo Entertainment System': 4,
     'Nintendo Switch': 225, 'Nintendo Wii': 16, 'Nintendo Wii U': 18,
+    'Pinball': 10001,
 }
 GAMETDB_SYSTEMS = {13: 'wii', 16: 'wii', 15: 'ds', 17: '3ds', 18: 'wiiu', 225: 'switch'}
 IMAGE_TYPES = {'Box - Front': 0, 'Box - Front - Reconstructed': 1, 'Box - 3D': 2}
@@ -57,7 +58,7 @@ class PublicCatalog:
         if self.database.is_file():
             try:
                 with closing(sqlite3.connect(self.database)) as db:
-                    if db.execute('PRAGMA user_version').fetchone()[0] == 1:
+                    if db.execute('PRAGMA user_version').fetchone()[0] == 2:
                         db.execute('SELECT id,system,title FROM games LIMIT 1').fetchone()
                         db.execute('SELECT game,system,title,key,compact FROM titles LIMIT 1').fetchone()
                         db.execute('SELECT game,file,priority,region FROM images LIMIT 1').fetchone()
@@ -106,7 +107,7 @@ class PublicCatalog:
                 db.executescript('''CREATE INDEX titles_system ON titles(system);
                     CREATE INDEX titles_exact ON titles(system,compact);
                     CREATE INDEX images_game ON images(game,priority,region);
-                    PRAGMA user_version=1;''')
+                    PRAGMA user_version=2;''')
                 if not db.execute('SELECT 1 FROM games LIMIT 1').fetchone():
                     raise ValueError('Catálogo vacío')
             temporary.replace(self.database)

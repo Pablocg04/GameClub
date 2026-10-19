@@ -15,7 +15,7 @@ def main():
     parser.add_argument("--device", default="emulator-5554")
     parser.add_argument("--server")
     parser.add_argument("--game",default="Arkanoid")
-    parser.add_argument("--version",default="0.8.1")
+    parser.add_argument("--version",default="0.9.0")
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 

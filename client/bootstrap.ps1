@@ -7,12 +7,15 @@ if ((Resolve-Path ".").Path -ne $PSScriptRoot) {
 }
 $main = [System.IO.File]::ReadAllText((Join-Path $PSScriptRoot "lib/main.dart"))
 $pubspec = [System.IO.File]::ReadAllText((Join-Path $PSScriptRoot "pubspec.yaml"))
+$lockPath = Join-Path $PSScriptRoot "pubspec.lock"
+$lock = if (Test-Path -LiteralPath $lockPath) { [System.IO.File]::ReadAllBytes($lockPath) } else { $null }
 try {
     flutter create --no-pub --platforms=windows,android --project-name=gameclub --org=com.gameclub .
     if ($LASTEXITCODE -ne 0) { throw "No se pudo generar la estructura Flutter." }
 } finally {
     [System.IO.File]::WriteAllText((Join-Path $PSScriptRoot "lib/main.dart"), $main)
     [System.IO.File]::WriteAllText((Join-Path $PSScriptRoot "pubspec.yaml"), $pubspec)
+    if ($null -ne $lock) { [System.IO.File]::WriteAllBytes($lockPath, $lock) }
 }
 if (-not (Test-Path -LiteralPath "android/app/src/main")) { throw "Falta la carpeta Android generada." }
 Copy-Item -LiteralPath "platform-config/AndroidManifest.xml" -Destination "android/app/src/main/AndroidManifest.xml" -Force
@@ -20,6 +23,9 @@ if (-not (Test-Path -LiteralPath "android/app/src/main/kotlin/com/gameclub/gamec
 Copy-Item -LiteralPath "platform-config/MainActivity.kt" -Destination "android/app/src/main/kotlin/com/gameclub/gameclub/MainActivity.kt" -Force
 Copy-Item -LiteralPath "platform-config/NativeGameActivity.kt" -Destination "android/app/src/main/kotlin/com/gameclub/gameclub/NativeGameActivity.kt" -Force
 Copy-Item -LiteralPath "platform-config/GamepadMotion.kt" -Destination "android/app/src/main/kotlin/com/gameclub/gameclub/GamepadMotion.kt" -Force
+if (-not (Test-Path -LiteralPath "android/app/src/main/res")) { throw "Faltan los recursos Android generados." }
+if (-not (Test-Path -LiteralPath "android/app/src/main/res/xml")) { New-Item -ItemType Directory -Path "android/app/src/main/res/xml" | Out-Null }
+Copy-Item -LiteralPath "platform-config/gameclub_pinball_paths.xml" -Destination "android/app/src/main/res/xml/gameclub_pinball_paths.xml" -Force
 $gradlePath = Join-Path $PSScriptRoot "android/app/build.gradle.kts"
 $gradle = [System.IO.File]::ReadAllText($gradlePath)
 $nativeGradle = '// GameClub native engine'

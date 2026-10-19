@@ -13,7 +13,7 @@ def main():
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     with httpx.Client(base_url=args.server, timeout=120) as client:
-        assert client.get('/health').raise_for_status().json()['version'] == '0.8.1'
+        assert client.get('/health').raise_for_status().json()['version'] == '0.9.0'
         settings = client.get('/api/settings').raise_for_status().json()
         assert settings['scrape_provider'] == 'auto'
         assert settings['scrape_order'] == ['libretro', 'launchbox', 'gametdb']

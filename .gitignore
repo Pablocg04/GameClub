@@ -25,6 +25,9 @@ client/native/vendor/
 *.rom
 *.bin
 *.sta
+*.vpx
+*.vpxz
+*.directb2s
 *.gb
 *.gbc
 *.gba

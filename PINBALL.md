@@ -1,5 +1,32 @@
 # Visual Pinball · PinMAME
 
+## Android integrado · 0.10.0
+
+**El motor VPX/PinMAME está incluido en el APK de GameClub. No hay que instalar
+otra app ni importar la mesa en un reproductor externo.** Abre la ficha y pulsa
+**Jugar pinball**.
+
+- Android 13/API 33+, proceso ARM64, OpenGL ES 3.2 o Vulkan.
+- Reproducción en la actividad privada `:pinball` de GameClub; un fallo del motor
+  no cierra la biblioteca Flutter.
+- En móvil: Moneda, Partida, Bola, Menú y dos flippers táctiles. La superficie
+  reserva espacio para esos botones; se adapta al girar el dispositivo.
+- Mando: Select/Y moneda, Start partida, A lanzador, LB/LT y RB/RT flippers.
+  **Start + Select / Guide / Atrás** abre continuar, reiniciar y guardar/salir.
+- Los créditos del mando se secuencian; las entradas se liberan al pausar,
+  perder foco o desconectar el dispositivo.
+- Mesas, ROMs y NVRAM permanecen en el directorio privado preparado por GameClub,
+  separados por servidor/juego. Preferencias y registro VPX: directorio de
+  soporte `pinball/saves/<servidor>/<juego>/10.8/`.
+
+El APK universal conserva sus demás motores para ARM32 y x86_64. VPX utiliza
+solo ARM64; en los otros procesos se explica el requisito antes de descargar.
+En TV se utiliza el mando y no aparecen controles táctiles.
+
+El tamaño del APK aumenta porque contiene las bibliotecas del motor. Su origen
+y SHA-256 están fijados en `client/platform-config/pinball_runtime.json`.
+Preparación para compilar: `python tools/prepare_android_pinball.py`.
+
 ## Corrección de controles Windows · 0.9.1
 
 El host nativo de GameClub activa la ventana VPX y evita que la mesa quede en
@@ -27,8 +54,8 @@ En Attack from Mars se prepara una vez la inicialización de NVRAM y se recarga
 la mesa; puede tardar alrededor de un minuto. Se conservan las partidas y los
 originales. Los arranques siguientes mantienen el tiempo de encendido de la ROM.
 
-Esta integración del mando y del menú es para Windows. Android sigue usando
-la aplicación oficial externa de VPX y sus controles.
+La integración Android está incluida desde 0.10.0, con los controles y el menú
+descritos arriba.
 
 GameClub 0.9.0 añade **Visual Pinball · PinMAME** (`vpinball`) y un filtro
 para los pinballs de vídeo de MAME. Son dos rutas de reproducción distintas.
@@ -42,7 +69,7 @@ para los pinballs de vídeo de MAME. Son dos rutas de reproducción distintas.
    Un script externo debe tener el mismo nombre base que la mesa y estar a su lado.
 4. En GameClub, pulsa **Añadir juegos**, selecciona el paquete, elige
    **Visual Pinball · PinMAME** y pulsa **Subir**.
-5. Abre su ficha y pulsa **Jugar pinball** en Windows o **Importar en VPX** en Android.
+5. Abre su ficha y pulsa **Jugar pinball**, en Windows o Android compatible.
 
 Ejemplo de contenido:
 
@@ -105,19 +132,10 @@ ScoreView o recolocarlo en sus ajustes VPX.
 
 ## Android móvil y TV
 
-Requiere **Android 13 o posterior, ARM64** y la app oficial
-[`org.vpinball.vpinball_bgfx`](https://github.com/vpinball/vpinball/releases).
-GameClub comprueba estos requisitos antes de descargar/preparar la mesa.
-
-El cliente exporta un `.vpxz` y lo entrega mediante un URI temporal de lectura a
-Visual Pinball oficial. **Confirma la importación y abre la mesa dentro de VPX**;
-los controles y ajustes de reproducción pertenecen a esa aplicación. Algunas
-mesas requieren un script adaptado a standalone. La interfaz oficial y el soporte
-del mando deben comprobarse en la TV ARM64 concreta.
-
-Los APKs GameClub siguen incluyendo sus motores arcade y de consolas para las
-arquitecturas anteriores. VPX no está integrado en esos APKs; un Android antiguo
-o x86_64 puede seguir jugando los pinballs MAME compatibles.
+Desde 0.10.0 se reproduce dentro de GameClub con las bibliotecas oficiales
+incluidas. GameClub comprueba API, ABI del proceso y gráficos antes de preparar
+la mesa. Algunas mesas siguen necesitando el script standalone de su autor.
+Un Android antiguo o x86_64 puede seguir jugando los pinballs MAME compatibles.
 
 ## Pinballs MAME
 
@@ -132,10 +150,21 @@ familias conocidas, no una clasificación exhaustiva del catálogo MAME.
 Se ha abierto Attack from Mars g5k 1.3.11 en Windows desde el paquete descargado
 por GameClub: texturas, PinMAME, ROM hija/padre, panel B2S, audio, créditos,
 salida y reapertura con NVRAM. Los originales del escritorio permanecen intactos.
-También se comprueba el error Android por ausencia del reproductor oficial antes
-de descargar, y el rechazo de archivos fuera de `pinball-share`. El AVD x86_64
-anuncia ARM64 mediante traducción: no equivale a probar VPX en hardware ARM64.
-No se ha ejecutado VPX en un dispositivo Android ARM64 físico.
+En Android se ha abierto una mesa de ejemplo oficial dentro de GameClub usando
+el motor ARM64 real, mediante traducción en un AVD x86_64: Vulkan, vídeo 3D,
+movimiento del flipper táctil, menú Start + Select, continuación y salida a la
+biblioteca. No se ha ejecutado aún en un teléfono/TV ARM64 físico; el emulador
+no mide el rendimiento del Snapdragon del propietario.
+
+Banco Android reproducible con un APK ARM64 de pruebas y una mesa local:
+
+```powershell
+python tools/check_android_pinball.py --adb "C:\Android\platform-tools\adb.exe" --device emulator-5580 --root "C:\temporal\android-pinball" --table "C:\pruebas\exampleTable.vpx"
+```
+
+Para que un AVD con traducción ARM64 ejecute el proceso ARM64 y no el x86_64:
+`flutter build apk --debug --flavor mobile --target-platform android-arm64 -Pdisable-abi-filtering=true -PgameclubArm64Only=true`.
+La distribución normal utiliza el APK universal.
 
 Banco local reproducible (captura únicamente la ventana VPX de la prueba):
 

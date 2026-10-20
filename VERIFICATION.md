@@ -1,4 +1,33 @@
-# Revisión funcional · GameClub 0.9.1
+# Revisión funcional · GameClub 0.10.0
+
+## VPX Android integrado · 0.10.0
+
+- Se incorpora la API C de la biblioteca oficial `libvpinball.so`, sus
+  dependencias ARM64 y sus recursos. El APK original se usa como distribución
+  verificable; no se instala ni se abre como aplicación externa.
+- El motor se ha ejecutado realmente dentro de `com.gameclub.gameclub:pinball`,
+  con una mesa oficial de ejemplo, en un AVD Android 36 con traducción ARM64.
+  Backend Vulkan, carga de scripts, inicialización de audio, física y vídeo 3D comprobados.
+- Flipper izquierdo táctil mantenido y movimiento visible; controles reservan
+  área fuera de la superficie de juego. Menú con Start + Select, B continúa,
+  Atrás abre menú y Guardar/salir devuelve la biblioteca.
+- Los guardados y preferencias permanecen dentro de la app por servidor/juego.
+  El proceso se cierra después del evento nativo de guardado y cierre.
+- Se detectó y corrigió la selección táctil del menú que inicialmente solo
+  enfocaba un botón en el primer toque.
+- La primera prerenderización del emulador por software fue lenta; se ajustó
+  el plazo de carga y se comprobó con GPU del host. Esta prueba no garantiza
+  FPS en el Snapdragon ni sustituye la comprobación en un móvil/TV físico.
+- **87 pruebas Python, 33 Flutter y tres comprobaciones del canal Android
+  superadas**, además del banco de reproducción ARM64 descrito. Análisis limpio.
+  Los dos APK release incorporan las bibliotecas/recursos originales: sus SHA-256
+  se comprueban durante la compilación y al preparar los paquetes finales.
+- Comprobados también los **APK release finales móvil y TV**, forzando el ABI
+  ARM64 en el mismo AVD: mesa 3D, controles/mando, pausa, continuación y salida.
+  En la variante TV se comprueba que no exista botonera táctil y se reinicia
+  la mesa dentro del mismo proceso antes de guardar y volver a la biblioteca.
+
+## Revisión anterior · 0.9.1
 
 ## Corrección pinball Windows · 0.9.1
 

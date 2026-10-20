@@ -23,11 +23,13 @@ if (-not (Test-Path -LiteralPath "android/app/src/main/kotlin/com/gameclub/gamec
 Copy-Item -LiteralPath "platform-config/MainActivity.kt" -Destination "android/app/src/main/kotlin/com/gameclub/gameclub/MainActivity.kt" -Force
 Copy-Item -LiteralPath "platform-config/NativeGameActivity.kt" -Destination "android/app/src/main/kotlin/com/gameclub/gameclub/NativeGameActivity.kt" -Force
 Copy-Item -LiteralPath "platform-config/GamepadMotion.kt" -Destination "android/app/src/main/kotlin/com/gameclub/gameclub/GamepadMotion.kt" -Force
+Copy-Item -LiteralPath "platform-config/PinballActivity.kt" -Destination "android/app/src/main/kotlin/com/gameclub/gameclub/PinballActivity.kt" -Force
+Copy-Item -LiteralPath "platform-config/PinballSupport.kt" -Destination "android/app/src/main/kotlin/com/gameclub/gameclub/PinballSupport.kt" -Force
 if (-not (Test-Path -LiteralPath "android/app/src/main/res")) { throw "Faltan los recursos Android generados." }
 if (-not (Test-Path -LiteralPath "android/app/src/main/res/xml")) { New-Item -ItemType Directory -Path "android/app/src/main/res/xml" | Out-Null }
-Copy-Item -LiteralPath "platform-config/gameclub_pinball_paths.xml" -Destination "android/app/src/main/res/xml/gameclub_pinball_paths.xml" -Force
 $gradlePath = Join-Path $PSScriptRoot "android/app/build.gradle.kts"
 $gradle = [System.IO.File]::ReadAllText($gradlePath)
+if (-not $gradle.Contains("import java.security.MessageDigest")) { $gradle = "import java.security.MessageDigest`n`n" + $gradle }
 $nativeGradle = '// GameClub native engine'
 $nativeEnd = '// End GameClub native engine'
 $nativeBlock = "$nativeGradle`n" + [System.IO.File]::ReadAllText((Join-Path $PSScriptRoot "platform-config/app-native.gradle.kts")).TrimEnd() + "`n$nativeEnd`n"

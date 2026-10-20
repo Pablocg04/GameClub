@@ -1,4 +1,19 @@
-# GameClub 0.9.1
+# GameClub 0.10.0
+
+- **VPX y PinMAME integrados en el APK Android**: reproducción desde GameClub,
+  sin instalar la aplicación oficial externa ni confirmar importaciones.
+- Actividad de emulación en proceso separado, conservando mesas, configuración
+  y NVRAM por servidor y juego.
+- Botones táctiles para monedas, partida, lanzador y flippers; disposición
+  vertical/horizontal que reserva espacio para los controles.
+- Mando y menú Start + Select / Atrás: continuar, reiniciar y guardar/salir.
+- Bibliotecas y recursos originales fijados por SHA-256, incluidos en móvil y TV.
+- VPX requiere Android 13+ ARM64 y OpenGL ES 3.2 o Vulkan. Los otros motores
+  conservan el soporte anterior de GameClub.
+- Comprobación real del motor ARM64 integrado en un emulador con traducción:
+  Vulkan, vídeo 3D, flipper táctil, menú y vuelta a la biblioteca.
+
+## Versión anterior · 0.9.1
 
 - Windows: VPX recibe el foco al arrancar y al continuar, evitando la mesa
   aparentemente congelada.

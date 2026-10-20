@@ -1,0 +1,709 @@
+{
+  "version": "v10.8.1-5436-af26b2d93",
+  "source": "https://github.com/vpinball/vpinball/releases/download/v10.8.1-5436-af26b2d93/VPinballX_BGFX-10.8.1-5436-af26b2d93-android-mobile-Release.apk",
+  "sha256": "6fe3a346cbb8f20891e4549ded54faa7c8da3df314343132956276ec5132fcc9",
+  "size": 282314412,
+  "android_api": 33,
+  "abi": "arm64-v8a",
+  "libraries": {
+    "libSDL3_image.so": {
+      "size": 332152,
+      "sha256": "399651d0ad57c0af5a3c5b8e937ed802a798068f2b3d96626b49e43182f9a095"
+    },
+    "libSDL3_ttf.so": {
+      "size": 2265264,
+      "sha256": "b395d71df2c29130c03b6b195174969ed1b8b49b0eb90caae13df8555a01ddff"
+    },
+    "libaltsound.so": {
+      "size": 6929480,
+      "sha256": "cbaaf86de9585131df182193597173468081c1a5be711f9237f8c2e82c14491e"
+    },
+    "libavcodec.so": {
+      "size": 62861936,
+      "sha256": "15d5b9cf9367ae2496a4495e82bf13caab7d6b54ec6e9f704898f0669da97242"
+    },
+    "libavdevice.so": {
+      "size": 388136,
+      "sha256": "42cb2dc387a6031b5a2612a6c872136f9ab16002ae442f066a4c95ac24131bed"
+    },
+    "libavfilter.so": {
+      "size": 16827464,
+      "sha256": "3e9bd0af1c5d7aae873f0f75f99172e4ae35b638c0f9d200b112f8e3df85501e"
+    },
+    "libavformat.so": {
+      "size": 16700584,
+      "sha256": "d14bccbb886a3c722a23fa9942af642a062f33c4235e8ec95b22aadced89c3ed"
+    },
+    "libavutil.so": {
+      "size": 2773048,
+      "sha256": "5763581e7fe1510bd1f00c3f6fc713b32085fcc9b0097efaeecdfbb57024d043"
+    },
+    "libdmdutil.so": {
+      "size": 344608,
+      "sha256": "028f8845952b21abf5747a54dbbfc75b118e809a6b23cc9a476c9db982e40712"
+    },
+    "libdof.so": {
+      "size": 18758272,
+      "sha256": "5961466e5b5f3faaec14a6031651dbbe672908783833cf929e027a46283caf54"
+    },
+    "libfreeimage.so": {
+      "size": 15870256,
+      "sha256": "e111d903e71e9a033ea7a6b04fe16d66307cc5d9ce9d3b0087fb5181375a8efe"
+    },
+    "libpinmame.so": {
+      "size": 21314400,
+      "sha256": "3f0f0d6591de71d2f2cac469b1cf9f60b9b3b58f7c21507fbfd33643b26a4d66"
+    },
+    "libpupdmd.so": {
+      "size": 7287864,
+      "sha256": "ae512c30e3c60cdd5bce389449f4aae682b88fd55d48853cb6f1f45d0ee878e8"
+    },
+    "libserum.so": {
+      "size": 8707872,
+      "sha256": "a55a5af7f8fed7da48e55092507198e2f364bb45a42a330f5643c9e863518581"
+    },
+    "libsockpp.so": {
+      "size": 5892328,
+      "sha256": "392b9b1197b10ce7a9f256de3375d9d84d7894974fc0f685ca3ecf598018fac0"
+    },
+    "libswresample.so": {
+      "size": 333032,
+      "sha256": "3f3ad492c3681e99c7fe2f2497a2002ca9bb87bae42da76a92dc0fa9fdc3dda8"
+    },
+    "libswscale.so": {
+      "size": 4626024,
+      "sha256": "a2e98b5ce17798d35666623659c548c2572aeba637ff8c926b9db047050ce3ee"
+    },
+    "libvni.so": {
+      "size": 5926048,
+      "sha256": "f34e2fe59d6065e64783e5b1dbe93356b5ca0e7f83c214a5faabab1496c67b9d"
+    },
+    "libvpinball.so": {
+      "size": 35567632,
+      "sha256": "c7241b36e686d5e557eb900e741d4b8b5a73fef5709ad059a405db627ccc5947"
+    },
+    "libwinevbs.so": {
+      "size": 954592,
+      "sha256": "d8132f945a2ab0f8d84b73160b80a36d5b7c5d114e3749d3f394e9f48ac1a7f1"
+    },
+    "libzedmd.so": {
+      "size": 614544,
+      "sha256": "16c970c7a785a564106da4ffe58a47b6733f6a08a3551e9d56ca3b9363728d03"
+    },
+    "libzip.so": {
+      "size": 154216,
+      "sha256": "66ead77a0bac9365ee99b6f104101eba366a29d5767ff2f0309ac194b2a99498"
+    }
+  },
+  "assets": {
+    "assets/14seg-d-williams.png": {
+      "size": 14183,
+      "sha256": "da99261db94fbe9f96a3e3b1f4e84cc940a119403437309a6fc3aa07cecc2179"
+    },
+    "assets/14seg-d.png": {
+      "size": 14144,
+      "sha256": "0abba2d2350294cab8d5682ac6b6171fc1c4bd8aa9ce00b85a3b42a59d56e69a"
+    },
+    "assets/14seg-dc-gts.png": {
+      "size": 15710,
+      "sha256": "ad3eaec0d244fe5fed7069808e7feb68844b08a232defefa10405fe56fea19ed"
+    },
+    "assets/14seg-dc-williams.png": {
+      "size": 15081,
+      "sha256": "4f4a8d8ab0b7192b6a7b3086d8ca230f5f0748763171563a207f4bc3adcd3cb5"
+    },
+    "assets/14seg-williams.png": {
+      "size": 13430,
+      "sha256": "20ca1a197446821ae57c21ea32c66c8dff5f9529d23f744204e885b592a5eaaa"
+    },
+    "assets/14seg.png": {
+      "size": 13430,
+      "sha256": "20ca1a197446821ae57c21ea32c66c8dff5f9529d23f744204e885b592a5eaaa"
+    },
+    "assets/16seg.png": {
+      "size": 13537,
+      "sha256": "17c4850c7f6a2db2d95c6f165552d9330b42130f3c524ddcd477756a35306506"
+    },
+    "assets/7seg-atari.png": {
+      "size": 7801,
+      "sha256": "fb17f10a6bea790071bd430f5422cbfdf8b703364588a7368ff22dd9e0cc083b"
+    },
+    "assets/7seg-bally.png": {
+      "size": 7397,
+      "sha256": "7cbfd7b106233bc5663aadc314648642d084c635495ac74a0b0947224b40b2cd"
+    },
+    "assets/7seg-c-atari.png": {
+      "size": 8695,
+      "sha256": "98a1be5a1333239ddb58595532bafe7d4ca15f61599ae060f7d80c9992b44b71"
+    },
+    "assets/7seg-c-bally.png": {
+      "size": 8224,
+      "sha256": "14c7d75ba5b11f80fe7598871963b28d3d05853e1ecd19e66edb8ea41b742ee3"
+    },
+    "assets/7seg-c-williams.png": {
+      "size": 8263,
+      "sha256": "ce820057b8a71cd9af1268525d824f797ce8f83f3b1a2f47181db097233f5e70"
+    },
+    "assets/7seg-gts.png": {
+      "size": 7830,
+      "sha256": "e615680eca8f23ea9e53e5202be636a06a96e9223e2b79f38ac1cf807e929784"
+    },
+    "assets/7seg-williams.png": {
+      "size": 7369,
+      "sha256": "f2c3adb5b483d080824811f13f6cf7b64867f3b5a45ef8d23805f128d09f64b6"
+    },
+    "assets/9seg-c-gts.png": {
+      "size": 10837,
+      "sha256": "e066082dbb57e90521a5b6877adb2656b0b078ad4202691344fd7a0d5f122e9b"
+    },
+    "assets/9seg-gts.png": {
+      "size": 10027,
+      "sha256": "8fbfc64acb1e06d926e6f8d9d09a17ec645f53259c910365a6418a567358ea42"
+    },
+    "assets/AODither.webp": {
+      "size": 12528,
+      "sha256": "bebe77fa6c8d200e4fd0da1b3124bf2c5e1502350a33486e76c60d3eeb902065"
+    },
+    "assets/BallEnv.exr": {
+      "size": 351874,
+      "sha256": "ff8d9049684e5d8d0bcb06b87dfca27610213672e23d5cb2a16fa6fb5af6d75c"
+    },
+    "assets/BumperBase.webp": {
+      "size": 72600,
+      "sha256": "17243d3b51dec3fedbb64c82845f6dff416fb87ec44d1a7847083c44346324e3"
+    },
+    "assets/BumperCap.webp": {
+      "size": 27126,
+      "sha256": "fe2f3096cdb2f081f7bffe4cc047158fddfaace2ce60c879d5f95c6781c9530e"
+    },
+    "assets/BumperRing.webp": {
+      "size": 83510,
+      "sha256": "ef6e4d1ea119c4e64df6fdafcab82ddfec6d783381820fd8b82c0021ec1e9916"
+    },
+    "assets/BumperSkirt.webp": {
+      "size": 70550,
+      "sha256": "8348badfb837e505c7533a2db0d206351217f8d70833f04c1d7dd2c65e6de311"
+    },
+    "assets/EnvMap.webp": {
+      "size": 100408,
+      "sha256": "87f64f02080be0828dffaa5220b6d047e0c4c253e2b58310a41f00acd99edcca"
+    },
+    "assets/KickerCup.webp": {
+      "size": 66806,
+      "sha256": "8c12b5a612274e1bcbd97e2cc4cc067284b3c1c508a46373d2718f2a81133abc"
+    },
+    "assets/KickerGottlieb.webp": {
+      "size": 20708,
+      "sha256": "ee6c3ac42f7cfce374baa225e01c02fb6161547433bb65c8e994063833d2743b"
+    },
+    "assets/KickerHoleWood.webp": {
+      "size": 22656,
+      "sha256": "e29fceb050972c3b311797777d08a94eadc56c35c1f67ead12d885b339a53e71"
+    },
+    "assets/KickerT1.webp": {
+      "size": 90210,
+      "sha256": "f857cb8be7a0fa8ad6f22ae741e8d009775c1d3f343fbe9862d128dab9275124"
+    },
+    "assets/KickerWilliams.webp": {
+      "size": 21190,
+      "sha256": "6d8edb74045f45e4ddd1fa5ef11c80001e54d76537fdbb0a231d16db75c74a39"
+    },
+    "assets/LiberationSans-Regular.ttf": {
+      "size": 350200,
+      "sha256": "e5b0af421ea2bfbc1ac8d251d647268087ae82786234c57f757d1f0b90fa8b49"
+    },
+    "assets/TableSizes.csv": {
+      "size": 4017,
+      "sha256": "d87283a99de4a0d00cfbe2d8f5859c0341735f48f211080bbf3a390b6adbe86d"
+    },
+    "assets/alphaseg/SegDisplays.svg": {
+      "size": 52355,
+      "sha256": "b4bad2d2c91056b0e578797108be2c9802bc261a5e8765d754701fed81223666"
+    },
+    "assets/alphaseg/extract-segs.py": {
+      "size": 6174,
+      "sha256": "8a2afdc9ad1c6c7ca387c2499a1d08e3cfa221a77a5b5acdf6668ac9f62d8c4d"
+    },
+    "assets/vpinball.png": {
+      "size": 30764,
+      "sha256": "e2cdf6197118d803445a2621e8f68ab645a06f81e9ccd8200ad7e744d1bf97de"
+    },
+    "assets/web/app.js": {
+      "size": 85952,
+      "sha256": "10a1f88cf0c2415dc2cc1cd3762b35b8f21f879e14abe21830d662979cd78e71"
+    },
+    "assets/web/code-editor.html": {
+      "size": 3701,
+      "sha256": "8c4468c59aacd0f2128c6f39ddd0d113bd1c914a8928ba22566d189340d87393"
+    },
+    "assets/web/monaco-editor.js": {
+      "size": 3425,
+      "sha256": "6e4f217747e620e98d00a2fd9044c78b75f982aeedd9f0efb677d678aae79cba"
+    },
+    "assets/web/monaco/codicon.ttf": {
+      "size": 121972,
+      "sha256": "9d25513c861704be650eacef8c4588aceabdc8b668857747b5e42b299e926918"
+    },
+    "assets/web/monaco/monaco.js": {
+      "size": 3713539,
+      "sha256": "cd1b1dc1f2b1dcd2a1003801a30a9eddffba36a0c74ce230a4019d7ff16859ed"
+    },
+    "assets/web/monaco/style.css": {
+      "size": 309119,
+      "sha256": "06eac5352a05b944df1cca22082dbc1181057ed2ea9e8cb54749a024444e2d89"
+    },
+    "assets/web/styles.css": {
+      "size": 17951,
+      "sha256": "3a7c13f11429187c2dbe855e155649187490289cec8ac97033b349c2671afd5a"
+    },
+    "assets/web/vpx.html": {
+      "size": 17169,
+      "sha256": "708e6590eb0729d8f66c07d8fc5034aa0aad2ee4c1d3042fd20e8302b89fd4f3"
+    },
+    "plugins/flexdmd/assets/bm_army-12.fnt": {
+      "size": 10346,
+      "sha256": "81fdd769e057a61e1b118fed9bdcfb5a7fc53b5dc43161b35451d136150a8b56"
+    },
+    "plugins/flexdmd/assets/bm_army-12.png": {
+      "size": 1528,
+      "sha256": "dcbe32da28d7c5f2cf04b5cd7922ed68e150b47ee752b1619396ae88a6390a85"
+    },
+    "plugins/flexdmd/assets/colors.png": {
+      "size": 4594,
+      "sha256": "3e180505944f206b49c575677f749af62f0559e8de9499d4d9a74a9075a0742a"
+    },
+    "plugins/flexdmd/assets/dmds/black.png": {
+      "size": 221,
+      "sha256": "64fed6122b5c4ec3340b9c41c87bfd494ae350582d14325972b203496ca413ba"
+    },
+    "plugins/flexdmd/assets/teeny_tiny_pixls-5.fnt": {
+      "size": 11038,
+      "sha256": "b139f9f1337c1276c2c0c6f71104e814676e6932f1ba9c9e67743a1bcb3795a7"
+    },
+    "plugins/flexdmd/assets/teeny_tiny_pixls-5.png": {
+      "size": 784,
+      "sha256": "a19dbac9a7f06c16253efc3aac371ac554bdae17f11fa1aa552670f686444067"
+    },
+    "plugins/flexdmd/assets/udmd-f12by24.fnt": {
+      "size": 7480,
+      "sha256": "418ae3d0d2ae7f21178203a646ecb07dd3b64bbc0c4f552cf028ea6c5f2e26a1"
+    },
+    "plugins/flexdmd/assets/udmd-f12by24.png": {
+      "size": 3136,
+      "sha256": "c47c4f76021f7c82ade2ed4ca296cde48f8862b43eb9ae0944e4b4e6b6a29ff6"
+    },
+    "plugins/flexdmd/assets/udmd-f14by26.fnt": {
+      "size": 7481,
+      "sha256": "9f332dec9f81e964468c9b850b60e6daed6c89ca1146d59f5b4db61da68baedd"
+    },
+    "plugins/flexdmd/assets/udmd-f14by26.png": {
+      "size": 2739,
+      "sha256": "3909de9e49a43e394af10fffd63a73ff28d48a9295f3e824e4c41eb3bec9396d"
+    },
+    "plugins/flexdmd/assets/udmd-f4by5.fnt": {
+      "size": 7290,
+      "sha256": "5b92b150e9c97b55995809176438f8982bae3897e386f8314af4c286e2fe1230"
+    },
+    "plugins/flexdmd/assets/udmd-f4by5.png": {
+      "size": 574,
+      "sha256": "c9a1422d42a3a5ae8ca063735a915ec602739c57b896b771dafaa856dbab148f"
+    },
+    "plugins/flexdmd/assets/udmd-f5by7.fnt": {
+      "size": 7292,
+      "sha256": "c5a6da58d0f1e6058f0c069c5d3ec33b900d49fc1ea24cc5ef0138b07f37a563"
+    },
+    "plugins/flexdmd/assets/udmd-f5by7.png": {
+      "size": 7061,
+      "sha256": "cf829973c16a75274bdc30492e7a432eef0aaca303a94ec87f4845011a3fc67e"
+    },
+    "plugins/flexdmd/assets/udmd-f6by12.fnt": {
+      "size": 7358,
+      "sha256": "f23bb03535ff4c2e6758af77ddae47d0f83691817a4511fd851a44d910908413"
+    },
+    "plugins/flexdmd/assets/udmd-f6by12.png": {
+      "size": 2686,
+      "sha256": "30e77b498b4957ad30daca10754e6297821458d15c2fed3a9f558d772eec072a"
+    },
+    "plugins/flexdmd/assets/udmd-f7by13.fnt": {
+      "size": 7359,
+      "sha256": "953e6cc6ce154f326fc702b66a1aff938aec6bf0d3b9f8decccb7b8cad67ea45"
+    },
+    "plugins/flexdmd/assets/udmd-f7by13.png": {
+      "size": 2330,
+      "sha256": "776273d9c3c5a670fbce29f15888950da411162d053ac4ca3dc5368ffb2f38d9"
+    },
+    "plugins/flexdmd/assets/udmd-f7by5.fnt": {
+      "size": 7295,
+      "sha256": "7815a168f8a5ccadf1f8cd5bd2e847690cacc3c6c0753e3d23fede1690fdf591"
+    },
+    "plugins/flexdmd/assets/udmd-f7by5.png": {
+      "size": 1899,
+      "sha256": "2212497bbdbd23065cc2773b0ecc6907d11915185e90b797d09f5ffca5c5cc93"
+    },
+    "plugins/flexdmd/assets/zx_spectrum-7.fnt": {
+      "size": 10803,
+      "sha256": "4c4a736d8b6b901f635f5e4e47de9579eaaaf9703ecc9ec16b00235ecd15e2f1"
+    },
+    "plugins/flexdmd/assets/zx_spectrum-7.png": {
+      "size": 1162,
+      "sha256": "b2d6701d2d234910b4ef22dbe66f31d87f3bb1773e1dc001edaba8e1b6ec892e"
+    },
+    "plugins/inspector/assets/display-stream.js": {
+      "size": 2017,
+      "sha256": "24190b94e73a35cb481dde5148cc513c2bc985c0e2e8f12720d6d9fda775ca68"
+    },
+    "plugins/inspector/assets/displays.html": {
+      "size": 34497,
+      "sha256": "7334e678dcd94ac7e04ba6dfa76b9376b71e26ac15cd296c2092fe1a5f006bfc"
+    },
+    "plugins/inspector/assets/index.html": {
+      "size": 12314,
+      "sha256": "731a3f836be65a707870ac8fc858b114fd2a89af824ce95ed56b01c597cc8d36"
+    },
+    "plugins/scoreview/layouts/Glass-Cracked-1.webp": {
+      "size": 153942,
+      "sha256": "f2bb95ca565c78502c975082d0f8ac183cda88c9a5568032916bc0f4fa79dedd"
+    },
+    "plugins/scoreview/layouts/Glass-Cracked-2.webp": {
+      "size": 238038,
+      "sha256": "f21a892ff209998093a41d44f26faad2a8dd6ed6fb3919ded86f461a003a61ae"
+    },
+    "plugins/scoreview/layouts/Glass-Dirty-1.webp": {
+      "size": 271162,
+      "sha256": "c28df23e37b477ad7f82a0cdfa73d1a172577ccd005d90e2a9dca43bf0c80f5d"
+    },
+    "plugins/scoreview/layouts/Glass-Dirty-2.webp": {
+      "size": 260076,
+      "sha256": "14c67b678bf101d0c8b8fcd18a8856ca78c96f47a1cc34448e458605ce3d48f3"
+    },
+    "plugins/scoreview/layouts/lay16x9-lcd.scv": {
+      "size": 161,
+      "sha256": "fdad336ccabf49eb9ebe0aa713a11dcee0d887eac49909263b91fbdbeef35d1c"
+    },
+    "plugins/scoreview/layouts/lay192x256-crt.scv": {
+      "size": 283,
+      "sha256": "45b109a7aba7d24e45dea5fb0965c211d5e4279363fcdc53b8eb768fea1dd9f9"
+    },
+    "plugins/scoreview/layouts/lay4x1-alpha2x16.scv": {
+      "size": 804,
+      "sha256": "f66025c5ee6a7571a928c2076117f47f3767fa0909dc50ed8824dc3cdce3c405"
+    },
+    "plugins/scoreview/layouts/lay4x1-alpha2x20.scv": {
+      "size": 944,
+      "sha256": "27ccf4b4e61f8deee520e547dfca193b9ba162c75241a59c385328aa9cc63c36"
+    },
+    "plugins/scoreview/layouts/lay4x1-alpha4x6CB.scv": {
+      "size": 1514,
+      "sha256": "c8b1198f0a2e95d2d6d08579e43598f8f61a1aec5861f09002ceb4c9a2006ca3"
+    },
+    "plugins/scoreview/layouts/lay4x1-alpha4x7.scv": {
+      "size": 1256,
+      "sha256": "5503fc0d0db640e6828b49965317ece4bb6042be0806d4074715a4b74d61581b"
+    },
+    "plugins/scoreview/layouts/lay4x1-alpha4x7CB.scv": {
+      "size": 1709,
+      "sha256": "c31b80b57751e3e9c853be2b64d3f9f51e0bf9c59d42b39106f801cee63a81e4"
+    },
+    "plugins/scoreview/layouts/lay4x1-dmd128x16.scv": {
+      "size": 265,
+      "sha256": "82a8e77f54894811b4db4e3d335a1e53a19af93df7b178cc2a6ee5ab2b2912b4"
+    },
+    "plugins/scoreview/layouts/lay4x1-dmd128x32.scv": {
+      "size": 265,
+      "sha256": "dce2744b36a12492faf279d3f620be75aa3f30b984e762229e6d27c61327bea1"
+    },
+    "plugins/scoreview/layouts/lay4x1-dmd192x64.scv": {
+      "size": 277,
+      "sha256": "fa772b3ccc7cfad94b5203f7caf47d7ff551bf69250c7b6e3ac8c00bdf0501c2"
+    },
+    "scripts/6803.vbs": {
+      "size": 8788,
+      "sha256": "472b75fd486282a9533bd5c999d965544cb0803655ecc0f996de01d8a79a38e6"
+    },
+    "scripts/ALI.vbs": {
+      "size": 4760,
+      "sha256": "0fbfe3997903a7b42bfa9629056028b99656c88b0ef24e730bc97b4d36ebc1ba"
+    },
+    "scripts/Atari.vbs": {
+      "size": 5092,
+      "sha256": "d036d1a60471ca174fa531c94f4d6d8520fae4a5db793926df8b9cd01973c399"
+    },
+    "scripts/Atari1.vbs": {
+      "size": 5196,
+      "sha256": "be99196ec3986b9c8d3bcbef25e6b3dca0b36ddd5a418b0eb8a8a64a8e8780ee"
+    },
+    "scripts/Atari1b.vbs": {
+      "size": 5243,
+      "sha256": "0086cce9254b6aee33fcec223eb434e4497a6ab004bd2c8220b7a10460aaeca5"
+    },
+    "scripts/Atari2.vbs": {
+      "size": 4818,
+      "sha256": "347ed07ea0955ac53f784dca360183127392cafcb10e08fdccc0e1ad75bf1c43"
+    },
+    "scripts/B2B.vbs": {
+      "size": 18064,
+      "sha256": "6cd041e4ce124be00386f26a5bbb2b8b71f0d08b3c0714cbf4d2944bd6c0ef2c"
+    },
+    "scripts/B2Bcollision.vbs": {
+      "size": 15041,
+      "sha256": "bbe6914bdbd6d128f337af59530d7c3736987c9ce0a32f300df2c4ac10ff6130"
+    },
+    "scripts/Bally.vbs": {
+      "size": 6705,
+      "sha256": "d3ff448412b07a97722f7c34ad36e4364955d09595c381133eb24eabfaf7c18c"
+    },
+    "scripts/BallyG.vbs": {
+      "size": 5096,
+      "sha256": "4249cb4dc6d86d52932cae66e74728bfa47e0a224f2bea6a832f6d52424f0e05"
+    },
+    "scripts/Class1812.vbs": {
+      "size": 4865,
+      "sha256": "0ca30cc1decb50ce6d326e4069f6a90f0af92cdc890bfe565b27a89a2d18c675"
+    },
+    "scripts/FPVPX.vbs": {
+      "size": 1079,
+      "sha256": "7e676ffba60bdac5c7deb8320b4b9b039616a12a6f1b4bfe0777366b70a9023d"
+    },
+    "scripts/GamePlan.vbs": {
+      "size": 6851,
+      "sha256": "3be90fc221aaacbf0eed59e41982dcc4097dd05412983ccd1b4e47f0774c0cd9"
+    },
+    "scripts/Hankin.vbs": {
+      "size": 6805,
+      "sha256": "5b8efc194795a0998c1d9691c161ef67c52287c16e68b187f43182b138775e7e"
+    },
+    "scripts/LTD.vbs": {
+      "size": 4218,
+      "sha256": "e3167a17b6984aedba1add32705afb48784200aa450ae3cc948ec7b448e3532c"
+    },
+    "scripts/LTD3.vbs": {
+      "size": 2829,
+      "sha256": "67a2253c2d0fad30f3fb377bbfd8cd2084e95e6f25969b32da201931e883699b"
+    },
+    "scripts/LTD4a.vbs": {
+      "size": 5475,
+      "sha256": "156d9280b673e1b6af6fb1d416123466c5722b032f546d602697bac5f5bdab2e"
+    },
+    "scripts/LTDPecmen.vbs": {
+      "size": 4930,
+      "sha256": "f9a71edaa9ef51bd73ef9d8b353ebba7e169d944b9b1a92ecb993bb2f9b5e361"
+    },
+    "scripts/PDB.vbs": {
+      "size": 5842,
+      "sha256": "6cc7c266f9e3a3b36511a9be705477ca1efcc7f5d34e850194949848232a0609"
+    },
+    "scripts/Play1.vbs": {
+      "size": 6076,
+      "sha256": "6044ae8ef137b8e002906322e10f92c2e5a310be41114ca2107aeb5ad53bd4d8"
+    },
+    "scripts/Play2.vbs": {
+      "size": 5627,
+      "sha256": "5511e8309b384f987f58d5338524b04f9247e22eb682f43168a4418265c68cc6"
+    },
+    "scripts/Play4.vbs": {
+      "size": 4522,
+      "sha256": "51e65801f1760348c6ce8ad3bc80663a747b4e333c2cf4db4533199e657e41bf"
+    },
+    "scripts/UltraDMD_Options.vbs": {
+      "size": 20086,
+      "sha256": "005ddc9aabaf0393a1dce4e5b64cdf142af7f2908adeb160b0c1acd68308a330"
+    },
+    "scripts/VPMKeys.vbs": {
+      "size": 6219,
+      "sha256": "b7767eb9a5c4a09490ac20432e926b45f1639b33f03663a7b023cdb134777f18"
+    },
+    "scripts/WPC.vbs": {
+      "size": 8307,
+      "sha256": "e37d744ecdc4586798de4b4b9803722dec678e88e03ca32746485e294d87535c"
+    },
+    "scripts/alving.vbs": {
+      "size": 6283,
+      "sha256": "63a758ecb79e879924831f2140476a31531c5c9f90b116253356b2e856ba143d"
+    },
+    "scripts/antar.vbs": {
+      "size": 4489,
+      "sha256": "ad333c05213d1ce96613952e8a369f33d43958b109d74f3b02128d8a10579632"
+    },
+    "scripts/b2s.vbs": {
+      "size": 6595,
+      "sha256": "6ea91071a2f18f80690934cc3b9d9bd2479df67983e42d78a0b5c6a02f9f1d3b"
+    },
+    "scripts/capcom.vbs": {
+      "size": 5563,
+      "sha256": "03323ded224c5e67b0f7703978529889339e1fd7f73ebdd15002a4a6b794a95e"
+    },
+    "scripts/controller.vbs": {
+      "size": 12976,
+      "sha256": "dec28da5ad68c669ca6baad1af7764a1ff4dbca09ab797b12142cce8112c5af1"
+    },
+    "scripts/core.vbs": {
+      "size": 101463,
+      "sha256": "101446a8b7027867c550f8c64726d22a3610fd5d0de9ec1648da329500646942"
+    },
+    "scripts/de.vbs": {
+      "size": 5664,
+      "sha256": "8858b4509a600f77a8a5844f138ed1c71f19b023550660efd62e308588e84d04"
+    },
+    "scripts/de2.vbs": {
+      "size": 5707,
+      "sha256": "96fc634c7d6529a0566c753e296b287a1402636b38aa9bef63afebbf49f20b04"
+    },
+    "scripts/gts1.vbs": {
+      "size": 6240,
+      "sha256": "554da222cdff8080854c9bf59ad891fd8f44f2a3013deba4f6f0d62058ca3d78"
+    },
+    "scripts/gts3.vbs": {
+      "size": 6054,
+      "sha256": "66c329fa86e97d2f10a8036a9a6527be6a67ce59bb3591962aa1c8a9da101314"
+    },
+    "scripts/idsa.vbs": {
+      "size": 4492,
+      "sha256": "865271b92c3810eb0ffe7543709cb1ba5d6b83ac886699b8f7d956adc6816c78"
+    },
+    "scripts/inder.vbs": {
+      "size": 6546,
+      "sha256": "3ed3317e548b3d3b5fce73a24ec3f5e4c5ad1edcb68752962e816ffe423c20b4"
+    },
+    "scripts/inder_atleta.vbs": {
+      "size": 5755,
+      "sha256": "6d90d621b88648d02d5c2e559d310999111ecdf915bf289f277729ea303d6962"
+    },
+    "scripts/inder_centaur.vbs": {
+      "size": 6030,
+      "sha256": "f5f2bb6b61a6a5d1b3f4277c6a261d6403e110cb592f8022547d1076c13c117a"
+    },
+    "scripts/inder_skateboard.vbs": {
+      "size": 6479,
+      "sha256": "89298a26e03cde3c9ad0acc18d7d0340a49e585555f5d1df0579343b10410f2a"
+    },
+    "scripts/ironballs.vbs": {
+      "size": 3409,
+      "sha256": "d1f857ddef585437d5297bfa572f533985d8f91929ac6aabeab607350f36af5b"
+    },
+    "scripts/joctronic.vbs": {
+      "size": 5053,
+      "sha256": "c7ead63ac1116853d8dcb3b02cb6d7f8758446661d012149159496cc3cc7ebe7"
+    },
+    "scripts/juegos.vbs": {
+      "size": 4461,
+      "sha256": "cc36ad028242bcd9ba51eb600a111252b51a27d7bb685eb2939666ddcd6ddd21"
+    },
+    "scripts/juegos2.vbs": {
+      "size": 4459,
+      "sha256": "4695109f8fafa894144217eeffcbef2d54a5fdccdb670f0cfa164ed40a5ae135"
+    },
+    "scripts/jvh.vbs": {
+      "size": 5048,
+      "sha256": "398381ac20b948c82005159ba0d0fc32c523077efa37f8fb845254a5721fc8ed"
+    },
+    "scripts/lancelot.vbs": {
+      "size": 4561,
+      "sha256": "7261ae01a5176a6df272b93d8cf967cdd36cc20ec4a3c356598de7b1001e35ba"
+    },
+    "scripts/mac.vbs": {
+      "size": 4509,
+      "sha256": "0982321df6e77f43e46e4cec37c05f1a2dea40bd5bfe340091a72d487af4bcc4"
+    },
+    "scripts/mrgame.vbs": {
+      "size": 4578,
+      "sha256": "4f087a6dc810f8558a5ce1f510d017e699a224ad945d42a28930d59cb19385ea"
+    },
+    "scripts/nuova.vbs": {
+      "size": 5407,
+      "sha256": "2152b6228c0508c6d0a611105a9d1076dc5365f23ae7865b7254cf2ace274e94"
+    },
+    "scripts/peyper.vbs": {
+      "size": 4477,
+      "sha256": "4d7c58b0a4ff4b5ddd9cb27d725a2d4279de110462971439a90ed1e04e9694c1"
+    },
+    "scripts/playbar.vbs": {
+      "size": 5482,
+      "sha256": "4609e2cce2c45b4ef4eba3a6d51c12fb517d6cbca86f754e50e94c5817c518a9"
+    },
+    "scripts/s11.vbs": {
+      "size": 6417,
+      "sha256": "5582155ffbdaeeeb3d86fcb54d7738d9ea5f9c24951b607e30a316f88dfd5f91"
+    },
+    "scripts/s4.vbs": {
+      "size": 6817,
+      "sha256": "2cd807cf63bb492cc076ea4f77a745966e1697097d25f0bc63bbc88165eeb626"
+    },
+    "scripts/s6.vbs": {
+      "size": 6978,
+      "sha256": "51540940fc31d7afccbee636815c40369fa852b86116339c641073845a6ad24a"
+    },
+    "scripts/s7.vbs": {
+      "size": 6852,
+      "sha256": "88e6f2500f75315b9f5ad01581d9f24a926ad12af43730af01d8bfab8e5cfe03"
+    },
+    "scripts/s8_StillCrazy.vbs": {
+      "size": 4792,
+      "sha256": "e741985844a368d6ea4e4ae959c1de6c9249e35ecb3fd384e98f6014cf25b7ab"
+    },
+    "scripts/sam.vbs": {
+      "size": 11581,
+      "sha256": "79b5fa7e0747864c58b59f7ee872416147e77a529d9375fa552dc3f63a82726c"
+    },
+    "scripts/sega.vbs": {
+      "size": 6739,
+      "sha256": "d6e508aac5163fc6d93155e630a1ef5e9c57c3ef3416ada8930dca046daf4924"
+    },
+    "scripts/sega2.vbs": {
+      "size": 5213,
+      "sha256": "e38b3cabdbdf56e0069c3ee1075bb92fb99280f7d1f594ffb49820319de68f20"
+    },
+    "scripts/sleic.vbs": {
+      "size": 4456,
+      "sha256": "8bdba7def154ce875a0173596f053224aeb65c8c0f107b2d14981436dd334cc2"
+    },
+    "scripts/solarwars.vbs": {
+      "size": 4486,
+      "sha256": "8c5979d412a7a14c4c4409d2bbdb058711622ba6cdc36d52bf033dd693ccb7d6"
+    },
+    "scripts/spinball.vbs": {
+      "size": 6400,
+      "sha256": "4c216a4fd0cb2af0987f5afef2d4cc8d8dc15af65c477b032093b04b53561fe7"
+    },
+    "scripts/stern.vbs": {
+      "size": 6646,
+      "sha256": "b835ce5b0c11c6d268f58c92e534c1677e64cb47e103b33179b82c6c337be0e5"
+    },
+    "scripts/sys80.vbs": {
+      "size": 6825,
+      "sha256": "5e14a206222039389c220aac40bf410e35fd7c730786bb6686d1b8ab6494de8c"
+    },
+    "scripts/taito.vbs": {
+      "size": 6256,
+      "sha256": "fa8236f417d4b8c60c92beccb6e4f49e64cb0cd179d88fb3a7b7cc62a888177b"
+    },
+    "scripts/vbsdoc_outdated.html": {
+      "size": 419259,
+      "sha256": "289e96895eee02c457062a22fc0ddd8761732485833953962db955c787e13b45"
+    },
+    "scripts/wpc_ph.vbs": {
+      "size": 6250,
+      "sha256": "79ace168c1fffc7967b7c473dcc7ef42dff40e380236604b6060a0315ce5409d"
+    },
+    "scripts/zac.vbs": {
+      "size": 3728,
+      "sha256": "4631fb0f1a99feafcb3073036bb2101bf383cdedf5d079cad05220d742587ee1"
+    },
+    "scripts/zac1.vbs": {
+      "size": 3401,
+      "sha256": "b7922dbab32adf707d9aa4f12c5d11ec470ac9e07ff0399d2f17a9ab0aceb53c"
+    },
+    "scripts/zac2.vbs": {
+      "size": 5760,
+      "sha256": "934284ced2628b7e97b0b6e69f8bb7d8b76c51b306973f3bdb318553faf05b81"
+    },
+    "scripts/zacproto.vbs": {
+      "size": 4044,
+      "sha256": "fc9c59faa7a8f48d7390cf23b13231fcf179ecda06b0cc5798c0b74036fd9861"
+    },
+    "licenses/VisualPinball.txt": {
+      "size": 17441,
+      "sha256": "81ce9d393640ebaf90525c670ead54d489e56845be8535e34d2acd40586dc80a"
+    }
+  },
+  "license_source": "https://raw.githubusercontent.com/vpinball/vpinball/af26b2d9392b4c9ec3e3edff4bbd69562085a44c/docs/license.txt"
+}

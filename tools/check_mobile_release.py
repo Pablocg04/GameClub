@@ -14,7 +14,7 @@ parser.add_argument('--device',default='emulator-5554')
 parser.add_argument('--server',default='http://10.0.2.2:8692')
 parser.add_argument('--capture',type=Path)
 parser.add_argument('--game',default='Arkanoid')
-parser.add_argument('--version',default='0.9.1')
+parser.add_argument('--version',default='0.10.0')
 args=parser.parse_args()
 prefix=[args.adb,'-s',args.device]
 def adb(*arguments):

@@ -32,3 +32,18 @@ FinalBurn Neo: https://github.com/libretro/FBNeo
 MAME: https://github.com/libretro/mame
 Nestopia UE (GPL-2.0): https://github.com/libretro/nestopia
 Stella (GPL-2.0): https://github.com/libretro/stella
+
+Visual Pinball Android - integrated in GameClub 0.10.0
+Unmodified native components from the official BGFX mobile release:
+https://github.com/vpinball/vpinball/tree/af26b2d9392b4c9ec3e3edff4bbd69562085a44c
+Exact APK and component SHA-256 registry: client/platform-config/pinball_runtime.json.
+The upstream Visual Pinball license is included at assets/pinball/licenses/VisualPinball.txt.
+Most Visual Pinball sources are GPL-3.0-or-later; files not yet relicensed retain
+the historical MAME-derived terms described in that upstream notice.
+PinMAME source and licensing: https://github.com/vpinball/pinmame
+Other upstream native components retain their own licenses, including SDL_image,
+SDL_ttf, FreeImage, FFmpeg, Wine VBScript, AltSound, DOF, DMDUtil, Serum, VNI,
+PUPDMD, sockpp, ZeDMD and libzip. Their upstream build and dependency sources:
+https://github.com/vpinball/vpinball/tree/af26b2d9392b4c9ec3e3edff4bbd69562085a44c/standalone
+GameClub's Android adapter is client/native/pinball_android.cpp and
+client/platform-config/PinballActivity.kt. No commercial tables or ROMs are included.

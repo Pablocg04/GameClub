@@ -41,13 +41,22 @@ def main():
                     if file.is_file(): archive.write(file, 'GameClub/'+file.relative_to(target).as_posix())
             print(destination, flush=True)
     else:
+        pinball = json.loads((root/'client/platform-config/pinball_runtime.json').read_text(encoding='utf-8'))
         for variant, name in [('mobile','GameClub-Android.apk'), ('tv','GameClub-AndroidTV.apk')]:
             source = root/f'client/build/app/outputs/flutter-apk/app-{variant}-release.apk'
             with zipfile.ZipFile(source) as archive:
                 verify_assets(lambda name: archive.read('assets/flutter_assets/'+name))
                 for abi in ('armeabi-v7a', 'arm64-v8a', 'x86_64'):
                     assert f'lib/{abi}/libgameclub_native.so' in archive.namelist()
-                assert not any(name.lower().endswith(('.nes', '.a26', '.sta')) for name in archive.namelist())
+                    assert f'lib/{abi}/libgameclub_pinball.so' in archive.namelist()
+                assert json.loads(archive.read('assets/pinball-runtime.json')) == pinball
+                for library, entry in pinball['libraries'].items():
+                    raw = archive.read(f'lib/arm64-v8a/{library}')
+                    assert len(raw) == entry['size'] and hashlib.sha256(raw).hexdigest() == entry['sha256'], library
+                for asset, entry in pinball['assets'].items():
+                    raw = archive.read('assets/pinball/'+asset)
+                    assert len(raw) == entry['size'] and hashlib.sha256(raw).hexdigest() == entry['sha256'], asset
+                assert not any(name.lower().endswith(('.nes', '.a26', '.sta', '.vpx', '.vpxz', '.directb2s')) for name in archive.namelist())
             target = root/'dist'/f'android-{variant}-{version}'
             target.mkdir(exist_ok=True)
             shutil.copy2(source, target/name)

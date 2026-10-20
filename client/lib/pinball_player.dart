@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:archive/archive_io.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:window_manager/window_manager.dart';
@@ -301,32 +302,36 @@ ScoreViewWndY=16
         throw Exception(capabilities['reason'] ??
             'VPX necesita Android 13 o posterior y ARM64');
       }
-      if (capabilities['installed'] != true) {
-        throw Exception(
-            'Instala Visual Pinball oficial (org.vpinball.vpinball_bgfx) para importar y jugar las mesas. Los pinballs MAME usan el reproductor de GameClub.');
-      }
     }
     final documents = await getApplicationDocumentsDirectory();
     final prepared = await prepare(
         game,
         Directory(p.join(documents.path, 'GameClub', 'pinball',
             GameFiles.libraryKey(api), game['id'] as String)));
-    if (Platform.isAndroid) {
-      final temporary = await getTemporaryDirectory();
-      final exported = await compute(exportAndroid, [
-        prepared['directory'] as String,
-        p.join(temporary.path, 'pinball-share', '${game['id']}.vpxz')
-      ]);
-      await DevicePlatform.channel
-          .invokeMethod<void>('openPinball', {'path': exported});
-      return;
-    }
     final support = Directory(
         p.join((await getApplicationSupportDirectory()).path, 'pinball'));
-    final engine = await runtime(support);
     final preferences = Directory(p.join(support.path, 'saves',
         GameFiles.libraryKey(api), game['id'] as String));
     await preferences.create(recursive: true);
+    if (Platform.isAndroid) {
+      onProgress?.call('Abriendo pinball integrado en GameClub…', null);
+      try {
+        await DevicePlatform.channel.invokeMethod<void>('playPinball', {
+          'path': prepared['primary'],
+          'preferences': preferences.path,
+          'title': game['title'],
+          'roms': prepared['rom_candidates'] ?? [],
+          'requiresRom': prepared['requires_rom'] == true,
+          'orientation': DevicePlatform.mobileOrientation,
+          'touchScale': DevicePlatform.touchScale,
+        });
+      } on PlatformException catch (error) {
+        throw Exception(
+            error.message ?? 'El motor pinball no pudo terminar la partida');
+      }
+      return;
+    }
+    final engine = await runtime(support);
     final ini = File(p.join(preferences.path, 'VPinballX.ini'));
     await ini.writeAsString(
         configureControls(

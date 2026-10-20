@@ -16,6 +16,9 @@ def main():
     root = Path(__file__).resolve().parents[1]
     arguments = ['git', 'ls-files', '-z', '--cached'] if args.staged else ['git', 'ls-files', '-z', '--cached', '--others', '--exclude-standard']
     files = sorted(set(subprocess.run(arguments, cwd=root, capture_output=True, check=True).stdout.decode('utf-8').rstrip('\0').split('\0')))
+    if not args.staged:
+        deleted = set(subprocess.run(['git', 'ls-files', '-z', '--deleted'], cwd=root, capture_output=True, check=True).stdout.decode('utf-8').split('\0'))
+        files = [name for name in files if name not in deleted]
     registry = json.loads((root/'client/assets/native_console_cores.json').read_text(encoding='utf-8'))
     packages = {f'client/assets/native-cores/{platform}/{core}.zip': entry
         for platform, entries in registry['platforms'].items() for core, entry in entries.items()}

@@ -182,5 +182,5 @@ def plan(library, game):
     return {**info, 'engine': 'vpinball', 'signature': signature,
             'revision': str(path.stat().st_mtime_ns), 'size': path.stat().st_size,
             'download_url': f'/api/games/{game["id"]}/download',
-            'platforms': {'windows': 'integrated', 'android': 'official-player'},
-            'note': 'Windows: motor portátil. Android: Visual Pinball oficial, Android 13+ ARM64; algunas mesas necesitan script standalone.'}
+            'platforms': {'windows': 'integrated', 'android': 'integrated'},
+            'note': 'Windows: motor portátil. Android: motor incluido en GameClub 0.10.0+, Android 13+ ARM64; algunas mesas necesitan script standalone.'}

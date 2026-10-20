@@ -540,10 +540,6 @@ class _LibraryPageState extends State<LibraryPage> {
             });
           }
         }).play(game);
-        if (Platform.isAndroid) {
-          notify(
-              'Paquete enviado a Visual Pinball. Confirma la importación y abre la mesa allí.');
-        }
         return;
       }
       if (game['system_id'] == 'mame' ||
@@ -681,7 +677,7 @@ class _LibraryPageState extends State<LibraryPage> {
                             : game['description'] as String),
                         const SizedBox(height: 16),
                         Text(game['system_id'] == 'vpinball'
-                            ? 'Mesa Visual Pinball + PinMAME. En PC se prepara un motor portátil verificado y se abre la mesa a pantalla completa. Android usa el reproductor oficial (Android 13+ ARM64) para importar y jugar.'
+                            ? 'Mesa Visual Pinball + PinMAME. Se juega desde GameClub. Android incluye el motor (Android 13+ ARM64), controles táctiles, mando y menú para continuar o salir.'
                             : (integratedCores.containsKey(game['system_id']) ||
                                     nativeConsoleCores
                                         .containsKey(game['system_id']))
@@ -721,9 +717,7 @@ class _LibraryPageState extends State<LibraryPage> {
                     onPressed: () => Navigator.pop(context, 'play'),
                     icon: const Icon(Icons.play_arrow),
                     label: Text(game['system_id'] == 'vpinball'
-                        ? (Platform.isAndroid
-                            ? 'Importar en VPX'
-                            : 'Jugar pinball')
+                        ? 'Jugar pinball'
                         : (integratedCores.containsKey(game['system_id']) ||
                                 nativeConsoleCores
                                     .containsKey(game['system_id']))
@@ -1170,7 +1164,7 @@ class _LibraryPageState extends State<LibraryPage> {
       const Text('Emuladores',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
       const Text(
-          'Visual Pinball: un ZIP/VPXZ por mesa con su .vpx, ROM ZIP y panel opcional. PC incluye descarga del motor portátil; Android 13+ ARM64 requiere Visual Pinball oficial. El icono de bola en la búsqueda filtra los pinballs de MAME.'),
+          'Visual Pinball: un ZIP/VPXZ por mesa con su .vpx, ROM ZIP y panel opcional. Android 13+ ARM64 incluye el motor en GameClub; PC descarga el motor portátil verificado. Start + Select abre el menú. El icono de bola filtra los pinballs de MAME.'),
       const Text(
           'NES y Atari 2600: motores nativos Nestopia UE y Stella incluidos en la app. Start inicia; en Atari equivale a RESET y Select a GAME SELECT.'),
       const Padding(
@@ -1266,7 +1260,7 @@ class _LibraryPageState extends State<LibraryPage> {
               ? const EdgeInsets.symmetric(horizontal: 24, vertical: 12)
               : EdgeInsets.zero,
           child: Scaffold(
-            appBar: AppBar(title: const Text('GameClub · 0.9.1'), actions: [
+            appBar: AppBar(title: const Text('GameClub · 0.10.0'), actions: [
               IconButton(
                   tooltip: 'Escanear biblioteca',
                   onPressed: busy

@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.ActivityNotFoundException
 import android.content.pm.ActivityInfo
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.hardware.input.InputManager
 import android.os.Handler
@@ -26,7 +25,7 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import kotlin.math.abs
 import java.io.File
-import androidx.core.content.FileProvider
+import org.json.JSONObject
 
 class MainActivity : FlutterActivity(), InputManager.InputDeviceListener {
     private var sink: EventChannel.EventSink? = null
@@ -34,6 +33,7 @@ class MainActivity : FlutterActivity(), InputManager.InputDeviceListener {
     private var playerActive = false
     private var playerOwner: String? = null
     private var nativeResult: MethodChannel.Result? = null
+    private var pinballReport: File? = null
     private var deviceChannel: MethodChannel? = null
     private val handler = Handler(Looper.getMainLooper())
     private val buttons = mutableMapOf<Int, MutableSet<Int>>()
@@ -138,30 +138,43 @@ class MainActivity : FlutterActivity(), InputManager.InputDeviceListener {
                 }
                 "libraryActive" -> { releasePlayer(true); result.success(null) }
                 "nativePlatform" -> {
-                    val abi = Build.SUPPORTED_ABIS.first { it == "arm64-v8a" || it == "armeabi-v7a" || it == "x86_64" }
+                    val abi = when (File(applicationInfo.nativeLibraryDir).name) {
+                        "arm64" -> "arm64-v8a"
+                        "arm" -> "armeabi-v7a"
+                        "x86_64" -> "x86_64"
+                        else -> Build.SUPPORTED_ABIS.first { it == "arm64-v8a" || it == "armeabi-v7a" || it == "x86_64" }
+                    }
                     result.success("android-$abi")
                 }
                 "pinballCapabilities" -> {
-                    val compatible = Build.VERSION.SDK_INT >= 33 && Build.SUPPORTED_ABIS.contains("arm64-v8a")
-                    val installed = try { packageManager.getApplicationInfo("org.vpinball.vpinball_bgfx", 0); true }
-                        catch (_: PackageManager.NameNotFoundException) { false }
-                    result.success(mapOf("compatible" to compatible, "installed" to installed,
-                        "reason" to if (compatible) "" else "Visual Pinball Android requiere Android 13 o posterior y ARM64. Los pinballs de MAME utilizan el motor arcade actual."))
+                    result.success(PinballSupport.capabilities(this))
                 }
-                "openPinball" -> {
-                    val path = call.argument<String>("path")
-                    val file = path?.let { File(it).canonicalFile }
-                    val folder = File(cacheDir, "pinball-share").canonicalFile
-                    if (file == null || !file.isFile || !file.path.startsWith(folder.path + File.separator) || file.extension != "vpxz") {
-                        result.error("pinball", "Paquete de pinball no disponible", null)
-                    } else try {
-                        val uri = FileProvider.getUriForFile(this, "$packageName.pinball.files", file)
-                        startActivity(Intent(Intent.ACTION_VIEW).setPackage("org.vpinball.vpinball_bgfx")
-                            .setDataAndType(uri, "application/x-vpxz").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
-                        result.success(null)
-                    } catch (_: ActivityNotFoundException) {
-                        result.error("pinball", "Instala Visual Pinball oficial para importar y jugar esta mesa", null)
+                "playPinball" -> {
+                    if (nativeResult != null) { result.error("busy", "Ya hay un juego abierto", null); return@setMethodCallHandler }
+                    val capabilities = PinballSupport.capabilities(this)
+                    if (capabilities["compatible"] != true) { result.error("pinball", capabilities["reason"] as String, null); return@setMethodCallHandler }
+                    val table = call.argument<String>("path")?.let { File(it).canonicalFile }
+                    val preferences = call.argument<String>("preferences")?.let { File(it).canonicalFile }
+                    val tables = File(applicationInfo.dataDir, "app_flutter/GameClub/pinball").canonicalFile
+                    val saves = File(filesDir, "pinball/saves").canonicalFile
+                    if (table == null || !table.isFile || table.extension.lowercase() != "vpx" || !table.path.startsWith(tables.path + File.separator) ||
+                        preferences == null || !preferences.path.startsWith(saves.path + File.separator)) {
+                        result.error("pinball", "Mesa o carpeta de guardados inválida", null)
+                        return@setMethodCallHandler
                     }
+                    preferences.mkdirs()
+                    pinballReport = File(preferences, "session.json").apply { writeText("""{"state":"loading"}""") }
+                    releasePlayer(true)
+                    nativeResult = result
+                    try {
+                        startActivityForResult(Intent(this, PinballActivity::class.java)
+                            .putExtra("path", table.path).putExtra("preferences", preferences.path)
+                            .putExtra("title", call.argument<String>("title"))
+                            .putExtra("roms", (call.argument<List<String>>("roms") ?: emptyList()).toTypedArray())
+                            .putExtra("requiresRom", call.argument<Boolean>("requiresRom") == true)
+                            .putExtra("orientation", call.argument<String>("orientation") ?: "auto")
+                            .putExtra("touchScale", call.argument<Double>("touchScale") ?: 1.0), 7102)
+                    } catch (error: Exception) { nativeResult = null; pinballReport = null; result.error("pinball", error.message, null) }
                 }
                 "playNative" -> {
                     if (nativeResult != null) { result.error("busy", "Ya hay un juego abierto", null); return@setMethodCallHandler }
@@ -318,11 +331,21 @@ class MainActivity : FlutterActivity(), InputManager.InputDeviceListener {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 7101) {
+        if (requestCode == 7101 || requestCode == 7102) {
             val result = nativeResult
             nativeResult = null
             releasePlayer(true)
-            handler.postDelayed({ result?.success(null) }, 250)
+            if (requestCode == 7102) {
+                val report = runCatching { pinballReport?.takeIf { it.isFile && it.length() < 65536 }?.readText()?.let { JSONObject(it) } }.getOrNull()
+                pinballReport = null
+                val error = when {
+                    data?.getStringExtra("pinball_error") != null -> data.getStringExtra("pinball_error")
+                    report?.optString("state") == "closed" -> null
+                    else -> report?.optString("message")?.takeIf { it.isNotBlank() }
+                        ?: "El motor pinball se cerró antes de guardar. Revisa el registro de la mesa."
+                }
+                handler.postDelayed({ if (error == null) result?.success(null) else result?.error("pinball", error, null) }, 250)
+            } else handler.postDelayed({ result?.success(null) }, 250)
         }
     }
 

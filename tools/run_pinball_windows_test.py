@@ -38,12 +38,14 @@ def main():
         user.PostMessageW(handle,0x100,code,flags);time.sleep(duration)
         user.PostMessageW(handle,0x101,code,flags|0xc0000000);time.sleep(.2)
     def capture(handle,name):
-        user.SetForegroundWindow(handle);time.sleep(.3)
-        if user.GetForegroundWindow()!=handle:return
+        assert user.GetForegroundWindow()==handle,'El reproductor no recibió el foco por sí mismo'
         rect=wintypes.RECT();user.GetWindowRect(handle,ctypes.byref(rect))
         ImageGrab.grab(bbox=(rect.left,rect.top,rect.right,rect.bottom)).save(args.root/name)
     process=None
     pid=None
+    host_pid=None
+    menus=0
+    played=False
     with (args.root/'api.log').open('wb') as log:
         api=subprocess.Popen([sys.executable,str(project/'tools/pinball_fixture.py'),str(args.root),
             '--package',str(args.package),'--port','8697'],stdout=log,stderr=log)
@@ -61,8 +63,25 @@ def main():
                 for line in process.stdout:
                     output.write(line);output.flush()
                     if any(marker in line for marker in ('PINBALL_','All tests','Expected:','Actual:','Error','Built ')):print(line,end='',flush=True)
+                    if 'PINBALL_HOST_PID ' in line:
+                        host_pid=int(line.split('PINBALL_HOST_PID ',1)[1].split()[0])
                     if 'PINBALL_ENGINE_PID ' in line:
                         pid=int(line.split('PINBALL_ENGINE_PID ',1)[1].split()[0])
+                    if line.strip()=='PINBALL_MENU':
+                        menus+=1
+                        time.sleep(.3)
+                        handle=windows(host_pid)[0]
+                        capture(handle,f'menu-{menus}.png')
+                        if menus==1:key(handle,0x0d)
+                        else:
+                            # Flechas Win32 extendidas para el menú SDL.
+                            for _ in range(2):
+                                flags=1|(0x50<<16)|0x01000000
+                                user.PostMessageW(handle,0x100,0x28,flags);time.sleep(.1)
+                                user.PostMessageW(handle,0x101,0x28,flags|0xc0000000);time.sleep(.1)
+                            key(handle,0x0d)
+                    if line.strip()=='PINBALL_RUNNING' and not played:
+                        played=True
                         end=time.monotonic()+60;handles=[]
                         while time.monotonic()<end:
                             handles=windows(pid)
@@ -73,6 +92,7 @@ def main():
                         handle=windows(pid)[0]
                         capture(handle,'before.png')
                         for _ in range(4):key(handle,0x35)
+                        time.sleep(2)
                         key(handle,0x31,.8);time.sleep(8)
                         key(handle,0x0d,1.2);time.sleep(3)
                         # Captura con ambos flippers pulsados, y suelta antes de salir.
@@ -82,7 +102,7 @@ def main():
                             time.sleep(.5);capture(handle,'after.png')
                         finally:
                             for code in (0xa0,0xa1):user.keybd_event(code,user.MapVirtualKeyW(code,0),2,0)
-                        key(handle,0x1b)
+                        user.keybd_event(0x1b,1,0,0);time.sleep(.1);user.keybd_event(0x1b,1,2,0)
             assert process.wait(timeout=30)==0,'Fallo de la integración: consulta driver.log'
         finally:
             if process is not None and process.poll() is None:

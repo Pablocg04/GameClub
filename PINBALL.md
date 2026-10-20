@@ -1,5 +1,35 @@
 # Visual Pinball · PinMAME
 
+## Corrección de controles Windows · 0.9.1
+
+El host nativo de GameClub activa la ventana VPX y evita que la mesa quede en
+pausa al arrancar. Presenta una ayuda de controles y un menú propio:
+
+| Acción | Teclado | Mando |
+|---|---|---|
+| Añadir moneda | 5 | Select / Back o Y |
+| Iniciar partida | 1 | Start |
+| Lanzar la bola | Intro | A |
+| Flipper izquierdo | Mayús izquierdo | LB / L1 o LT / L2; también X |
+| Flipper derecho | Mayús derecho | RB / R1 o RT / R2; también B |
+| Menú | Esc, F1 o P | Start + Select / Guide |
+
+El menú permite **Continuar**, **Reiniciar mesa** y **Guardar y volver a la
+biblioteca**. Se recorre con cruceta y A; B continúa. También admite teclado y
+ratón. Espacio da un golpe a la mesa: no es el lanzador.
+
+Las monedas del mando se espacian automáticamente para respetar el retardo del
+script PinMAME; Start espera a que se registren los créditos pendientes. No se
+envían pulsaciones al cambiar a otra aplicación y se liberan al pausar o
+desconectar el mando.
+
+En Attack from Mars se prepara una vez la inicialización de NVRAM y se recarga
+la mesa; puede tardar alrededor de un minuto. Se conservan las partidas y los
+originales. Los arranques siguientes mantienen el tiempo de encendido de la ROM.
+
+Esta integración del mando y del menú es para Windows. Android sigue usando
+la aplicación oficial externa de VPX y sus controles.
+
 GameClub 0.9.0 añade **Visual Pinball · PinMAME** (`vpinball`) y un filtro
 para los pinballs de vídeo de MAME. Son dos rutas de reproducción distintas.
 
@@ -63,10 +93,11 @@ Al actualizar el paquete se conservan los archivos mutables de configuración y
 NVRAM. No se sincronizan las partidas entre dispositivos.
 
 Controles habituales: **5** moneda, **1** partida, **Enter** lanzador,
-**Shift izquierdo/derecho** flippers y **Esc** salir. El script o la configuración
+**Shift izquierdo/derecho** flippers y **Esc** menú. El script o la configuración
 del motor pueden cambiar esas asignaciones; el menú del motor permite ajustarlas.
-Si una ROM recién inicializada muestra **Factory settings restored**, sal y abre
-la mesa de nuevo para completar el arranque con su NVRAM.
+Attack from Mars completa automáticamente la preparación inicial. Otras mesas
+que muestren **Factory settings restored** pueden necesitar **Reiniciar mesa**
+en el menú para completar su primer encendido.
 
 La disposición del marcador y del panel depende de la mesa y de la configuración
 de pantallas del motor. Las mesas con marcador propio pueden necesitar desactivar

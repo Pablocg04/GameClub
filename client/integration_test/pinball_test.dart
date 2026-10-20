@@ -17,6 +17,11 @@ void main() {
     await tester.pumpWidget(
         const MaterialApp(home: Scaffold(body: Text('Prueba de pinball'))));
     final player = PinballPlayer(api,
+        onProgress: (text, _) {
+          if (text.startsWith('Pinball en pausa')) debugPrint('PINBALL_MENU');
+          if (text == 'Pinball en juego') debugPrint('PINBALL_RUNNING');
+        },
+        onHostStarted: (pid) => debugPrint('PINBALL_HOST_PID $pid'),
         onStarted: (pid) => debugPrint('PINBALL_ENGINE_PID $pid'));
     await player.play(game).timeout(const Duration(minutes: 5));
     debugPrint('PINBALL_CLOSED');

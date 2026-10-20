@@ -6,6 +6,20 @@ import 'package:gameclub/pinball_player.dart';
 import 'package:path/path.dart' as p;
 
 void main() {
+  test('migra controles VPX conservando pantalla, volumen y otras preferencias',
+      () {
+    const source =
+        '[Player]\nPlayfieldWidth=1280\nMusicVolume=35\n[Input]\nMapping.Start = Key;30 | SDLJoy_old;1\n[ScoreView]\nScoreViewWndX=600\n';
+    final configured = PinballPlayer.configureControls(source);
+    expect(configured, contains('PlayfieldWidth=1280'));
+    expect(configured, contains('MusicVolume=35'));
+    expect(configured, contains('ScoreViewWndX=600'));
+    expect(configured, isNot(contains('SDLJoy_old')));
+    expect(PinballPlayer.configureControls(configured), configured);
+    final input = configured.split('[Input]').last.split('[ScoreView]').first;
+    expect(input, contains('Mapping.Start = Key;30'));
+    expect(input, contains('Mapping.LeftFlipper = Key;225'));
+  });
   test('prepara la mesa y las ROMs sin sobrescribir el NVRAM existente',
       () async {
     final root = await Directory.systemTemp.createTemp('gameclub-pinball-');

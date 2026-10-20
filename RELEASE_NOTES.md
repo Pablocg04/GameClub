@@ -1,4 +1,16 @@
-# GameClub 0.9.0
+# GameClub 0.9.1
+
+- Windows: VPX recibe el foco al arrancar y al continuar, evitando la mesa
+  aparentemente congelada.
+- Mando SDL para monedas, partida, lanzador, flippers y golpes de mesa.
+- Menú **Start + Select / Guide / Esc**, con controles visibles, continuar,
+  reiniciar y guardar/salir.
+- Liberación de botones al pausar, desconectar o cambiar de aplicación.
+- Monedas secuenciadas y espera de créditos antes de iniciar con Start.
+- Preparación inicial de Attack from Mars sin borrar NVRAM ni originales.
+- Backend compatible con el servidor 0.9.0 ya desplegado.
+
+## Versión anterior · 0.9.0
 
 - Nuevo sistema **Visual Pinball · PinMAME**: un ZIP/VPXZ por mesa con ROMs,
   panel B2S opcional, música y script standalone.

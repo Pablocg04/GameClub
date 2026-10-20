@@ -15,6 +15,9 @@
 #include <map>
 #include <string>
 #include <vector>
+#ifndef __ANDROID__
+#include "pinball_host.h"
+#endif
 #ifdef __ANDROID__
 #include <jni.h>
 #endif
@@ -458,6 +461,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_gameclub_gameclub_NativeGameActivity_
 #endif
 
 int main(int argc,char** argv) {
+#ifndef __ANDROID__
+  if(argc>1 && std::strcmp(argv[1],"--pinball")==0)return gameclub::runPinballHost(argc,argv);
+#endif
   if(argc<6)return 2;
   std::string corePath=argv[1],gamePath=argv[2];savePath=argv[3];reportPath=argv[4];
   touchEnabled=std::string(argv[5])=="touch";cards=argc>6&&std::string(argv[6])=="cards";

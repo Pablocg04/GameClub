@@ -1266,7 +1266,7 @@ class _LibraryPageState extends State<LibraryPage> {
               ? const EdgeInsets.symmetric(horizontal: 24, vertical: 12)
               : EdgeInsets.zero,
           child: Scaffold(
-            appBar: AppBar(title: const Text('GameClub · 0.9.0'), actions: [
+            appBar: AppBar(title: const Text('GameClub · 0.9.1'), actions: [
               IconButton(
                   tooltip: 'Escanear biblioteca',
                   onPressed: busy

@@ -12,10 +12,12 @@ import 'native_runtime.dart';
 import 'television.dart';
 
 class PinballPlayer {
-  PinballPlayer(this.api, {this.onProgress, this.onStarted});
+  PinballPlayer(this.api,
+      {this.onProgress, this.onStarted, this.onHostStarted});
   final GameClubApi api;
   final void Function(String, double?)? onProgress;
   final void Function(int)? onStarted;
+  final void Function(int)? onHostStarted;
 
   static File safeFile(Directory root, String relative) {
     if (relative.startsWith('/') ||
@@ -236,6 +238,47 @@ ScoreViewWndX=16
 ScoreViewWndY=16
 ''';
 
+  /// The host supplies a consistent pad mapping. Keep video/audio and saved data,
+  /// but restore the keyboard actions it uses instead of VPX's old pad layout.
+  static String configureControls(String source) {
+    final pending = <String, String>{
+      'Mapping.LeftFlipper': 'Key;225',
+      'Mapping.RightFlipper': 'Key;229',
+      'Mapping.LeftStagedFlipper': 'Key;225',
+      'Mapping.RightStagedFlipper': 'Key;229',
+      'Mapping.Credit1': 'Key;34',
+      'Mapping.Start': 'Key;30',
+      'Mapping.LaunchBall': 'Key;40',
+      'Mapping.LeftNudge': 'Key;29',
+      'Mapping.RightNudge': 'Key;56',
+      'Mapping.CenterNudge': 'Key;44',
+    };
+    final output = <String>[];
+    var inInput = false, found = false;
+    void remaining() {
+      output
+          .addAll(pending.entries.map((item) => '${item.key} = ${item.value}'));
+      pending.clear();
+    }
+
+    for (final line in const LineSplitter().convert(source)) {
+      if (line.trim().startsWith('[')) {
+        if (inInput) remaining();
+        inInput = line.trim().toLowerCase() == '[input]';
+        found |= inInput;
+      }
+      final key = line.split('=').first.trim();
+      if (inInput && pending.containsKey(key)) {
+        output.add('$key = ${pending.remove(key)}');
+      } else {
+        output.add(line);
+      }
+    }
+    if (!found) output.add('[Input]');
+    remaining();
+    return '${output.join('\n')}\n';
+  }
+
   static Future<String> exportAndroid(List<String> arguments) async {
     final folder = Directory(arguments[0]), destination = arguments[1];
     await File(destination).parent.create(recursive: true);
@@ -285,22 +328,67 @@ ScoreViewWndY=16
         GameFiles.libraryKey(api), game['id'] as String));
     await preferences.create(recursive: true);
     final ini = File(p.join(preferences.path, 'VPinballX.ini'));
-    if (!await ini.exists()) await ini.writeAsString(defaultIni, flush: true);
+    await ini.writeAsString(
+        configureControls(
+            await ini.exists() ? await ini.readAsString() : defaultIni),
+        flush: true);
+    final host = File(
+        p.join(p.dirname(Platform.resolvedExecutable), 'gameclub_native.exe'));
+    if (!await host.exists()) {
+      throw Exception(
+          'Falta gameclub_native.exe. Extrae el paquete completo de GameClub.');
+    }
+    var initialize = false;
+    for (final name
+        in (prepared['rom_candidates'] as List? ?? []).cast<String>()) {
+      if (name.startsWith('afm_') &&
+          (!await File(p.join(preferences.path, '.initialized-afm-v2'))
+                  .exists() ||
+              !await safeFile(Directory(prepared['directory'] as String),
+                      'pinmame/nvram/$name.nv')
+                  .exists())) {
+        initialize = true;
+      }
+    }
     final log = File(p.join(preferences.path, 'player.log')).openWrite();
     try {
       final process = await Process.start(
-          engine.path,
+          host.path,
           [
-            '-Ini',
-            ini.path,
-            '-PrefPath',
+            '--pinball',
+            engine.path,
+            prepared['primary'] as String,
             preferences.path,
-            '-Play',
-            prepared['primary'] as String
+            if (initialize) '--initialize',
+            if (prepared['requires_rom'] == true) '--warmup=15000',
           ],
           workingDirectory: engine.parent.path);
-      onStarted?.call(process.pid);
-      final stdout = process.stdout.forEach(log.add);
+      onHostStarted?.call(process.pid);
+      await process.stdin.close();
+      final stdout = process.stdout
+          .transform(const Utf8Decoder(allowMalformed: true))
+          .transform(const LineSplitter())
+          .forEach((line) {
+        log.writeln(line);
+        const prefix = 'GAMECLUB_PINBALL_ENGINE ';
+        if (line.startsWith(prefix)) {
+          final pid = int.tryParse(line.substring(prefix.length).trim());
+          if (pid != null) onStarted?.call(pid);
+        }
+        if (line == 'GAMECLUB_PINBALL_STATE initializing') {
+          onProgress?.call(
+              'Inicializando la ROM por primera vez. La mesa se volverá a abrir automáticamente…',
+              null);
+        }
+        if (line == 'GAMECLUB_PINBALL_STATE menu') {
+          onProgress?.call(
+              'Pinball en pausa: controles y menú en la ventana del juego',
+              null);
+        }
+        if (line == 'GAMECLUB_PINBALL_STATE running') {
+          onProgress?.call('Pinball en juego', null);
+        }
+      });
       final stderr = process.stderr.forEach(log.add);
       final result = await process.exitCode;
       await Future.wait([stdout, stderr]);

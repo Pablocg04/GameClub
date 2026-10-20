@@ -1,4 +1,28 @@
-# Revisión funcional · GameClub 0.9.0
+# Revisión funcional · GameClub 0.9.1
+
+## Corrección pinball Windows · 0.9.1
+
+Se reprodujo en los registros del usuario el arranque de VPX sin recibir foco:
+la mesa cargaba, pero no aparecía `Unpausing Game`. El banco anterior forzaba el
+foco al capturar la ventana y ocultaba ese fallo. La comprobación actual exige
+que lo adquiera el propio reproductor.
+
+El host Windows incorpora mando SDL, menú Start + Select / Esc, continuar,
+reiniciar y salida guardando. El banco `tools/check_pinball_controls.py` usa
+un mando SDL virtual, una carpeta de prueba nueva y NVRAM sin datos previos;
+comprueba el movimiento visible de ambos flippers, los créditos, la liberación
+al pausar/desconectar y la reapertura. No captura otras ventanas ni modifica
+las mesas originales.
+
+La configuración de vídeo/audio y las partidas se conservan al migrar los
+controles. La versión del servidor continúa en 0.9.0: este cambio es del cliente.
+
+Resultado: **33 pruebas Flutter**, análisis limpio, banco del host **release**
+desde cero con movimiento visual de flippers y banco Flutter → host → VPX
+completos. Ambos bancos comprueban el menú y la salida guardando sin forzar el
+foco desde las herramientas de captura. APKs móvil y TV 0.9.1/23 compilados.
+
+## Revisión anterior · 0.9.0
 
 ## Visual Pinball · 0.9.0
 

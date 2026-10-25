@@ -1,4 +1,21 @@
-# Revisión funcional · GameClub 0.10.0
+# Revisión funcional · GameClub 0.10.1
+
+## Catálogo y APK TV sin Visual Pinball · 0.10.1
+
+- La variante TV filtra el sistema VPX y sus mesas al cargar biblioteca y
+  favoritos; por ello tampoco aparecen en filtros ni selectores de subida,
+  aunque se active Mostrar consolas vacías.
+- La política depende de la variante del APK, no de la navegación por mando:
+  el móvil mantiene VPX al conectar un controlador.
+- Pruebas de interfaz con un servidor que devuelve juegos MAME y VPX a la vez:
+  TV conserva Pinball Action y oculta Attack from Mars; móvil conserva ambos.
+- **35 pruebas Flutter superadas y análisis limpio.** Compilaciones release de
+  PC, móvil y TV. El APK TV pasa de aproximadamente 302 MiB a 74 MiB al excluir
+  las bibliotecas y recursos de VPX; móvil mantiene su motor integrado.
+- El empaquetado verifica que TV no contiene bibliotecas ni recursos VPX, y
+  que los originales de móvil siguen coincidiendo con sus SHA-256 fijados.
+
+## Revisión anterior · 0.10.0
 
 ## VPX Android integrado · 0.10.0
 

@@ -15,6 +15,8 @@ class DevicePlatform {
   static bool get mobile =>
       info['variant'] == 'mobile' || (Platform.isAndroid && !television);
   static Map<String, dynamic> info = {};
+  // A connected controller changes navigation, not the device's catalog policy.
+  static bool get visualPinballVisible => info['variant'] != 'tv';
   static final gamepadConnected = ValueNotifier<bool>(false);
   static Future<void> initialize() async {
     const forced = bool.fromEnvironment('GAMECLUB_TV');

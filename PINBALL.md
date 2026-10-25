@@ -1,5 +1,12 @@
 # Visual Pinball · PinMAME
 
+## Variante TV · 0.10.1
+
+Visual Pinball se muestra y se reproduce solo en PC y móvil. La variante TV lo
+oculta en sistemas, mesas, favoritos y selectores, y no incluye su motor ni
+recursos. Las mesas y guardados compartidos de la Raspberry se conservan.
+El filtro de pinballs MAME sigue disponible en TV.
+
 ## Android integrado · 0.10.0
 
 **El motor VPX/PinMAME está incluido en el APK de GameClub. No hay que instalar
@@ -19,9 +26,9 @@ otra app ni importar la mesa en un reproductor externo.** Abre la ficha y pulsa
   separados por servidor/juego. Preferencias y registro VPX: directorio de
   soporte `pinball/saves/<servidor>/<juego>/10.8/`.
 
-El APK universal conserva sus demás motores para ARM32 y x86_64. VPX utiliza
+El APK móvil universal conserva sus demás motores para ARM32 y x86_64. VPX utiliza
 solo ARM64; en los otros procesos se explica el requisito antes de descargar.
-En TV se utiliza el mando y no aparecen controles táctiles.
+El APK TV no incluye VPX desde 0.10.1.
 
 El tamaño del APK aumenta porque contiene las bibliotecas del motor. Su origen
 y SHA-256 están fijados en `client/platform-config/pinball_runtime.json`.
@@ -130,7 +137,7 @@ La disposición del marcador y del panel depende de la mesa y de la configuraci�
 de pantallas del motor. Las mesas con marcador propio pueden necesitar desactivar
 ScoreView o recolocarlo en sus ajustes VPX.
 
-## Android móvil y TV
+## Android móvil
 
 Desde 0.10.0 se reproduce dentro de GameClub con las bibliotecas oficiales
 incluidas. GameClub comprueba API, ABI del proceso y gráficos antes de preparar

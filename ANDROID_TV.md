@@ -1,19 +1,19 @@
-# GameClub para Android TV / Google TV · 0.10.0
+# GameClub para Android TV / Google TV · 0.10.1
 
 ## APK específico para televisión
 
-Instala **`dist/android-tv-0.10.0/GameClub-AndroidTV.apk`**. Esta variante fuerza el
+Instala **`dist/android-tv-0.10.1/GameClub-AndroidTV.apk`**. Esta variante fuerza el
 modo TV y la orientación horizontal, incluye launcher Leanback y banner, y utiliza
-mandos sin controles táctiles sobre el juego. La versión es **0.10.0**, código **24**.
+mandos sin controles táctiles sobre el juego. La versión es **0.10.1**, código **25**.
 
-Para teléfono/tablet utiliza **`dist/android-mobile-0.10.0/GameClub-Android.apk`**:
+Para teléfono/tablet utiliza **`dist/android-mobile-0.10.1/GameClub-Android.apk`**:
 controles más grandes, estilo clásico y orientación automática/vertical/horizontal.
 Consulta [ANDROID_MOBILE.md](ANDROID_MOBILE.md).
 
-Visual Pinball requiere Android 13+ ARM64 y OpenGL ES 3.2 o Vulkan. El motor va
-incluido en el APK: se juega dentro de GameClub con mando y menú Start + Select.
-No requiere instalar VPX externo. La reproducción debe comprobarse en la TV
-física concreta. Los pinballs MAME conservan su ruta nativa anterior.
+Desde 0.10.1 **Visual Pinball no aparece en el APK TV**: se ocultan el sistema,
+las mesas, los favoritos y el selector de subida, y se excluye su motor del
+paquete. PC y móvil conservan VPX. Los pinballs MAME mantienen su ruta nativa
+anterior y siguen disponibles en TV.
 Consulta [PINBALL.md](PINBALL.md).
 
 Las carátulas se buscan en Libretro → LaunchBox → GameTDB, con subida manual como

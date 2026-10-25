@@ -23,7 +23,7 @@ android {
     externalNativeBuild {
         cmake { path = file("../../native/CMakeLists.txt"); version = "3.22.1" }
     }
-    sourceSets.named("main") {
+    sourceSets.named("mobile") {
         jniLibs.srcDir("../../native/vendor/pinball/jniLibs")
         assets.srcDir("../../native/vendor/pinball/assets")
     }
@@ -57,4 +57,6 @@ val verifyPinballRuntime by tasks.registering {
         }
     }
 }
-tasks.named("preBuild") { dependsOn(verifyPinballRuntime) }
+tasks.configureEach {
+    if (name.startsWith("preMobile") && name.endsWith("Build")) dependsOn(verifyPinballRuntime)
+}

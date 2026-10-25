@@ -15,7 +15,9 @@ void main() {
         .invokeMapMethod<String, dynamic>('pinballCapabilities');
     debugPrint('PINBALL_ANDROID_CAPABILITIES $capabilities');
     expect(capabilities!['compatible'], isA<bool>());
-    expect(capabilities['integrated'], isTrue);
+    final device =
+        await DevicePlatform.channel.invokeMapMethod<String, dynamic>('info');
+    expect(capabilities['integrated'], device!['variant'] != 'tv');
     expect(capabilities.containsKey('installed'), isFalse);
   });
   testWidgets('un Android incompatible falla antes de descargar la mesa',

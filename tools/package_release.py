@@ -49,13 +49,18 @@ def main():
                 for abi in ('armeabi-v7a', 'arm64-v8a', 'x86_64'):
                     assert f'lib/{abi}/libgameclub_native.so' in archive.namelist()
                     assert f'lib/{abi}/libgameclub_pinball.so' in archive.namelist()
-                assert json.loads(archive.read('assets/pinball-runtime.json')) == pinball
-                for library, entry in pinball['libraries'].items():
-                    raw = archive.read(f'lib/arm64-v8a/{library}')
-                    assert len(raw) == entry['size'] and hashlib.sha256(raw).hexdigest() == entry['sha256'], library
-                for asset, entry in pinball['assets'].items():
-                    raw = archive.read('assets/pinball/'+asset)
-                    assert len(raw) == entry['size'] and hashlib.sha256(raw).hexdigest() == entry['sha256'], asset
+                if variant == 'mobile':
+                    assert json.loads(archive.read('assets/pinball-runtime.json')) == pinball
+                    for library, entry in pinball['libraries'].items():
+                        raw = archive.read(f'lib/arm64-v8a/{library}')
+                        assert len(raw) == entry['size'] and hashlib.sha256(raw).hexdigest() == entry['sha256'], library
+                    for asset, entry in pinball['assets'].items():
+                        raw = archive.read('assets/pinball/'+asset)
+                        assert len(raw) == entry['size'] and hashlib.sha256(raw).hexdigest() == entry['sha256'], asset
+                else:
+                    assert 'assets/pinball-runtime.json' not in archive.namelist()
+                    assert not any(name.startswith('assets/pinball/') for name in archive.namelist())
+                    assert not any(name.startswith('lib/') and Path(name).name in pinball['libraries'] for name in archive.namelist())
                 assert not any(name.lower().endswith(('.nes', '.a26', '.sta', '.vpx', '.vpxz', '.directb2s')) for name in archive.namelist())
             target = root/'dist'/f'android-{variant}-{version}'
             target.mkdir(exist_ok=True)

@@ -1,4 +1,13 @@
-# GameClub 0.10.0
+# GameClub 0.10.1
+
+- La variante TV oculta Visual Pinball en biblioteca, favoritos y selectores de
+  subida, incluso al mostrar sistemas vacíos.
+- El APK TV deja de incluir las bibliotecas y recursos de VPX. Conserva los
+  pinballs MAME y sus otros motores compatibles.
+- PC y móvil mantienen Visual Pinball. Conectar un mando al móvil no lo oculta.
+- Se conservan las mesas y guardados del servidor para PC y móvil.
+
+## Versión anterior · 0.10.0
 
 - **VPX y PinMAME integrados en el APK Android**: reproducción desde GameClub,
   sin instalar la aplicación oficial externa ni confirmar importaciones.

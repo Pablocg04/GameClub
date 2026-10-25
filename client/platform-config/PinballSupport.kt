@@ -8,6 +8,10 @@ import java.io.File
 
 object PinballSupport {
     fun capabilities(context: Context): Map<String, Any> {
+        if (BuildConfig.GAMECLUB_DEVICE == "tv") return mapOf(
+            "compatible" to false, "integrated" to false,
+            "reason" to "Visual Pinball no está disponible en la variante TV de GameClub.",
+            "abi" to File(context.applicationInfo.nativeLibraryDir).name, "androidApi" to Build.VERSION.SDK_INT)
         val bundled = runCatching { context.assets.open("pinball-runtime.json").close(); true }.getOrDefault(false)
         val arm64 = File(context.applicationInfo.nativeLibraryDir).name == "arm64"
         val gles = (context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).deviceConfigurationInfo.reqGlEsVersion

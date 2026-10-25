@@ -183,6 +183,10 @@ class _LibraryPageState extends State<LibraryPage> {
     setState(() {
       loading = true;
       status = '';
+      if (!DevicePlatform.visualPinballVisible &&
+          selectedSystem == 'vpinball') {
+        selectedSystem = null;
+      }
     });
     try {
       final results = await Future.wait([
@@ -196,8 +200,16 @@ class _LibraryPageState extends State<LibraryPage> {
       final config = await api.dio.get<Json>('/api/settings');
       if (!mounted || request != revision) return;
       setState(() {
-        systems = results[0];
-        games = results[1];
+        systems = results[0]
+            .where((system) =>
+                DevicePlatform.visualPinballVisible ||
+                system['id'] != 'vpinball')
+            .toList();
+        games = results[1]
+            .where((game) =>
+                DevicePlatform.visualPinballVisible ||
+                game['system_id'] != 'vpinball')
+            .toList();
         settings = config.data!;
         loading = false;
       });
@@ -1163,8 +1175,12 @@ class _LibraryPageState extends State<LibraryPage> {
       const Divider(height: 40),
       const Text('Emuladores',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-      const Text(
-          'Visual Pinball: un ZIP/VPXZ por mesa con su .vpx, ROM ZIP y panel opcional. Android 13+ ARM64 incluye el motor en GameClub; PC descarga el motor portátil verificado. Start + Select abre el menú. El icono de bola filtra los pinballs de MAME.'),
+      if (DevicePlatform.visualPinballVisible)
+        const Text(
+            'Visual Pinball: un ZIP/VPXZ por mesa con su .vpx, ROM ZIP y panel opcional. Android 13+ ARM64 incluye el motor en GameClub; PC descarga el motor portátil verificado. Start + Select abre el menú. El icono de bola filtra los pinballs de MAME.')
+      else
+        const Text(
+            'El icono de bola junto a la búsqueda filtra los pinballs de MAME, que usan el motor arcade integrado.'),
       const Text(
           'NES y Atari 2600: motores nativos Nestopia UE y Stella incluidos en la app. Start inicia; en Atari equivale a RESET y Select a GAME SELECT.'),
       const Padding(
@@ -1260,7 +1276,7 @@ class _LibraryPageState extends State<LibraryPage> {
               ? const EdgeInsets.symmetric(horizontal: 24, vertical: 12)
               : EdgeInsets.zero,
           child: Scaffold(
-            appBar: AppBar(title: const Text('GameClub · 0.10.0'), actions: [
+            appBar: AppBar(title: const Text('GameClub · 0.10.1'), actions: [
               IconButton(
                   tooltip: 'Escanear biblioteca',
                   onPressed: busy

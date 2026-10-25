@@ -1,6 +1,8 @@
 # Preferencias del propietario
 
 - Responder en español.
+- La variante TV debe ocultar Visual Pinball (sistema, mesas y selectores) y no
+  incluir su motor. PC y móvil conservan Visual Pinball; TV mantiene los pinballs MAME.
 - Cada versión nueva debe publicarse en GitHub como parte de su entrega, sin
   esperar a que el propietario lo pida otra vez. Esto autoriza el commit y push
   de los cambios de esa versión y la creación de su release con tag `v<versión>`.

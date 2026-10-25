@@ -13,7 +13,7 @@ original `docs/license.txt`. Sus componentes y scripts mantienen sus licencias
 respectivas. Fuentes de PinMAME:
 <https://github.com/vpinball/pinmame>.
 
-Desde **0.10.0**, Android incluye las bibliotecas nativas y recursos del APK
+Desde **0.10.0**, Android móvil incluye las bibliotecas nativas y recursos del APK
 oficial BGFX mobile de ese mismo tag, sin modificarlos. No instala ni abre la
 aplicación VPX externa. Registro de APK, componentes y SHA-256:
 `client/platform-config/pinball_runtime.json`; preparación reproducible:
@@ -24,6 +24,7 @@ Se reutiliza SDL 3.4.18 del proyecto y un adaptador propio de la API C de VPX,
 sin modificar las bibliotecas oficiales. Se conservan las licencias de SDL_image,
 SDL_ttf, FreeImage, FFmpeg, Wine VBScript y los componentes/plugins originales.
 Las mesas, paneles, sonidos y ROMs del usuario no forman parte de GameClub.
+Desde 0.10.1 la variante TV excluye estas bibliotecas y recursos de VPX.
 Guía y requisitos: [PINBALL.md](PINBALL.md).
 
 ## Reproductor nativo de arcade y consolas · 0.7.0

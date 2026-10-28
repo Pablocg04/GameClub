@@ -24,6 +24,8 @@ def main():
     parser.add_argument('--release',action='store_true',help='Comprueba estados mediante logcat sin run-as')
     parser.add_argument('--tv',action='store_true',help='Verifica la variante TV sin botonera táctil')
     parser.add_argument('--restart',action='store_true',help='Comprueba también recarga de la mesa en el mismo proceso')
+    parser.add_argument('--presentation',action='store_true',help='Comprueba ajustes por mesa, recarga y persistencia')
+    parser.add_argument('--rotate',action='store_true',help='Gira el móvil y comprueba superficie y menús horizontales')
     args=parser.parse_args()
     sys.stdout.reconfigure(encoding='utf-8',errors='replace')
     assert args.root.parent.is_dir() and args.table.is_file()
@@ -130,12 +132,49 @@ def main():
                         if name=='Flipper izquierdo':tap(playing_control('Izq.'))
                         elif name=='Flipper derecho':tap(playing_control('Der.'))
                         else:raise
+            if args.rotate:
+                adb('shell','settings','put','system','accelerometer_rotation','0')
+                adb('shell','settings','put','system','user_rotation','1')
+                time.sleep(5)
+                capture('landscape.png')
+                with Image.open(args.root/'landscape.png') as image:assert image.width>image.height,image.size
+                horizontal_labels=[label(node) for node in tree().iter('node')]
+                assert 'Izq.' in horizontal_labels and 'Der.' in horizontal_labels,horizontal_labels
             adb('shell','input','keycombination','KEYCODE_BUTTON_SELECT','KEYCODE_BUTTON_START')
             wait_state('menu')
             adb('shell','input','keyevent','KEYCODE_BUTTON_B')
             wait_state('running')
             adb('shell','input','keyevent','KEYCODE_BACK')
             wait_state('menu')
+            if args.presentation:
+                tap(wait('Imagen y sonido',scroll=True))
+                wait('Golpes, bola y flippers:')
+                wait('Música, voces y electrónica (ROM): 100%')
+                wait('Tamaño de la mesa: 95%',scroll=True)
+                sliders=[node for node in tree().iter('node') if node.get('class')=='android.widget.SeekBar']
+                assert len(sliders)==3
+                tap(sliders[0])
+                adb('shell','input','keyevent','KEYCODE_DPAD_LEFT')
+                mechanical_caption=next(label(node) for node in tree().iter('node') if 'Golpes, bola y flippers:' in label(node))
+                mechanical_value=int(re.search(r'(\d+)%',mechanical_caption).group(1))
+                score=wait('Mostrar marcador adicional (ScoreView)',scroll=True)
+                if score.get('checked')=='true':tap(score)
+                assert wait('Mostrar marcador adicional (ScoreView)').get('checked')=='false'
+                capture('presentation.png')
+                tap(wait('Aplicar y reiniciar'))
+                wait_state('running')
+                capture('presentation-applied.png')
+                adb('shell','input','keyevent','KEYCODE_BACK')
+                wait_state('menu')
+                tap(wait('Imagen y sonido',scroll=True))
+                wait(f'Golpes, bola y flippers: {mechanical_value}%')
+                assert wait('Mostrar marcador adicional (ScoreView)',scroll=True).get('checked')=='false'
+                if not args.release:
+                    ini=adb('shell','run-as','com.gameclub.gameclub','cat',report.replace('session.json','10.8/VPinballX.ini'))
+                    for expected in (f'SoundVolume = {mechanical_value}', 'MusicVolume = 100', 'BGSet = 1', 'ViewCabMode = 0', 'ScoreViewOutput = 0'):
+                        assert re.sub(r'\s+', '', expected) in re.sub(r'\s+', '', ini),expected
+                tap(wait('Cancelar'))
+                wait_state('menu')
             if args.restart:
                 tap(wait('Reiniciar mesa'))
                 wait_state('running')
@@ -152,6 +191,9 @@ def main():
             try:capture('last.png')
             except Exception:pass
             api.terminate();api.wait(timeout=15)
+            if args.rotate:
+                adb('shell','settings','put','system','user_rotation','0')
+                adb('shell','settings','put','system','accelerometer_rotation','1')
 
 
 if __name__=='__main__':main()

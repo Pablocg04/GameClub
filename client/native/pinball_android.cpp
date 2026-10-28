@@ -5,12 +5,38 @@
 #include <android/log.h>
 #include <string>
 #include <stdexcept>
+#include <algorithm>
 
 namespace {
 JavaVM* vm=nullptr;
 jobject listener=nullptr;
 jmethodID eventMethod=nullptr;
 void* engine=nullptr;
+template<typename T>T symbol(const char* name);
+struct Presentation { int mechanical, electronic, scale; bool score; std::string error; };
+void configurePresentation(void* data) {
+  auto& settings=*static_cast<Presentation*>(data);
+  try {
+    auto saveInt=symbol<void(*)(const char*,const char*,int)>("VPinballSaveValueInt");
+    auto saveFloat=symbol<void(*)(const char*,const char*,float)>("VPinballSaveValueFloat");
+    // PinMAME publishes a BACKGLASS stream; playfield is the mechanical channel.
+    saveInt("Player","SoundVolume",settings.mechanical);
+    saveInt("Player","MusicVolume",settings.electronic);
+    // Cabinet visibility avoids the desktop DMD drawn by many table scripts.
+    // Legacy mode fits the geometry to the actual viewport, unlike imported POVs.
+    saveInt("Player","BGSet",1);
+    saveInt("Player","CabinetAutofitMode",0);
+    saveInt("Player","NumberOfTimesToShowTouchMessage",0);
+    saveInt("TableOverride","ViewCabMode",0);
+    for(const char* key:{"ViewCabPlayerX","ViewCabPlayerY","ViewCabPlayerZ","ViewCabRotation","ViewCabLayback"})
+      saveFloat("TableOverride",key,0.f);
+    saveFloat("TableOverride","ViewCabLookAt",20.f);
+    saveFloat("TableOverride","ViewCabFOV",50.f);
+    for(const char* key:{"ViewCabScaleX","ViewCabScaleY","ViewCabScaleZ"})
+      saveFloat("TableOverride",key,settings.scale/100.f);
+    saveInt("ScoreView","ScoreViewOutput",settings.score?2:0);
+  } catch(const std::exception& error) { settings.error=error.what(); }
+}
 using EventCallback=void(*)(int,const char*);
 template<typename T>T symbol(const char* name) {
   auto result=reinterpret_cast<T>(dlsym(engine,name));
@@ -81,10 +107,13 @@ extern "C" JNIEXPORT void JNICALL Java_com_gameclub_gameclub_PinballActivity_nat
     symbol<void(*)(EventCallback)>("VPinballInit")(event);
   } catch(const std::exception& error){failure(env,error.what());}
 }
-extern "C" JNIEXPORT jint JNICALL Java_com_gameclub_gameclub_PinballActivity_nativeLoad(JNIEnv* env,jobject,jstring path) {
+extern "C" JNIEXPORT jint JNICALL Java_com_gameclub_gameclub_PinballActivity_nativeLoad(JNIEnv* env,jobject,jstring path,jint mechanical,jint electronic,jint scale,jboolean score) {
   try {
     if(!engine)throw std::runtime_error("VPX no esta inicializado");
     SDL_RunOnMainThread(configureInput,nullptr,true);
+    Presentation settings{std::clamp(int(mechanical),0,100),std::clamp(int(electronic),0,100),std::clamp(int(scale),70,100),bool(score)};
+    if(!SDL_RunOnMainThread(configurePresentation,&settings,true))throw std::runtime_error("No se pudieron aplicar los ajustes VPX");
+    if(!settings.error.empty())throw std::runtime_error(settings.error);
     return symbol<int(*)(const char*)>("VPinballLoadTable")(text(env,path).c_str());
   } catch(const std::exception& error){failure(env,error.what());return 1;}
 }

@@ -1,4 +1,20 @@
-# GameClub 0.10.1
+# GameClub 0.10.2
+
+- VPX móvil: cámara ajustada a la geometría completa, sin el zoom ni la rotación
+  heredados de una configuración de mueble de la mesa.
+- Superficie de vídeo proporcionada al girar el móvil, sin estirar la mesa ni
+  reiniciar la partida.
+- Vista de mueble para evitar el DMD de escritorio duplicado; el marcador
+  adicional ScoreView puede desactivarse desde el menú de GameClub.
+- Balance inicial de audio: mecánica al 35% y música/electrónica al 100%.
+  PinMAME utiliza el canal backglass, separado de la mecánica.
+- Nuevo menú **Imagen y sonido**: volumen mecánico, volumen de música/ROM,
+  tamaño de mesa (70–100%) y marcador adicional, guardados por mesa.
+  Aplicar los cambios reinicia la partida y conserva la NVRAM.
+- Los ajustes se aplican también a las instalaciones existentes antes de cargar
+  la mesa. Menús desplazables en pantallas horizontales.
+
+## Versión anterior · 0.10.1
 
 - La variante TV oculta Visual Pinball en biblioteca, favoritos y selectores de
   subida, incluso al mostrar sistemas vacíos.

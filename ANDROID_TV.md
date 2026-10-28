@@ -1,12 +1,12 @@
-# GameClub para Android TV / Google TV · 0.10.1
+# GameClub para Android TV / Google TV · 0.10.2
 
 ## APK específico para televisión
 
-Instala **`dist/android-tv-0.10.1/GameClub-AndroidTV.apk`**. Esta variante fuerza el
+Instala **`dist/android-tv-0.10.2/GameClub-AndroidTV.apk`**. Esta variante fuerza el
 modo TV y la orientación horizontal, incluye launcher Leanback y banner, y utiliza
-mandos sin controles táctiles sobre el juego. La versión es **0.10.1**, código **25**.
+mandos sin controles táctiles sobre el juego. La versión es **0.10.2**, código **26**.
 
-Para teléfono/tablet utiliza **`dist/android-mobile-0.10.1/GameClub-Android.apk`**:
+Para teléfono/tablet utiliza **`dist/android-mobile-0.10.2/GameClub-Android.apk`**:
 controles más grandes, estilo clásico y orientación automática/vertical/horizontal.
 Consulta [ANDROID_MOBILE.md](ANDROID_MOBILE.md).
 

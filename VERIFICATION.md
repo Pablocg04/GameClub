@@ -1,4 +1,35 @@
-# Revisión funcional · GameClub 0.10.1
+# Revisión funcional · GameClub 0.10.2
+
+## Encuadre, marcador y audio VPX móvil · 0.10.2
+
+- **35 pruebas Flutter superadas y análisis limpio.** Compilaciones release de
+  Windows, Android móvil y TV (versión 0.10.2, código Android 26).
+- Ejecutado el APK móvil release en el AVD Android 36 con traducción ARM64,
+  tanto con la mesa oficial de ejemplo como con Attack from Mars g5k 1.3.11,
+  ROM hija `afm_113b` y padre `afm_113`.
+- Mesa, controles táctiles, flipper mantenido, menú por mando, continuación,
+  reinicio en el mismo proceso y salida a la biblioteca comprobados.
+- El banco de ajustes cambia el volumen mecánico y desactiva ScoreView;
+  aplica/reinicia y vuelve a abrir el diálogo para comprobar la persistencia.
+  En debug se verifica además el INI del motor: SoundVolume, MusicVolume,
+  BGSet, ViewCabMode y ScoreViewOutput. El APK release se prueba también
+  actualizando la instalación debug, conservando sus datos.
+- Attack from Mars presenta un solo DMD al usar la vista de mueble con
+  ScoreView activo. Se comprueba también la desactivación del adicional.
+- Al girar, VPX conserva la proporción de proyección inicial: se detectó que
+  expandir la superficie a toda la pantalla deformaba la mesa hasta reiniciarla.
+  La superficie ahora mantiene proporción 3:5, centrada dentro del área libre
+  de controles; se verifican giro, imagen sin estirar, menú y reinicio horizontal.
+  No se reinicia la partida al girar.
+- PinMAME inicializa su flujo mono INT16 a 44.1 kHz. Su código fijado publica
+  audio BACKGLASS; VPX aplica MusicVolume a ese canal y SoundVolume al playfield.
+  Mecánica inicial 35%, electrónica/música 100%, modificables por mesa.
+- La comprobación visual y de canales en el emulador no sustituye la escucha
+  del balance ni la comprobación de rendimiento en el Snapdragon físico.
+- Los paquetes se auditan con sus hashes y los dos APK con AAPT; TV sigue
+  excluyendo recursos y bibliotecas de VPX.
+
+## Revisión anterior · 0.10.1
 
 ## Catálogo y APK TV sin Visual Pinball · 0.10.1
 

@@ -20,9 +20,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import android.widget.ScrollView
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.Keep
 import org.json.JSONObject
@@ -59,10 +62,11 @@ class PinballActivity : SDLActivity(), InputManager.InputDeviceListener {
     private var menuSelection = 0
     private var menuButtons = emptyList<Button>()
     private var startupTimeout: Runnable? = null
+    private var presentation = JSONObject()
 
     private external fun nativeReady(): Boolean
     private external fun nativeInitialize()
-    private external fun nativeLoad(path: String): Int
+    private external fun nativeLoad(path: String, mechanical: Int, electronic: Int, scale: Int, score: Boolean): Int
     private external fun nativePlay(): Int
     private external fun nativeStop()
     private external fun nativeVersion(): String
@@ -91,6 +95,11 @@ class PinballActivity : SDLActivity(), InputManager.InputDeviceListener {
         root.mkdirs()
         sessionRoot = root
         primary = source
+        val settings = File(root, "presentation.json")
+        presentation = if (settings.isFile) runCatching { JSONObject(settings.readText()) }.getOrElse {
+            android.util.Log.w("GameClubPinball", "No se pudieron leer los ajustes de imagen y sonido", it)
+            JSONObject()
+        } else JSONObject()
         setResult(RESULT_CANCELED)
         applyOrientation()
         super.onCreate(savedInstanceState)
@@ -104,6 +113,9 @@ class PinballActivity : SDLActivity(), InputManager.InputDeviceListener {
         }
         mLayout.addView(progress, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         buildControls()
+        mLayout.addOnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            if (right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop) fitSurface()
+        }
         progress.bringToFront()
         (getSystemService(Context.INPUT_SERVICE) as InputManager).registerInputDeviceListener(this, handler)
         writeState("loading")
@@ -202,7 +214,7 @@ ScoreViewWndY=8
         startupTimeout = Runnable { if (!closing && !ready) fail("El motor no terminó de iniciar. Revisa el registro de la mesa en ${File(sessionRoot!!, "10.8/vpinball.log")}") }.also { handler.postDelayed(it, 300000) }
         thread(name = "GameClub-Pinball-load") {
             try {
-                check(nativeLoad(primary.path) == 0) { "El motor no pudo cargar la mesa. Revisa sus archivos y ROMs." }
+                check(nativeLoad(primary.path, presentation.optInt("mechanical", 35), presentation.optInt("electronic", 100), presentation.optInt("scale", 95), presentation.optBoolean("score", true)) == 0) { "El motor no pudo cargar la mesa. Revisa sus archivos y ROMs." }
                 loaded = true
                 if (!closing) check(nativePlay() == 0) { "El motor no pudo iniciar la mesa" }
                 else handler.post { finishSaved() }
@@ -310,19 +322,19 @@ ScoreViewWndY=8
             text = "Select/Y: moneda · Start: partida · A: bola\nLB/LT y RB/RT: flippers\nStart + Select o Atrás: menú\nCruceta para elegir, A para aceptar y B para continuar."
             setPadding(0, 0, 0, dp(12)); textSize = 16f
         })
-        val labels = listOf("Continuar", "Reiniciar mesa", "Guardar y salir")
+        val labels = listOf("Continuar", "Reiniciar mesa", "Guardar y salir", "Imagen y sonido")
         menuButtons = labels.mapIndexed { index, label -> Button(this).apply {
             text = label; isFocusable = true; isFocusableInTouchMode = false
             setOnFocusChangeListener { _, focused -> if (focused) menuSelection = index }
             setOnClickListener { selectMenu(index) }
             column.addView(this, LinearLayout.LayoutParams(-1, dp(52)))
         } }
-        dialog = AlertDialog.Builder(this).setTitle("Menú pinball · GameClub").setView(column).setCancelable(false).create().apply {
+        dialog = AlertDialog.Builder(this).setTitle("Menú pinball · GameClub").setView(ScrollView(this@PinballActivity).apply { addView(column) }).setCancelable(false).create().apply {
             setOnKeyListener { _, key, event ->
                 if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener key in setOf(KeyEvent.KEYCODE_BUTTON_A, KeyEvent.KEYCODE_BUTTON_B, KeyEvent.KEYCODE_BUTTON_START)
                 when (key) {
-                    KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_LEFT -> { menuSelection = (menuSelection + 2) % 3; menuButtons[menuSelection].requestFocus(); true }
-                    KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_DPAD_RIGHT -> { menuSelection = (menuSelection + 1) % 3; menuButtons[menuSelection].requestFocus(); true }
+                    KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_LEFT -> { menuSelection = (menuSelection + menuButtons.size - 1) % menuButtons.size; menuButtons[menuSelection].requestFocus(); true }
+                    KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_DPAD_RIGHT -> { menuSelection = (menuSelection + 1) % menuButtons.size; menuButtons[menuSelection].requestFocus(); true }
                     KeyEvent.KEYCODE_BUTTON_A, KeyEvent.KEYCODE_BUTTON_START, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_DPAD_CENTER -> { if (event.repeatCount == 0) selectMenu(menuSelection); true }
                     KeyEvent.KEYCODE_BUTTON_B, KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_ESCAPE -> { selectMenu(0); true }
                     else -> false
@@ -335,7 +347,41 @@ ScoreViewWndY=8
     }
     private fun selectMenu(index: Int) {
         val old = dialog; dialog = null; old?.dismiss(); releaseAll()
-        when (index) { 1 -> restartTable(); 2 -> stopTable(); else -> writeState(if (ready) "running" else "starting") }
+        when (index) { 1 -> restartTable(); 2 -> stopTable(); 3 -> showPresentation(); else -> writeState(if (ready) "running" else "starting") }
+    }
+    private fun showPresentation() {
+        val column = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(20), dp(8), dp(20), dp(12)) }
+        column.addView(TextView(this).apply { text = "Ajustes para esta mesa. Aplicarlos reinicia la partida; se conservan la configuración y los récords de la ROM." })
+        fun slider(label: String, key: String, default: Int, minimum: Int = 0): SeekBar {
+            val caption = TextView(this)
+            val bar = SeekBar(this).apply { max = 100 - minimum; progress = presentation.optInt(key, default).coerceIn(minimum, 100) - minimum }
+            fun update(value: Int) { caption.text = "$label: ${value + minimum}%" }
+            update(bar.progress)
+            bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(view: SeekBar?, value: Int, user: Boolean) { update(value) }
+                override fun onStartTrackingTouch(view: SeekBar?) {}
+                override fun onStopTrackingTouch(view: SeekBar?) {}
+            })
+            column.addView(caption); column.addView(bar)
+            return bar
+        }
+        val mechanical = slider("Golpes, bola y flippers", "mechanical", 35)
+        val electronic = slider("Música, voces y electrónica (ROM)", "electronic", 100)
+        val scale = slider("Tamaño de la mesa", "scale", 95, 70)
+        val score = CheckBox(this).apply { text = "Mostrar marcador adicional (ScoreView)"; isChecked = presentation.optBoolean("score", true) }
+        column.addView(score)
+        column.addView(TextView(this).apply { text = "Si la mesa ya muestra su marcador y ves dos, desactiva el adicional." })
+        dialog = AlertDialog.Builder(this).setTitle("Imagen y sonido")
+            .setView(ScrollView(this).apply { addView(column) })
+            .setPositiveButton("Aplicar y reiniciar") { _, _ ->
+                presentation = JSONObject(mapOf("mechanical" to mechanical.progress, "electronic" to electronic.progress, "scale" to scale.progress + 70, "score" to score.isChecked))
+                val target = File(sessionRoot!!, "presentation.json")
+                val part = File(target.path + ".part")
+                part.writeText(presentation.toString()); check(part.renameTo(target)) { "No se pudieron guardar los ajustes de la mesa" }
+                dialog = null; restartTable()
+            }
+            .setNegativeButton("Cancelar") { _, _ -> dialog = null; showMenu() }
+            .setOnCancelListener { dialog = null; showMenu() }.create().apply { show() }
     }
     private fun dp(value: Int) = (value * resources.displayMetrics.density * intent.getDoubleExtra("touchScale", 1.0).coerceIn(.8, 1.35)).toInt()
     private fun control(label: String, key: Int? = null, action: (() -> Unit)? = null): Button = Button(this).apply {
@@ -376,9 +422,30 @@ ScoreViewWndY=8
         }
         mSurface.layoutParams = surface
         mLayout.addView(overlay, ViewGroup.LayoutParams(-1, -1)); controls = overlay
+        fitSurface()
+    }
+    private fun fitSurface() {
+        if (television() || mLayout.width <= 0 || mLayout.height <= 0) return
+        val landscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val side = if (landscape) dp(90) else 0
+        val bottom = if (landscape) 0 else dp(126)
+        val availableWidth = (mLayout.width - 2 * side).coerceAtLeast(1)
+        val availableHeight = (mLayout.height - bottom).coerceAtLeast(1)
+        // VPX caches its projection aspect at player creation. Keep the SDL
+        // surface at the same aspect on rotation, fitting it inside the controls.
+        // This avoids stretching the table and does not reset the running ROM.
+        val width = minOf(availableWidth, (availableHeight * .6f).toInt()).coerceAtLeast(1)
+        val height = (width / .6f).toInt().coerceAtLeast(1)
+        mSurface.layoutParams = RelativeLayout.LayoutParams(width, height).apply {
+            leftMargin = side + (availableWidth - width) / 2
+            rightMargin = mLayout.width - leftMargin - width
+            topMargin = (availableHeight - height) / 2
+            bottomMargin = mLayout.height - topMargin - height
+        }
     }
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (mBrokenLibraries) return super.dispatchKeyEvent(event)
+        if (dialog != null) return super.dispatchKeyEvent(event)
         if (event.keyCode in setOf(KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_ESCAPE, KeyEvent.KEYCODE_BUTTON_MODE)) {
             if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) showMenu()
             return true

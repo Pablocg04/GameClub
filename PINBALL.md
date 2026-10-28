@@ -1,5 +1,25 @@
 # Visual Pinball · PinMAME
 
+## Imagen y sonido en móvil · 0.10.2
+
+El menú de la mesa incluye **Imagen y sonido**. La cámara encuadra la geometría
+completa con un margen inicial del 5%, tanto en vertical como en horizontal.
+El tamaño se puede reducir hasta el 70%. Se usa la vista de mueble para ocultar
+los marcadores de escritorio de las mesas que respetan esa selección.
+Si una mesa sigue mostrando dos marcadores, desactiva **Mostrar marcador
+adicional (ScoreView)**. Algunas mesas dibujan su propio DMD desde el script.
+
+La superficie de vídeo conserva proporción 3:5 y se centra en el espacio libre
+entre los controles. Puede dejar bandas laterales; esto evita que VPX estire
+la mesa al girar el teléfono sin tener que reiniciar la partida.
+
+El volumen inicial de golpes, bola y flippers es 35%; el de música, voces y
+electrónica es 100%. El audio de PinMAME sale por el canal backglass de VPX.
+El volumen interno de cada ROM sigue dependiendo de su configuración original.
+Los ajustes se guardan por servidor/mesa en `presentation.json`, junto a los
+guardados, y se aplican también si ya existía un INI de una versión anterior.
+**Aplicar y reiniciar** comienza una partida nueva sin borrar NVRAM ni récords.
+
 ## Variante TV · 0.10.1
 
 Visual Pinball se muestra y se reproduce solo en PC y móvil. La variante TV lo

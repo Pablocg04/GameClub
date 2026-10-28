@@ -1,5 +1,6 @@
 """Índices SQLite de catálogos públicos, construidos en streaming y sin cuentas."""
 import asyncio
+import hashlib
 import io
 import re
 import sqlite3
@@ -12,7 +13,7 @@ import httpx
 from PIL import Image, UnidentifiedImageError
 from starlette.concurrency import run_in_threadpool
 
-from .bulk import normalized
+from .bulk import best_candidate, normalized
 from .scraper import ScraperError
 from .thumbnails import base_title, compact_title
 
@@ -29,6 +30,9 @@ LAUNCHBOX_SYSTEMS = {
 }
 GAMETDB_SYSTEMS = {13: 'wii', 16: 'wii', 15: 'ds', 17: '3ds', 18: 'wiiu', 225: 'switch'}
 IMAGE_TYPES = {'Box - Front': 0, 'Box - Front - Reconstructed': 1, 'Box - 3D': 2}
+PINBALL_IMAGE_TYPES = {'Advertisement Flyer - Front': 0, 'Box - Front': 1,
+    'Box - Front - Reconstructed': 2, 'Box - 3D': 3, 'Fanart - Box - Front': 4, 'Arcade - Cabinet': 5}
+CAPTURE_TYPES = {'Screenshot - Gameplay': 0, 'Screenshot - Game Title': 1}
 
 
 def region_rank(region):
@@ -46,6 +50,7 @@ def validate_image(raw):
 
 
 class PublicCatalog:
+    schema_version = 2
     def __init__(self, data, name, url):
         self.data, self.name, self.url = data, name, url
         self.folder = data / 'artwork'
@@ -58,10 +63,12 @@ class PublicCatalog:
         if self.database.is_file():
             try:
                 with closing(sqlite3.connect(self.database)) as db:
-                    if db.execute('PRAGMA user_version').fetchone()[0] == 2:
+                    if db.execute('PRAGMA user_version').fetchone()[0] == self.schema_version:
                         db.execute('SELECT id,system,title FROM games LIMIT 1').fetchone()
                         db.execute('SELECT game,system,title,key,compact FROM titles LIMIT 1').fetchone()
                         db.execute('SELECT game,file,priority,region FROM images LIMIT 1').fetchone()
+                        if self.schema_version >= 3:
+                            db.execute('SELECT game,file,priority,region,label FROM captures LIMIT 1').fetchone()
                         return
             except sqlite3.DatabaseError:
                 pass
@@ -97,7 +104,8 @@ class PublicCatalog:
                 db.executescript('''PRAGMA journal_mode=OFF; PRAGMA synchronous=OFF;
                     CREATE TABLE games (id TEXT PRIMARY KEY, system INTEGER, title TEXT);
                     CREATE TABLE titles (game TEXT, system INTEGER, title TEXT, key TEXT, compact TEXT);
-                    CREATE TABLE images (game TEXT, file TEXT, priority INTEGER, region INTEGER);''')
+                    CREATE TABLE images (game TEXT, file TEXT, priority INTEGER, region INTEGER);
+                    CREATE TABLE captures (game TEXT, file TEXT, priority INTEGER, region INTEGER, label TEXT);''')
                 xml = next(item for item in archive.infolist() if item.filename.lower().endswith('.xml')
                            and (self.name != 'launchbox' or item.filename == 'Metadata.xml'))
                 if xml.file_size > 1024 * 1024 * 1024:
@@ -107,7 +115,8 @@ class PublicCatalog:
                 db.executescript('''CREATE INDEX titles_system ON titles(system);
                     CREATE INDEX titles_exact ON titles(system,compact);
                     CREATE INDEX images_game ON images(game,priority,region);
-                    PRAGMA user_version=2;''')
+                    CREATE INDEX captures_game ON captures(game,priority,region);''')
+                db.execute(f'PRAGMA user_version={self.schema_version}')
                 if not db.execute('SELECT 1 FROM games LIMIT 1').fetchone():
                     raise ValueError('Catálogo vacío')
             temporary.replace(self.database)
@@ -142,18 +151,19 @@ class PublicCatalog:
                     raise ScraperError(f'No se pudo preparar el catálogo público {self.name}', stop_batch=True) from None
                 self.loaded = True
 
-    def find(self, title, system):
+    def find(self, title, system, screenshots=False):
         query = normalized(base_title(title))
         compact = compact_title(query)
         if not compact: return []
+        table = 'captures' if screenshots else 'images'
         with closing(sqlite3.connect(self.database)) as db:
-            rows = db.execute('''SELECT t.game,g.title,t.title,t.key FROM titles t JOIN games g ON g.id=t.game
-                WHERE t.system=? AND t.compact=? AND EXISTS(SELECT 1 FROM images WHERE game=g.id)''', (system, compact)).fetchall()
+            rows = db.execute(f'''SELECT t.game,g.title,t.title,t.key FROM titles t JOIN games g ON g.id=t.game
+                WHERE t.system=? AND t.compact=? AND EXISTS(SELECT 1 FROM {table} WHERE game=g.id)''', (system, compact)).fetchall()
             if not rows:
                 tokens = sorted(set(query.split()), key=len, reverse=True)[:3]
                 clause = ' OR '.join('t.key LIKE ?' for _ in tokens)
                 rows = db.execute(f'''SELECT t.game,g.title,t.title,t.key FROM titles t JOIN games g ON g.id=t.game
-                    WHERE t.system=? AND ({clause}) AND EXISTS(SELECT 1 FROM images WHERE game=g.id) LIMIT 1500''',
+                    WHERE t.system=? AND ({clause}) AND EXISTS(SELECT 1 FROM {table} WHERE game=g.id) LIMIT 1500''',
                     (system, *(f'%{token}%' for token in tokens))).fetchall()
         found = {}
         for game, canonical, alias, key in rows:
@@ -203,6 +213,7 @@ class PublicCatalog:
 
 class LaunchBoxCatalog(PublicCatalog):
     provider = 'launchbox'
+    schema_version = 3
     def __init__(self, data):
         super().__init__(data, 'launchbox', 'https://gamesdb.launchbox-app.com/Metadata.zip')
 
@@ -221,9 +232,14 @@ class LaunchBoxCatalog(PublicCatalog):
                 self.add_title(db, game, systems[game], element.findtext('AlternateName') or '')
             elif element.tag == 'GameImage' and game in systems:
                 kind, file = element.findtext('Type'), element.findtext('FileName') or ''
-                if kind in IMAGE_TYPES and re.fullmatch(r'[a-zA-Z0-9-]+\.(?:jpg|png|webp)', file):
+                image_types = PINBALL_IMAGE_TYPES if systems[game] == 10001 else IMAGE_TYPES
+                if not re.fullmatch(r'[a-zA-Z0-9_-]{1,200}\.(?:jpg|png|webp)', file): continue
+                if kind in image_types:
                     db.execute('INSERT INTO images VALUES (?,?,?,?)',
-                        (game, file, IMAGE_TYPES[kind], region_rank(element.findtext('Region'))))
+                        (game, file, image_types[kind], region_rank(element.findtext('Region'))))
+                elif kind in CAPTURE_TYPES:
+                    db.execute('INSERT INTO captures VALUES (?,?,?,?,?)',
+                        (game, file, CAPTURE_TYPES[kind], region_rank(element.findtext('Region')), kind))
 
     def image_url(self, file):
         return 'https://images.launchbox-app.com/' + file
@@ -231,6 +247,47 @@ class LaunchBoxCatalog(PublicCatalog):
     async def search(self, title, system):
         if system not in LAUNCHBOX_SYSTEMS.values(): return []
         return await super().search(title, system)
+
+    def capture_files(self, game, system):
+        with closing(sqlite3.connect(self.database)) as db:
+            return db.execute('''SELECT c.file,c.label FROM captures c JOIN games g ON g.id=c.game
+                WHERE g.id=? AND g.system=? ORDER BY c.priority,c.region,c.file''', (game, system)).fetchall()
+
+    async def screenshots(self, title, system):
+        if system not in LAUNCHBOX_SYSTEMS.values(): return []
+        await self.load()
+        results = await run_in_threadpool(self.find, title, system, True)
+        # Use the same conservative matching as covers, including alternate names.
+        unique = {}
+        for item in results:
+            unique.setdefault(compact_title(item['match_title']), {**item, 'title': item['match_title']})
+        candidate = unique.get(compact_title(title)) or best_candidate(title, list(unique.values()))
+        if not candidate: return []
+        files = await run_in_threadpool(self.capture_files, candidate['id'], system)
+        images, seen = [], set()
+        async with httpx.AsyncClient(follow_redirects=True, timeout=15) as client:
+            for file, kind in files:
+                try:
+                    async with client.stream('GET', self.image_url(file)) as response:
+                        if response.status_code == 404: continue
+                        response.raise_for_status()
+                        raw = bytearray()
+                        async for chunk in response.aiter_bytes():
+                            raw.extend(chunk)
+                            if len(raw) > 10 * 1024 * 1024: raise ScraperError('Imagen demasiado grande')
+                    validate_image(bytes(raw))
+                except httpx.HTTPError:
+                    raise ScraperError('No se pudo descargar la captura de LaunchBox', stop_batch=True) from None
+                except ScraperError:
+                    continue
+                digest = hashlib.sha256(raw).hexdigest()
+                if digest in seen: continue
+                seen.add(digest)
+                label = 'Captura de juego' if kind == 'Screenshot - Gameplay' else 'Pantalla de título'
+                images.append({'source_id': f'launchbox-{candidate["id"]}-{file}',
+                    'label': f'LaunchBox · {label}', 'data': bytes(raw), 'provider': 'launchbox'})
+                if len(images) >= 3: break
+        return images
 
 
 class GameTDBCatalog(PublicCatalog):

@@ -1,4 +1,29 @@
-# Revisión funcional · GameClub 0.10.2
+# Revisión funcional · GameClub 0.10.3
+
+## Imágenes Visual Pinball / PinMAME · 0.10.3
+
+- **90 pruebas Python superadas.** Regresiones de migración de un índice v2,
+  selección de folleto frontal, nombres `r2_`, exclusión de rutas inválidas,
+  capturas sin carátula, descarga 404, deduplicación, plataforma correcta,
+  limpieza de títulos y rechazo de secuelas ambiguas.
+- API autenticada: búsqueda/asignación de carátula, capturas LaunchBox servidas
+  como JPEG, repetición sin duplicados e invalidación de la caché antigua vacía.
+- Descargas reales verificadas como imágenes válidas: Attack from Mars (folleto
+  y dos capturas), Medieval Madness (folleto y una captura), Black Knight 2000
+  (folleto y una captura).
+- Índice público reconstruido: 3748 recursos de carátula y 2899 capturas en
+  Pinball. LaunchBox usa esquema v3; los otros índices mantienen v2.
+- Servidor **0.10.3 desplegado en la Raspberry**, con índice precargado. Comprobadas
+  las carátulas y 18 capturas de las 14 mesas existentes mediante la API real,
+  incluida la descarga y validación de cada imagen. Solo se asignan carátulas
+  ausentes; se conservan las imágenes anteriores. No se suben ROMs.
+- La corrección del servidor es compatible con los clientes anteriores.
+- **35 pruebas Flutter superadas y análisis limpio.** Compilaciones release
+  Windows, móvil y TV 0.10.3 (Android código 27). Los paquetes verifican recursos
+  y hashes de motores; AAPT comprueba identidad, versión, ABI y variante TV.
+  TV sigue excluyendo VPX.
+
+## Revisión anterior · 0.10.2
 
 ## Encuadre, marcador y audio VPX móvil · 0.10.2
 

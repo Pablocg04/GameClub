@@ -1,5 +1,18 @@
 # Visual Pinball · PinMAME
 
+## Carátulas y capturas · 0.10.3
+
+Las imágenes se buscan en LaunchBox, con su plataforma Pinball. Se prioriza el
+folleto frontal de la máquina; las capturas se obtienen de Screenshot - Gameplay
+y, si están disponibles, de Screenshot - Game Title. No necesitan cuentas.
+La actualización del servidor migra el índice anterior y vuelve a permitir
+consultar capturas que una versión anterior hubiera marcado sin resultados.
+Los títulos con sufijos de autor/versión VPW, VPX o g5k se limpian al buscar.
+
+La corrección se ha desplegado en la Raspberry y se han comprobado las imágenes
+de sus 14 mesas. Basta recargar la biblioteca; para nuevas mesas se mantienen
+**Buscar carátula** y **Buscar capturas**. Véase [THUMBNAILS.md](THUMBNAILS.md).
+
 ## Imagen y sonido en móvil · 0.10.2
 
 El menú de la mesa incluye **Imagen y sonido**. La cámara encuadra la geometría

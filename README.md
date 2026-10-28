@@ -6,11 +6,11 @@ Código: <https://github.com/Pablocg04/GameClub>. Descargas:
 Biblioteca de videojuegos alojada en una Raspberry Pi 5, con cliente para **Windows y Android**.
 La Raspberry organiza y entrega los archivos; los emuladores se ejecutan en el dispositivo de juego.
 
-## Android y Android TV · 0.10.2
+## Android y Android TV · 0.10.3
 
-- **Móvil/tablet:** `dist/android-mobile-0.10.2/GameClub-Android.apk`.
+- **Móvil/tablet:** `dist/android-mobile-0.10.3/GameClub-Android.apk`.
   Controles clásicos grandes y juego vertical u horizontal. [ANDROID_MOBILE.md](ANDROID_MOBILE.md).
-- **Android TV / Google TV:** `dist/android-tv-0.10.2/GameClub-AndroidTV.apk`.
+- **Android TV / Google TV:** `dist/android-tv-0.10.3/GameClub-AndroidTV.apk`.
   Launcher de TV, orientación horizontal y navegación por mando. [ANDROID_TV.md](ANDROID_TV.md).
 
 Son dos variantes de la misma base y conservan los datos al actualizar el paquete
@@ -25,7 +25,7 @@ recibe mandos Bluetooth/USB, adapta la navegación al conectar un mando y los me
 conservan su foco. Los controles táctiles arcade tienen cruceta, A/B/X/Y, L/R y
 Select/Start. Consulta [MAME_NATIVE.md](MAME_NATIVE.md).
 
-El paquete Windows está en `dist/windows-0.10.2/` e incluye el host nativo.
+El paquete Windows está en `dist/windows-0.10.3/` e incluye el host nativo.
 **0.7.0 añade NES y Atari 2600 nativas**, con Nestopia UE y Stella incluidos en
 las tres apps. Consulta [NATIVE_CONSOLES.md](NATIVE_CONSOLES.md).
 
@@ -51,7 +51,11 @@ Requiere Android 13+ ARM64 y gráficos OpenGL ES 3.2 o Vulkan para pinball.
 **0.10.1 oculta Visual Pinball y excluye su motor del APK TV.** PC y móvil lo
 conservan; TV mantiene los pinballs MAME compatibles.
 
-## Versión · 0.10.2
+## Versión · 0.10.3
+
+Corregida la búsqueda de imágenes de Visual Pinball/PinMAME: folletos y carátulas
+de LaunchBox, capturas de juego independientes y migración del índice existente.
+Consulta [THUMBNAILS.md](THUMBNAILS.md).
 
 VPX móvil incorpora encuadre completo y ajustes por mesa de tamaño, marcador
 adicional y balance de audio en el menú **Imagen y sonido**.

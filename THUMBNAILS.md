@@ -1,4 +1,4 @@
-# Carátulas y capturas sin cuenta ni claves · 0.8.0
+# Carátulas y capturas sin cuenta ni claves · 0.10.3
 
 Las carátulas se buscan automáticamente en este orden:
 
@@ -21,6 +21,28 @@ aportó su carátula, aunque se haya producido un fallback al descargarla.
 - Los listados de Libretro se cachean y las peticiones se serializan.
 - Las imágenes se almacenan en la Raspberry y se comparten entre tus apps.
 - Las descripciones e imágenes anteriores se conservan al actualizar.
+
+## Visual Pinball / PinMAME
+
+Desde 0.10.3 se usa el catálogo Pinball de LaunchBox para **carátulas y capturas**.
+Las máquinas físicas suelen tener Advertisement Flyer - Front en lugar de una
+caja de consola: ese folleto frontal es la primera opción para la carátula.
+Las cajas frontales, fanart frontal y fotografías del mueble son alternativas.
+Los nombres actuales de LaunchBox con prefijo `r2_` también se reconocen.
+
+Las capturas usan Screenshot - Gameplay y Screenshot - Game Title, con búsqueda
+independiente de la carátula, hasta tres imágenes distintas y la fuente LaunchBox
+identificada. No se asignan secuelas ambiguas. Se limpian extensiones VPX/VPXZ y
+sufijos de autor/versión (VPW, VPX, g5k), conservando números del título como 2000.
+
+El índice LaunchBox pasa a v3; los GameTDB mantienen v2. Se reconstruye a partir
+del XML ya descargado y se invalidan las consultas antiguas de capturas vacías de
+VPX. Las imágenes manuales y las carátulas ya asignadas se conservan.
+
+Comprobación real: `tools/check_pinball_artwork.py`. El catálogo disponible tiene
+3748 recursos utilizables como carátulas y 2899 capturas para la plataforma Pinball.
+La Raspberry se ha actualizado y se han verificado carátulas y 18 capturas para
+sus 14 mesas VPX, sin transferir juegos. La corrección sirve a las apps anteriores.
 
 ## NES y Atari 2600
 
@@ -47,13 +69,13 @@ Pasan 73 pruebas del servidor y 26 del cliente, con análisis Flutter limpio.
 
 `tools/prepare_artwork_catalogs.py` convierte los XML públicos en índices SQLite en
 `data/artwork/`. El XML se procesa en streaming para limitar la memoria en la Pi;
-se filtran los sistemas de GameClub y las imágenes frontales. Las variantes y los
+se filtran los sistemas de GameClub, las imágenes frontales y las capturas. Las variantes y los
 nombres alternativos se utilizan para buscar, conservando la consola correcta y
 evitando asignar secuelas distintas automáticamente.
 
 Los índices están precargados en la Raspberry. Si faltan, el servidor puede
 prepararlos desde sus descargas públicas. La primera descarga de LaunchBox ocupa
-unos 109 MB; el índice filtrado ocupa unos 21 MB. Son metadatos, no juegos ni imágenes.
+unos 109 MB; el índice LaunchBox v3 filtrado ocupa unos 33 MB. Son metadatos, no juegos ni imágenes.
 La cola antigua migra al modo automático y conserva sus pendientes. Los clientes
 que todavía envían `provider=libretro` también reciben la cadena automática.
 
@@ -63,8 +85,8 @@ si una edición no tiene imagen disponible.
 
 ## Capturas en la ficha
 
-La ficha muestra **Capturas del juego**, procedentes de `Named_Snaps` o de tus
-imágenes manuales. Se agrupan versiones del mismo título y se eliminan imágenes
+La ficha muestra **Capturas del juego**, procedentes de `Named_Snaps`, LaunchBox
+para pinball o de tus imágenes manuales. Se agrupan versiones del mismo título y se eliminan imágenes
 idénticas. Las consultas sin resultados se recuerdan siete días; **Buscar
 capturas** repite la consulta. **Añadir capturas** admite varias imágenes propias,
 hasta 10 MB cada una. Pulsa una captura para ampliarla con zoom.

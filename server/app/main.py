@@ -89,7 +89,7 @@ def create_app(roms=None, data=None, media=None, token=None):
         yield
         await bulk.shutdown()
 
-    app = FastAPI(title="GameClub", version="0.9.0", lifespan=lifespan)
+    app = FastAPI(title="GameClub", version="0.10.3", lifespan=lifespan)
     app.state.library = library
     app.state.scraper = artwork
     app.state.providers = providers
@@ -234,7 +234,7 @@ def create_app(roms=None, data=None, media=None, token=None):
 
     @app.get("/health")
     def health():
-        return {"status": "ok", "version": "0.9.0"}
+        return {"status": "ok", "version": "0.10.3"}
 
     @app.get("/api/player", dependencies=auth)
     def player_info():
@@ -374,7 +374,8 @@ def create_app(roms=None, data=None, media=None, token=None):
     def screenshot_status(id):
         game=find_game(id)
         check=library.setting(f"screenshots:{id}") or {}
-        checked=check.get("title")==game["title"] and time.time()-check.get("time",0)<7*86400
+        checked=(check.get("title")==game["title"] and time.time()-check.get("time",0)<7*86400
+                 and (game['system_id'] != 'vpinball' or check.get('catalog_revision') == 3))
         return {"images":library.screenshots(id),"checked":checked}
 
     @app.get("/api/games/{id}/screenshots",dependencies=auth)
@@ -394,10 +395,10 @@ def create_app(roms=None, data=None, media=None, token=None):
         game=find_game(id)
         system=library.get_system(game["system_id"])
         if not system.get("metadata_id"):
-            library.save_setting(f"screenshots:{id}",{"title":game["title"],"time":time.time()})
+            library.save_setting(f"screenshots:{id}",{"title":game["title"],"time":time.time(),"catalog_revision":3})
             return screenshot_status(id)
         try:
-            images=await thumbnails.screenshots(game["title"],system["metadata_id"])
+            images=await artwork.screenshots(game["title"],system["metadata_id"])
         except ScraperError as error:
             raise HTTPException(502,str(error)) from None
         for image in images:
@@ -405,8 +406,8 @@ def create_app(roms=None, data=None, media=None, token=None):
             if library.screenshot_file(id,image_id):
                 continue
             path=await run_in_threadpool(image_path,"screenshot-"+image_id,image["data"])
-            await run_in_threadpool(library.add_screenshot,image_id,id,path.name,image["label"],"libretro")
-        await run_in_threadpool(library.save_setting,f"screenshots:{id}",{"title":game["title"],"time":time.time()})
+            await run_in_threadpool(library.add_screenshot,image_id,id,path.name,image["label"],image.get("provider", "libretro"))
+        await run_in_threadpool(library.save_setting,f"screenshots:{id}",{"title":game["title"],"time":time.time(),"catalog_revision":3})
         return screenshot_status(id)
 
     @app.post("/api/games/{id}/screenshots",dependencies=auth)

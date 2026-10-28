@@ -81,3 +81,9 @@ class ArtworkChain:
                 except ScraperError:
                     continue
             raise original_error
+
+    async def screenshots(self, title, system):
+        title = self.libretro.query(title, system)
+        if system == 10001:
+            return await self.sources['launchbox'].screenshots(title, system)
+        return await self.libretro.screenshots(title, system)

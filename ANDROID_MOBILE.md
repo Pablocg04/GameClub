@@ -1,7 +1,7 @@
-# GameClub móvil · 0.10.2
+# GameClub móvil · 0.10.3
 
-Instala `dist/android-mobile-0.10.2/GameClub-Android.apk` en el teléfono o la tablet.
-La variante de televisión está en `dist/android-tv-0.10.2/GameClub-AndroidTV.apk`.
+Instala `dist/android-mobile-0.10.3/GameClub-Android.apk` en el teléfono o la tablet.
+La variante de televisión está en `dist/android-tv-0.10.3/GameClub-AndroidTV.apk`.
 Ambas se compilan desde una base compartida; sus menús, orientación y lanzador
 se seleccionan durante la compilación.
 
@@ -42,7 +42,7 @@ de esas consolas siguen siendo los de su motor.
 Los dos APK conservan `com.gameclub.gameclub`, para actualizar la instalación
 anterior y preservar conexión, caché y guardados. Son alternativas por dispositivo:
 instala el APK móvil en el teléfono y el de TV en el televisor.
-La versión es **0.10.2**, código **26**, Android 7/API 24+, ARM32/ARM64/x86_64.
+La versión es **0.10.3**, código **27**, Android 7/API 24+, ARM32/ARM64/x86_64.
 Visual Pinball requiere Android 13+ ARM64 y OpenGL ES 3.2 o Vulkan; el motor va
 incluido en GameClub y se abre con **Jugar pinball**, sin otra aplicación.
 Incluye flippers táctiles, moneda, partida, lanzador y menú. Start + Select / Atrás

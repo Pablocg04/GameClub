@@ -27,7 +27,7 @@ FOLDERS = {
 
 
 def base_title(title):
-    title = re.sub(r"\.(?:nes|unf|unif|bin|a26|rom|zip|7z|nds|gb|gbc|gba|sfc|smc|png)$", "", title, flags=re.I)
+    title = re.sub(r"\.(?:nes|unf|unif|bin|a26|rom|zip|7z|nds|gb|gbc|gba|sfc|smc|png|vpx|vpxz)$", "", title, flags=re.I)
     title = re.sub(r"\s*[\[(].*?[\])]", "", title)
     title = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", title.replace("_", " "))
     return re.sub(r"\s+", " ", title).strip(" ~")
@@ -71,6 +71,9 @@ class LibretroThumbnails:
 
     def query(self, title, system):
         title = Path(title).stem if title.lower().endswith((".zip", ".7z", ".nds")) else title
+        if system == 10001:
+            title = base_title(title)
+            return re.sub(r'\s+(?:(?:VPW|VPX|g5k)\b.*|v?\d+(?:\.\d+)+.*)$', '', title, flags=re.I).strip()
         return self.mame_names.get(title, title) if system == 75 else title
 
     async def request(self, client, url, limit):

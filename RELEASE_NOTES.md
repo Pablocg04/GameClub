@@ -1,4 +1,16 @@
-# GameClub 0.10.2
+# GameClub 0.10.3
+
+- Corregidas las carátulas de Visual Pinball/PinMAME: se reconocen los folletos
+  frontales de las máquinas y los nombres de imagen `r2_` de LaunchBox.
+- Las capturas de pinball se descargan de LaunchBox, separadas de las carátulas,
+  con fuente identificada y sin duplicar imágenes idénticas.
+- Índice LaunchBox v3: migración automática del índice anterior e invalidación
+  de consultas vacías de capturas de pinball. Se conservan las imágenes propias.
+- La búsqueda elimina sufijos de autor y versión VPW/g5k/VPX de las mesas.
+- Corrección desplegada en la Raspberry: comprobadas carátulas y capturas de
+  las 14 mesas VPX presentes. También funciona con las apps anteriores.
+
+## Versión anterior · 0.10.2
 
 - VPX móvil: cámara ajustada a la geometría completa, sin el zoom ni la rotación
   heredados de una configuración de mueble de la mesa.

@@ -18,7 +18,7 @@ import 'player_test.dart' show evaluate, until, snapshot;
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   for (final code in ['barline', 'cfever61', 'rcasino']) {
-    testWidgets('MAME 0.232 integrado: $code, controles y archivos de guardado',
+    testWidgets('MAME 0.232 integrado: $code, controles y salida sin guardado',
         (tester) async {
       final api = GameClubApi('http://192.168.0.47:8001', '');
       await DevicePlatform.initialize();
@@ -93,9 +93,9 @@ void main() {
       await evaluate(tester, "window.gameclubExit();true;");
       await until(
           tester, () async => find.byType(IntegratedPlayer).evaluate().isEmpty);
-      expect(await host.battery(session).exists(), true);
+      expect(await host.battery(session).exists(), false);
       debugPrint(
-          '$code: vídeo ${frame.width}x${frame.height}, ${colors.length} colores y guardado confirmado');
+          '$code: vídeo ${frame.width}x${frame.height}, ${colors.length} colores y salida sin guardado');
       await tester.pumpWidget(const SizedBox.shrink());
     }, timeout: const Timeout(Duration(minutes: 8)));
   }

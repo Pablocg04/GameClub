@@ -1,12 +1,12 @@
-# GameClub para Android TV / Google TV · 0.10.3
+# GameClub para Android TV / Google TV · 0.10.4
 
 ## APK específico para televisión
 
-Instala **`dist/android-tv-0.10.3/GameClub-AndroidTV.apk`**. Esta variante fuerza el
+Instala **`dist/android-tv-0.10.4/GameClub-AndroidTV.apk`**. Esta variante fuerza el
 modo TV y la orientación horizontal, incluye launcher Leanback y banner, y utiliza
-mandos sin controles táctiles sobre el juego. La versión es **0.10.3**, código **27**.
+mandos sin controles táctiles sobre el juego. La versión es **0.10.4**, código **28**.
 
-Para teléfono/tablet utiliza **`dist/android-mobile-0.10.3/GameClub-Android.apk`**:
+Para teléfono/tablet utiliza **`dist/android-mobile-0.10.4/GameClub-Android.apk`**:
 controles más grandes, estilo clásico y orientación automática/vertical/horizontal.
 Consulta [ANDROID_MOBILE.md](ANDROID_MOBILE.md).
 
@@ -39,7 +39,7 @@ versión **0.6.0**, código **15**. Servidor: `http://192.168.0.47:8001`.
 - Arcade abre un motor **nativo SDL/libretro**, sin WebView, a pantalla completa.
 - Todos los sistemas integrados arrancan al abrirlos; no hay segundo botón de inicio.
 - **Start + Select / Mode / Atrás** abre el menú; cruceta selecciona y **A/OK**
-  confirma. **B/Atrás** continúa. Elige **Guardar y salir** para cerrar.
+  confirma. **B/Atrás** continúa. Elige **Salir** para cerrar MAME, NES y Atari.
 - **LB/RB o L1/R1** cambia pestañas; **Select** abre búsqueda y teclado.
 - En móvil, conectar/desconectar un mando actualiza el modo de navegación sin reiniciar.
 - Arcade móvil tiene cruceta con diagonales y botones A/B/X/Y, L/R y Select/Start.
@@ -83,7 +83,7 @@ El emparejamiento lo hace Android; la app recibe los eventos del mando conectado
 | Cambiar entre Biblioteca, Favoritos y Ajustes | LB/RB de Xbox; L1/R1 de PlayStation, con recorrido circular |
 | Buscar en Biblioteca o Favoritos y mostrar el teclado Android | Select del mando (botón View en Xbox, según el mapeo Android) |
 | Abrir el menú durante el juego | Start + Select; también botón Mode si Android lo entrega |
-| Cerrar guardando | Atrás de la tele, o **Guardar y volver a la biblioteca** en el menú |
+| Cerrar | **Salir** en MAME/NES/Atari; **Guardar y volver a la biblioteca** en NDS y demás consolas |
 | Moneda e inicio en arcade | Select y Start |
 
 Dentro del juego, B corresponde al botón de juego y no vuelve a la biblioteca.

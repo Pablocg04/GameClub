@@ -12,6 +12,7 @@ import 'api.dart';
 import 'gamepad_script.dart';
 import 'nds_touch.dart';
 import 'mame_web_player.dart';
+import 'game_persistence.dart';
 
 const integratedCores = <String, String>{
   'gb': 'gambatte',
@@ -49,6 +50,7 @@ class PlayerSession {
   final String? mameDriver;
   final bool fastTelevision;
   final bool tvVsync;
+  bool get saveProgress => persistsGameProgress(game['system_id'] as String);
 }
 
 class PlayerHost {
@@ -166,6 +168,13 @@ class PlayerHost {
           ? sessions[parts[1]]
           : null;
       if (request.method == 'POST' &&
+          session != null &&
+          !session.saveProgress &&
+          {'battery', 'mame-save'}.contains(parts[2])) {
+        // Older pages may still send an autosave. Consume it without persisting.
+        await request.drain<void>();
+        response.statusCode = 204;
+      } else if (request.method == 'POST' &&
           session?.arcadeCore == 'mame_web' &&
           parts[2] == 'mame-save') {
         final bytes = BytesBuilder(copy: false);
@@ -239,12 +248,13 @@ class PlayerHost {
           response.write(session.arcadeCore == 'mame_web'
               ? mameWebHtml(session)
               : playerHtml(session,
-                  hasBattery: await battery(session).exists()));
+                  hasBattery:
+                      session.saveProgress && await battery(session).exists()));
         } else if (parts[2] == 'mame-save' &&
             session.arcadeCore == 'mame_web') {
           final data = <String, String>{};
           final file = battery(session);
-          if (await file.exists()) {
+          if (session.saveProgress && await file.exists()) {
             final archive = ZipDecoder().decodeBytes(await file.readAsBytes());
             for (final entry in archive.files) {
               if (entry.isFile && validMameSavePath(entry.name)) {
@@ -255,6 +265,7 @@ class PlayerHost {
           response.headers.contentType = ContentType.json;
           response.write(jsonEncode(data));
         } else if (parts[2] == 'battery.zip' &&
+            session.saveProgress &&
             await battery(session).exists()) {
           final file = battery(session);
           response.headers.contentType = ContentType('application', 'zip');
@@ -334,6 +345,8 @@ class PlayerHost {
   }
 
   static String playerHtml(PlayerSession session, {bool hasBattery = false}) {
+    final saveProgress = session.saveProgress;
+    hasBattery = hasBattery && saveProgress;
     final game = session.game;
     final core = session.arcadeCore ?? integratedCores[game['system_id']];
     if (core == null) throw Exception('Sistema sin motor integrado');
@@ -359,6 +372,7 @@ window.gameclubExit = async () => {
   if (window.gameclubLeaving) return;
   window.gameclubLeaving = true;
   try {
+    ${!saveProgress ? "window.gameclubReleaseControllers?.();window.EJS_emulator?.gameManager?.toggleMainLoop(0);send('exit','');return;" : ''}
     // Adaptador de guardado para EmulatorJS 4.2.3: hay que sincronizar IDBFS
     // antes de que su manejador de salida desmonte el directorio de partidas.
     const emulator = window.EJS_emulator;
@@ -377,6 +391,7 @@ window.gameclubExit = async () => {
 };
 let batterySaving = null;
 async function persistBattery() {
+  ${!saveProgress ? 'return;' : ''}
   if (batterySaving) await batterySaving;
   const operation = (async () => {
     const manager = window.EJS_emulator && window.EJS_emulator.gameManager;
@@ -399,7 +414,7 @@ window.EJS_player = '#game';
 window.EJS_core = ${js(core)};
 window.EJS_controlScheme = ${js(game['system_id'] == 'gbc' ? 'gb' : game['system_id'])};
 window.EJS_gameUrl = ${js('/session/${session.id}/rom/${Uri.encodeComponent(game['filename'] as String)}')};
-window.EJS_gameName = ${js('gameclub_$id${arcade ? '_$core' : ''}')};
+window.EJS_gameName = ${js('gameclub_$id${arcade ? '_${core}_${session.id}' : ''}')};
 window.EJS_gameID = ${arcade ? numericId * 4 + arcadeCores.toList().indexOf(core) : nds ? numericId * 3 + profileId : numericId};
 window.EJS_pathtodata = '/engine/';
 window.EJS_externalFiles = ${js({
@@ -415,7 +430,7 @@ window.EJS_color = '#8c7aff';
 window.EJS_startOnLoaded = true;
 const parallelNds = ${fast ? 'true' : 'false'} && window.crossOriginIsolated && typeof SharedArrayBuffer === 'function';
 window.EJS_threads = parallelNds;
-window.EJS_defaultOptions = {'save-state-location':'browser','save-save-interval':'30'
+window.EJS_defaultOptions = {'save-state-location':'browser','save-save-interval':${js(saveProgress ? '30' : '0')}
   ${nds ? """,
    'desmume_pointer_mouse':'enabled','desmume_pointer_type':'mouse',
   'desmume_internal_resolution':'256x192','desmume_gfx_texture_scaling':'1',
@@ -429,6 +444,13 @@ window.EJS_Buttons = {netplay:false,exitEmulation:false,saveSavFiles:false,loadS
   screenRecord:false,gameclubExit:{custom:true,displayName:'Volver a GameClub',
   icon:'<svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 11H7l5-5-1-1-7 7 7 7 1-1-5-5h13z"/></svg>',callback:window.gameclubExit}};
 window.EJS_ready = () => {
+  ${!saveProgress ? """
+  // MEMFS only: never mount/sync the old browser save database for arcade.
+  EJS_GameManager.prototype.mountFileSystems=async function() {
+    this.mkdir('/data');this.mkdir('/data/saves');
+  };
+  EJS_GameManager.prototype.saveSaveFiles=function() {};
+  """ : ''}
   ${session.television && session.fastTelevision ? """
   const tvCfg=EJS_GameManager.prototype.getRetroArchCfg;
   EJS_GameManager.prototype.getRetroArchCfg=function() {
@@ -552,9 +574,9 @@ window.EJS_onGameStart = () => {
     send('performance',JSON.stringify({fps:Math.round(fps),presentationFps:Math.round(presentationFps),speed:Math.round(fps/60*100),parallel:parallelNds,system:${js(game['system_id'])},profile:${js(session.television ? (session.fastTelevision ? 'tv-fast' : 'tv-balanced') : session.ndsProfile)}}));
   },3000);
   """ : ''}
-  setInterval(() => {
+  ${saveProgress ? """setInterval(() => {
     if (!window.gameclubLeaving) persistBattery().catch(() => send('error','No se pudo actualizar el guardado local.'));
-  },30000);
+  },30000);""" : ''}
 };
 </script><script src="/engine/loader.js"></script></body></html>''';
   }

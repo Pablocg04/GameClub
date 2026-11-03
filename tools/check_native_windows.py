@@ -88,6 +88,7 @@ def main():
         key(0x1b);key(0x28);key(0x0d)
         assert process.wait(timeout=15)==0
         assert state().startswith('closed\n')
+        assert not list((saves/'sessions').iterdir()), 'La salida conservó archivos de partida'
         print('Windows nativo: vídeo, entradas, pausa, continuación y salida correctos.',flush=True)
     finally:
         if process.poll() is None:process.terminate();process.wait(timeout=15)

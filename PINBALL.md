@@ -1,5 +1,12 @@
 # Visual Pinball · PinMAME
 
+## Salir y empezar de cero · 0.10.4
+
+El menú ofrece **Salir**. Cada apertura carga la mesa y enciende la ROM de nuevo,
+sin guardar ni recuperar un estado de la partida. Se mantiene la NVRAM y la
+configuración de la máquina para no repetir la inicialización de fábrica;
+también permanecen los ajustes de imagen, sonido y controles.
+
 ## Carátulas y capturas · 0.10.3
 
 Las imágenes se buscan en LaunchBox, con su plataforma Pinball. Se prioriza el
@@ -52,7 +59,7 @@ otra app ni importar la mesa en un reproductor externo.** Abre la ficha y pulsa
 - En móvil: Moneda, Partida, Bola, Menú y dos flippers táctiles. La superficie
   reserva espacio para esos botones; se adapta al girar el dispositivo.
 - Mando: Select/Y moneda, Start partida, A lanzador, LB/LT y RB/RT flippers.
-  **Start + Select / Guide / Atrás** abre continuar, reiniciar y guardar/salir.
+  **Start + Select / Guide / Atrás** abre continuar, reiniciar y salir.
 - Los créditos del mando se secuencian; las entradas se liberan al pausar,
   perder foco o desconectar el dispositivo.
 - Mesas, ROMs y NVRAM permanecen en el directorio privado preparado por GameClub,
@@ -81,8 +88,8 @@ pausa al arrancar. Presenta una ayuda de controles y un menú propio:
 | Flipper derecho | Mayús derecho | RB / R1 o RT / R2; también B |
 | Menú | Esc, F1 o P | Start + Select / Guide |
 
-El menú permite **Continuar**, **Reiniciar mesa** y **Guardar y volver a la
-biblioteca**. Se recorre con cruceta y A; B continúa. También admite teclado y
+El menú permite **Continuar**, **Reiniciar mesa** y **Salir**.
+Se recorre con cruceta y A; B continúa. También admite teclado y
 ratón. Espacio da un golpe a la mesa: no es el lanzador.
 
 Las monedas del mando se espacian automáticamente para respetar el retardo del
@@ -91,8 +98,8 @@ envían pulsaciones al cambiar a otra aplicación y se liberan al pausar o
 desconectar el mando.
 
 En Attack from Mars se prepara una vez la inicialización de NVRAM y se recarga
-la mesa; puede tardar alrededor de un minuto. Se conservan las partidas y los
-originales. Los arranques siguientes mantienen el tiempo de encendido de la ROM.
+la mesa; puede tardar alrededor de un minuto. Se conservan la configuración de
+la máquina y los originales. Los arranques siguientes mantienen el tiempo de encendido de la ROM.
 
 La integración Android está incluida desde 0.10.0, con los controles y el menú
 descritos arriba.

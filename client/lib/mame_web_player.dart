@@ -52,21 +52,6 @@ String mameWebHtml(PlayerSession session) {
     status(configuring?'Controles MAME: cruceta para navegar, A para aceptar y B para retroceder. Pulsa Configurar otra vez para volver.':'');
     canvas.focus();
   };
-  function encode(bytes) {
-    let text='';for(let i=0;i<bytes.length;i+=8192)text+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(text);
-  }
-  function saveFiles() {
-    const output={};
-    const walk=path=>{
-      for(const name of FS.readdir('/'+path)) {
-        if(name==='.'||name==='..')continue;
-        const relative=path+'/'+name,full='/'+relative;
-        if(FS.isDir(FS.stat(full).mode))walk(relative);else output[relative]=encode(FS.readFile(full));
-      }
-    };
-    for(const directory of ['nvram','cfg','sta']) {try{walk(directory);}catch(_){} }
-    return output;
-  }
   window.gameclubExit=async()=>{
     if(window.gameclubLeaving)return;
     window.gameclubLeaving=true;window.gameclubReleaseControllers?.();
@@ -74,11 +59,9 @@ String mameWebHtml(PlayerSession session) {
       if(loaded) {
         Module.resumeMainLoop();JSMAME.exit();
         await new Promise(resolve=>setTimeout(resolve,1000));
-        const response=await fetch(${js('$base/mame-save')},{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(saveFiles())});
-        if(!response.ok)throw new Error('No se pudo guardar MAME');
       }
       send('exit','');
-    }catch(error){window.gameclubLeaving=false;send('save-error',String(error));}
+    }catch(error){window.gameclubLeaving=false;send('save-error','No se pudo cerrar MAME: '+String(error));}
   };
   const log=text=>{
     window.__mameLogs.push(String(text));
@@ -93,17 +76,11 @@ String mameWebHtml(PlayerSession session) {
       const response=await fetch(${js('$base/rom/${Uri.encodeComponent(session.game['filename'] as String)}')});
       if(!response.ok)throw new Error('No se pudo descargar la ROM');
       const rom=new Uint8Array(await response.arrayBuffer());
-      const saved=await (await fetch(${js('$base/mame-save')})).json();
       window.Module={canvas,arguments:[${js(code)},'-rompath','/roms','-nvram_directory','/nvram','-cfg_directory','/cfg','-state_directory','/sta','-window','-nokeepaspect','-resolution',${js(fastTv ? '512x224' : '1024x448')},'-skip_gameinfo','-video','soft'${fastTv ? ",'-frameskip','2','-samplerate','22050','-nowaitvsync','-throttle'" : ''}],
         locateFile:name=>${js('/engine/mame-web/$driver/')}+name,print:log,printErr:log,
         preRun:[()=>{
           for(const path of ['/roms','/nvram','/cfg','/sta']) {try{FS.mkdir(path);}catch(_){} }
           FS.writeFile(${js('/roms/${session.game['filename']}')},rom);
-          for(const [path,data] of Object.entries(saved)) {
-            const parts=path.split('/');let parent='';
-            for(const part of parts.slice(0,-1)){parent+='/'+part;try{FS.mkdir(parent);}catch(_){} }
-            FS.writeFile('/'+path,Uint8Array.from(atob(data),value=>value.charCodeAt(0)));
-          }
         }],onAbort:error=>{if(!window.gameclubLeaving){failed=true;send('core-failed',String(error));}},
         onExit:value=>{if(value && !window.gameclubLeaving){failed=true;send('core-failed','MAME no pudo iniciar la máquina ('+value+')');}}};
       const script=document.createElement('script');script.src=${js('/engine/mame-web/$driver/mame$driver.js')};

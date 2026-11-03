@@ -13,6 +13,7 @@ import 'api.dart';
 import 'integrated_player.dart';
 import 'native_console.dart';
 import 'game_files.dart';
+import 'game_persistence.dart';
 import 'pinball_player.dart';
 import 'player_host.dart';
 import 'scrape_tools.dart';
@@ -599,8 +600,11 @@ class _LibraryPageState extends State<LibraryPage> {
         try {
           if (mounted) {
             final route = MaterialPageRoute<void>(
-                builder: (_) =>
-                    IntegratedPlayer(uri: uri, title: game['title'] as String));
+                builder: (_) => IntegratedPlayer(
+                    uri: uri,
+                    title: game['title'] as String,
+                    saveProgress:
+                        persistsGameProgress(game['system_id'] as String)));
             await Navigator.of(context).push(route);
             await route.completed;
           }
@@ -689,11 +693,14 @@ class _LibraryPageState extends State<LibraryPage> {
                             : game['description'] as String),
                         const SizedBox(height: 16),
                         Text(game['system_id'] == 'vpinball'
-                            ? 'Mesa Visual Pinball + PinMAME. Se juega desde GameClub. Android incluye el motor (Android 13+ ARM64), controles táctiles, mando y menú para continuar o salir.'
+                            ? 'Mesa Visual Pinball + PinMAME. Se juega desde GameClub. Android incluye el motor (Android 13+ ARM64), controles táctiles, mando y menú para continuar o salir. Cada sesión empieza de cero; se conserva la configuración de la máquina.'
                             : (integratedCores.containsKey(game['system_id']) ||
                                     nativeConsoleCores
                                         .containsKey(game['system_id']))
-                                ? 'Se juega dentro de GameClub, sin instalar otro emulador. El reproductor incluye controles, menú de ajustes y partidas guardadas locales.'
+                                ? (persistsGameProgress(
+                                        game['system_id'] as String)
+                                    ? 'Se juega dentro de GameClub, sin instalar otro emulador. El reproductor incluye controles, menú de ajustes y partidas guardadas locales.'
+                                    : 'Se juega dentro de GameClub, sin instalar otro emulador. Cada sesión empieza de cero; usa Salir para volver a la biblioteca sin guardar la partida.')
                                 : 'Se ejecuta en tu dispositivo mediante el emulador configurado. Los controles de juego los proporciona ese emulador.'),
                         if (game['system_id'] == 'mame')
                           const Padding(
@@ -1101,7 +1108,7 @@ class _LibraryPageState extends State<LibraryPage> {
               }
             }),
         const Text(
-            'Empareja el mando desde los ajustes Bluetooth de la tele. Usa la cruceta o el stick para navegar y A/OK para seleccionar. Los juegos integrados arrancan automáticamente. Durante el juego, Start + Select abre el menú; Atrás del mando de la tele guarda y vuelve a la biblioteca.'),
+            'Empareja el mando desde los ajustes Bluetooth de la tele. Usa la cruceta o el stick para navegar y A/OK para seleccionar. Los juegos integrados arrancan automáticamente. Durante el juego, Start + Select o Atrás abre el menú. MAME, NES, Atari y pinball salen sin guardar la partida; Nintendo DS y las otras consolas conservan sus guardados.'),
         const SizedBox(height: 12),
         OutlinedButton.icon(
             onPressed: () => perform(() =>
@@ -1276,7 +1283,7 @@ class _LibraryPageState extends State<LibraryPage> {
               ? const EdgeInsets.symmetric(horizontal: 24, vertical: 12)
               : EdgeInsets.zero,
           child: Scaffold(
-            appBar: AppBar(title: const Text('GameClub · 0.10.3'), actions: [
+            appBar: AppBar(title: const Text('GameClub · 0.10.4'), actions: [
               IconButton(
                   tooltip: 'Escanear biblioteca',
                   onPressed: busy

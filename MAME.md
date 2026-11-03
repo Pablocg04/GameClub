@@ -54,7 +54,7 @@ las escenas del juego estén perfectamente emuladas ni una velocidad concreta.
   documentos privados de la app en Android.
 - Los recursos se montan en `/roms/` dentro del motor. El adaptador convierte
   ArrayBuffer a Uint8Array al escribir los recursos externos de EmulatorJS 4.2.3.
-- Guardados y estados separados por núcleo, para evitar mezclar formatos.
+- Desde 0.10.4, sesión nueva sin guardar ni restaurar partidas, en todos los núcleos.
 - Teclado predeterminado: **V** introduce moneda y **Enter** inicia la partida.
   Los botones táctiles y **Ajustes de Control** permiten usar Select/Start y mandos.
 - El reproductor permite audio automático para que un cambio de núcleo no quede

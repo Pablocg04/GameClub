@@ -75,10 +75,17 @@ Para un salto mayor de rendimiento sería necesaria una integración de motor na
 
 ## Partidas
 
-Las partidas se guardan **localmente en cada dispositivo**. El reproductor
+En Nintendo DS y las demás consolas con persistencia, las partidas se guardan
+**localmente en cada dispositivo**. El reproductor
 actualiza la batería/SRAM periódicamente y la confirma antes de cerrar.
 Los estados de guardado del menú se conservan en el almacenamiento del reproductor.
 Esta fase no sincroniza partidas entre PC y móvil.
+
+Desde 0.10.4, MAME, NES, Atari 2600 y pinball usan **Salir** y arrancan sin
+restaurar partidas anteriores. MAME web utiliza almacenamiento temporal, sin
+montar la base de partidas del navegador ni guardar batería al cerrar.
+Pinball conserva únicamente la configuración y NVRAM de la máquina, sin un
+estado reanudable de la partida. Nintendo DS mantiene sus guardados.
 
 Usa **Volver a la biblioteca** o **Volver a GameClub** para cerrar. La app espera
 la confirmación de escritura antes de desmontar el motor y volver a la biblioteca.

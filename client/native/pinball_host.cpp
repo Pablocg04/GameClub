@@ -158,7 +158,7 @@ class Host {
       PostMessageW(handle,WM_KEYUP,VK_ESCAPE,1|(1<<16)|0xc0000000);
     }
     else SDL_KillProcess(child,false);
-    record(restart?"restarting":"saving");
+    record(restart?"restarting":"closing");
   }
   void choose() {if(selected==0)resume();else stop(selected==1);}
   void addPad(SDL_JoystickID id) {
@@ -289,7 +289,7 @@ class Host {
     };
     text(45,35,menu?"GAMECLUB - MENU PINBALL":"PREPARANDO VISUAL PINBALL",3.f);
     text(45,85,menu?"Juego en pausa. Cruceta: elegir / A: aceptar / B: continuar":"Cargando mesa, ROM y motor. Espera unos segundos.",1.65f);
-    const char* labels[]={"Continuar","Reiniciar mesa","Guardar y volver a la biblioteca"};
+    const char* labels[]={"Continuar","Reiniciar mesa","Salir"};
     if(menu)for(int i=0;i<3;++i) {
       SDL_FRect rect{40.f,130.f+i*70.f,920.f,56.f};
       SDL_SetRenderDrawColor(renderer,i==selected?100:37,i==selected?78:39,i==selected?210:61,255);

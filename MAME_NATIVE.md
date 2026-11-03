@@ -38,7 +38,7 @@ servidor mantiene los ZIP originales en `data/native-cores/v1/`.
 | Abrir el menú | Start + Select, Mode o Atrás; Escape en Windows |
 | Elegir una opción | Cruceta; A/OK confirma |
 | Continuar | B o Atrás/Escape desde el menú |
-| Cerrar | **Guardar y salir** en el menú |
+| Cerrar | **Salir** en el menú |
 
 El móvil tiene cruceta con diagonales, botones circulares A/B/X/Y y L/R,
 Select/Start y un acceso flotante al menú. Los botones aceptan multitáctil y
@@ -54,9 +54,10 @@ El juego ocupa toda la pantalla, conservando sus proporciones. No hay barra de
 aplicación ni contador permanente sobre la imagen. Los márgenes negros que
 correspondan a la proporción original forman parte de esa presentación.
 
-Se conservan SRAM/NVRAM, configuración e hiscores que escriba cada núcleo.
-Las carpetas de guardado son locales y separadas por biblioteca, juego y motor.
-Cambiar desde la ruta web anterior no importa automáticamente sus guardados.
+Desde 0.10.4, cada sesión empieza de cero. Los archivos SRAM/NVRAM, estados e
+hiscores que escriba el núcleo se aíslan en una carpeta temporal nueva y se
+eliminan al cerrar. No se carga ni escribe `battery.srm`; las partidas antiguas
+no se restauran. La configuración de la app y los motores descargados se conservan.
 
 ## Implementación
 

@@ -22,13 +22,15 @@ class IntegratedPlayer extends StatefulWidget {
       this.coreLabel,
       this.onCoreFailed,
       this.onCoreStarted,
-      this.mameWebControls = false});
+      this.mameWebControls = false,
+      this.saveProgress = true});
   final Uri uri;
   final String title;
   final String? coreLabel;
   final void Function(String)? onCoreFailed;
   final VoidCallback? onCoreStarted;
   final bool mameWebControls;
+  final bool saveProgress;
 
   @override
   State<IntegratedPlayer> createState() => _IntegratedPlayerState();
@@ -63,7 +65,9 @@ class _IntegratedPlayerState extends State<IntegratedPlayer> {
     final action = await showDialog<String>(
         context: context,
         requestFocus: true,
-        builder: (_) => GameMenu(configureControls: widget.mameWebControls));
+        builder: (_) => GameMenu(
+            configureControls: widget.mameWebControls,
+            saveProgress: widget.saveProgress));
     gameMenu = false;
     if (!mounted) return;
     if (action == 'exit') {
@@ -272,7 +276,9 @@ class _IntegratedPlayerState extends State<IntegratedPlayer> {
     closing = true;
     if (mounted) {
       setState(() {
-        status = 'Guardando y cerrando el juego…';
+        status = widget.saveProgress
+            ? 'Guardando y cerrando el juego…'
+            : 'Cerrando el juego…';
       });
     }
     if (save && initialized) {
@@ -296,8 +302,9 @@ class _IntegratedPlayerState extends State<IntegratedPlayer> {
         if (mounted) {
           setState(() {
             closing = false;
-            status =
-                'No se pudo confirmar el guardado. Vuelve a intentar cerrar el juego.';
+            status = widget.saveProgress
+                ? 'No se pudo confirmar el guardado. Vuelve a intentar cerrar el juego.'
+                : 'No se pudo cerrar el juego. Vuelve a intentarlo.';
           });
         }
         return;

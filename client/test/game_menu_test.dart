@@ -4,6 +4,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gameclub/game_menu.dart';
 
 void main() {
+  for (final save in [false, true]) {
+    testWidgets(
+        save
+            ? 'Nintendo DS mantiene la salida con guardado'
+            : 'el menú sin persistencia muestra Salir', (tester) async {
+      await tester.pumpWidget(
+          MaterialApp(home: Scaffold(body: GameMenu(saveProgress: save))));
+      expect(find.text('Salir'), save ? findsNothing : findsOneWidget);
+      expect(find.text('Guardar y volver a la biblioteca'),
+          save ? findsOneWidget : findsNothing);
+    });
+  }
   testWidgets('el menú se recorre con cruceta y A confirma salir',
       (tester) async {
     String? action;

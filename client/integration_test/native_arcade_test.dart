@@ -102,6 +102,16 @@ void main() {
         }, timeout: const Duration(minutes: 8));
     await running();
     final report = (await current('running'))!;
+    final legacy = File(p.join(report.parent.path, 'battery.srm'));
+    await legacy.writeAsBytes([12, 34, 56]);
+    Future<void> checkFreshExit() async {
+      expect(await legacy.readAsBytes(), [12, 34, 56]);
+      final sessions = Directory(p.join(report.parent.path, 'sessions'));
+      expect(await sessions.exists(), true);
+      expect(await sessions.list().toList(), isEmpty,
+          reason: 'La salida conservó archivos de partida del núcleo');
+    }
+
     if (const bool.fromEnvironment('NATIVE_TEST_ROTATE')) {
       debugPrint('NATIVE_PREPARE_PORTRAIT_READY');
       await waitNative(() async {
@@ -237,6 +247,7 @@ void main() {
     await waitNative(() async => await current('closed') != null);
     await completed.timeout(const Duration(seconds: 20));
     expect(failure, isNull);
+    await checkFreshExit();
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byType(AlertDialog), findsNothing);
     if (Platform.isAndroid) {
@@ -254,6 +265,7 @@ void main() {
     await waitNative(() async => await current('closed') != null);
     await completed;
     expect(failure, isNull);
+    await checkFreshExit();
     await tester.pumpWidget(const SizedBox.shrink());
   }, timeout: const Timeout(Duration(minutes: 15)));
 }

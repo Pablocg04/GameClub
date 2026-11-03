@@ -54,6 +54,9 @@ def main():
         saves = args.root / 'checks' / str(index)
         saves.mkdir(parents=True, exist_ok=True)
         report = saves / 'session.txt'
+        legacy = saves / 'battery.srm'
+        legacy_bytes = b'previous-session-do-not-load-or-overwrite'
+        legacy.write_bytes(legacy_bytes)
         for suffix in ('', '.bmp', '.after.bmp'):
             Path(str(report) + suffix).unlink(missing_ok=True)
         with (saves / 'host.log').open('wb') as log:
@@ -102,6 +105,8 @@ def main():
                 key(0x1b); key(0x28); key(0x0d)
                 assert process.wait(timeout=15) == 0
                 assert state().startswith('closed\n'), state()
+                assert legacy.read_bytes() == legacy_bytes
+                assert (saves/'sessions').is_dir() and not list((saves/'sessions').iterdir())
             finally:
                 if process.poll() is None: process.terminate(); process.wait(timeout=10)
     print('Muestras seleccionadas: vídeo, audio, entradas, pausa, continuación y cierre correctos.', flush=True)

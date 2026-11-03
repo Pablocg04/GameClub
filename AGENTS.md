@@ -16,3 +16,7 @@
   como disponible hasta comprobar que existe.
 - Las ROMs NES y Atari 2600 del escritorio se pueden usar para pruebas locales.
   No subir esas ROMs a la Raspberry hasta que el propietario lo solicite.
+- MAME, Atari 2600, NES y pinball deben empezar de cero, sin guardar ni restaurar
+  partidas, con la acción «Salir». Nintendo DS y las otras consolas conservan sus
+  guardados. En pinball se conserva la NVRAM de configuración de la máquina para
+  evitar inicializaciones de fábrica; no se guarda el estado de la partida.

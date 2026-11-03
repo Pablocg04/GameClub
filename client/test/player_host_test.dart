@@ -30,8 +30,7 @@ void main() {
     expect(balanced, isNot(contains('gameManager.setVSync(false)')));
     expect(desktop, isNot(contains('video_vsync = false')));
   });
-  test('MAME web guarda y restaura NVRAM y configuración dentro de su sesión',
-      () async {
+  test('MAME web ignora guardados anteriores y descarta los nuevos', () async {
     final folder = await Directory.systemTemp.createTemp('gameclub-mame-save-');
     final host = PlayerHost(folder);
     addTearDown(() async {
@@ -50,6 +49,11 @@ void main() {
         mameDriver: 'nbmj8688');
     final http = HttpClient();
     addTearDown(http.close);
+    final legacy = host.battery(host.sessions.values.single);
+    await legacy.parent.create(recursive: true);
+    final old = ZipEncoder().encode(
+        Archive()..addFile(ArchiveFile('nvram/barline/nvram', 3, [9, 9, 9])));
+    await legacy.writeAsBytes(old);
     final endpoint = uri.resolve('mame-save');
     final request = await http.postUrl(endpoint);
     request.headers.contentType = ContentType.json;
@@ -60,18 +64,63 @@ void main() {
     expect((await request.close()).statusCode, 204);
     final response = await (await http.getUrl(endpoint)).close();
     final data = jsonDecode(await utf8.decoder.bind(response).join()) as Map;
-    expect(base64Decode(data['nvram/barline/nvram'] as String), [1, 2, 3]);
-    expect(base64Decode(data['cfg/barline.cfg'] as String), [4, 5]);
+    expect(data, isEmpty);
+    expect(await legacy.readAsBytes(), old);
+    expect(
+        (await (await http.getUrl(uri.resolve('battery.zip'))).close())
+            .statusCode,
+        404);
+    final page = await (await http.getUrl(uri)).close();
+    expect(await utf8.decoder.bind(page).join(), isNot(contains('/mame-save')));
     final unsafe = await http.postUrl(endpoint);
     unsafe.write(jsonEncode({
       'cfg/../../outside': base64Encode([99])
     }));
-    expect((await unsafe.close()).statusCode, 502);
+    expect((await unsafe.close()).statusCode, 204);
     final archive = ZipDecoder().decodeBytes(
         await host.battery(host.sessions.values.single).readAsBytes());
-    expect(archive.files.length, 2);
+    expect(archive.files.single.content, [9, 9, 9]);
     host.release(uri);
     expect((await (await http.getUrl(endpoint)).close()).statusCode, 404);
+  });
+  test(
+      'MAME libretro bloquea batería antigua y nueva sin afectar a otras consolas',
+      () async {
+    final folder = await Directory.systemTemp.createTemp('gameclub-fresh-');
+    final host = PlayerHost(folder);
+    addTearDown(() async {
+      await host.close();
+      await folder.delete(recursive: true);
+    });
+    final rom = File(p.join(folder.path, 'test.zip'));
+    await rom.writeAsBytes([1]);
+    await host.start(listenPort: 0);
+    final uri = host.open({
+      'id': '123abc',
+      'system_id': 'mame',
+      'filename': 'test.zip'
+    }, rom, GameClubApi('http://test', ''), mobile: false);
+    final session = host.sessions.values.single;
+    final legacy = host.battery(session);
+    await legacy.parent.create(recursive: true);
+    await legacy.writeAsBytes([9, 8, 7]);
+    final http = HttpClient();
+    addTearDown(http.close);
+    final request = await http.postUrl(uri
+        .resolve('battery')
+        .replace(queryParameters: {'path': 'mame/test.srm'}));
+    request.add([1, 2, 3]);
+    expect((await request.close()).statusCode, 204);
+    expect(await legacy.readAsBytes(), [9, 8, 7]);
+    expect(
+        (await (await http.getUrl(uri.resolve('battery.zip'))).close())
+            .statusCode,
+        404);
+    final response = await (await http.getUrl(uri)).close();
+    final html = await utf8.decoder.bind(response).join();
+    expect(html, contains('mountFileSystems=async function()'));
+    expect(html, isNot(contains('/gameclub-battery/')));
+    expect(html, isNot(contains('persistBattery().catch')));
   });
   test(
       'el reproductor sirve la ROM solo a su sesión y mantiene un origen local',

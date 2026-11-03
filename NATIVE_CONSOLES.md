@@ -36,9 +36,10 @@ subido a la Raspberry.
 - Teclado Windows: flechas, Z=A, X=B, Enter=Start, 5=Select.
 - Menú: Start+Select, Mode o Atrás; Escape en Windows. A/OK confirma; B continúa.
 - Móvil: controles multitáctiles y orientación vertical, horizontal o automática.
-- SRAM de cartuchos NES con batería: `battery.srm`, guardada localmente por
-  biblioteca/juego/motor. Atari normalmente no tiene SRAM; el menú no convierte
-  los `.sta` externos ni proporciona importación de estados de otros emuladores.
+- Desde 0.10.4, NES y Atari muestran **Salir** y arrancan de cero cada vez.
+  No se carga ni guarda SRAM; los archivos que produzca el núcleo se aíslan en
+  una carpeta temporal eliminada al cerrar. Los guardados antiguos se ignoran.
+  El menú no convierte los `.sta` externos ni importa estados de otros emuladores.
 
 ## Verificación
 

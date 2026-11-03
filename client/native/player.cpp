@@ -3,6 +3,7 @@
 #include "libretro.h"
 #include "touch_layout.h"
 #include "pad_input.h"
+#include "session_storage.h"
 #include <algorithm>
 #include <array>
 #include <cstdarg>
@@ -359,7 +360,7 @@ void draw() {
       SDL_FRect rect{w*.12f, h*(.4f + i*.2f), w*.76f, h*.14f};
       SDL_SetRenderDrawColor(renderer, i == selected ? 100 : 37, i == selected ? 78 : 39, i == selected ? 210 : 61, 255);
       SDL_RenderFillRect(renderer, &rect); SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-      textUI(rect.x+rect.w*.05f,rect.y+rect.h*.35f,i==0?"Continuar":"Guardar y salir",20,rect.w*.9f);
+      textUI(rect.x+rect.w*.05f,rect.y+rect.h*.35f,i==0?"Continuar":"Salir",20,rect.w*.9f);
     }
     textUI(w*.15f,h*.84f,"Cruceta: elegir / A: aceptar",14,w*.7f);
     textUI(w*.15f,h*.9f,"B/Atras: continuar",14,w*.7f);
@@ -438,13 +439,6 @@ void events() {
     }
   }
 }
-void saveRAM(bool load) {
-  auto length=core_get_memory_size(RETRO_MEMORY_SAVE_RAM);auto data=core_get_memory_data(RETRO_MEMORY_SAVE_RAM);
-  if(!length||!data||length>128*1024*1024)return;
-  auto path=std::filesystem::u8path(savePath)/"battery.srm";
-  if(load){std::ifstream file(path,std::ios::binary);if(file)file.read(static_cast<char*>(data),length);}
-  else {std::ofstream file(path,std::ios::binary|std::ios::trunc);file.write(static_cast<char*>(data),length);}
-}
 }
 
 #ifdef __ANDROID__
@@ -478,6 +472,8 @@ int main(int argc,char** argv) {
   systemPath=std::filesystem::u8path(gamePath).parent_path().u8string();
   std::filesystem::current_path(std::filesystem::u8path(systemPath));
   std::filesystem::create_directories(std::filesystem::u8path(savePath));
+  gameclub::SessionStorage session(std::filesystem::u8path(savePath));
+  savePath=session.path.u8string();
   report("loading");
   SDL_SetHint(SDL_HINT_ORIENTATIONS,orientation=="portrait"?"Portrait PortraitUpsideDown":orientation=="auto"?"Portrait PortraitUpsideDown LandscapeLeft LandscapeRight":"LandscapeLeft LandscapeRight");
   SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON,"1");
@@ -514,8 +510,7 @@ int main(int argc,char** argv) {
   if(diagnostics){std::ofstream options(std::filesystem::u8path(reportPath+".options"));for(const auto& item:variables)options<<item.first<<"="<<item.second<<"\n";options<<"sample_rate="<<av.timing.sample_rate<<"\nfps="<<av.timing.fps<<"\n";}
   SDL_AudioSpec spec{SDL_AUDIO_S16,2,static_cast<int>(av.timing.sample_rate>0?av.timing.sample_rate:48000)};
   audio=SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK,&spec,nullptr,nullptr);if(audio)SDL_ResumeAudioStreamDevice(audio);
-  saveRAM(true);
-  double fps=av.timing.fps>1?av.timing.fps:60;uint64_t step=static_cast<uint64_t>(1000000000.0/fps),next=SDL_GetTicksNS(),last=next,begin=next,oldFrames=0,lastSave=next;
+  double fps=av.timing.fps>1?av.timing.fps:60;uint64_t step=static_cast<uint64_t>(1000000000.0/fps),next=SDL_GetTicksNS(),last=next,begin=next,oldFrames=0;
   while(!quit){
     events();
     if(!menu&&focused){core_run();tappedButtons={};}
@@ -523,10 +518,9 @@ int main(int argc,char** argv) {
     auto now=SDL_GetTicksNS();
     if(!texture&&now-begin>30000000000ull){errorMessage="El motor no produjo video. "+errorMessage;break;}
     if(now-last>2000000000ull&&!menu){double speed=(frames-oldFrames)*1e9/(now-last);report("running",std::to_string(speed)+"\nframes="+std::to_string(frames)+"\ninputs="+std::to_string(inputCount)+"\nconsumed="+std::to_string(consumedInputs)+"\ndirections="+std::to_string(directionalInputs)+"\naxis_packets="+std::to_string(axisPackets)+"\naudio_signals="+std::to_string(audioSignals)+"\naudio_batches="+std::to_string(audioBatches));oldFrames=frames;last=now;}
-    if(now-lastSave>30000000000ull){saveRAM(false);lastSave=now;}
     next+=step;if(next>now)SDL_DelayPrecise(next-now);else if(now-next>step*3)next=now;
   }
-  releaseInputs();saveRAM(false);core_unload_game();core_deinit();
+  releaseInputs();core_unload_game();core_deinit();
   report(texture?"closed":"error",errorMessage);
   for(auto& pad:pads)SDL_CloseGamepad(pad.second);
   SDL_DestroyAudioStream(audio);SDL_DestroyTexture(texture);SDL_DestroyRenderer(renderer);SDL_DestroyWindow(window);SDL_UnloadObject(library);SDL_Quit();

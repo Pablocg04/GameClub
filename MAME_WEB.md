@@ -49,14 +49,11 @@ los puertos de entrada de cada máquina pueden requerir ajustes específicos.
 
 ## Guardados
 
-NVRAM, configuración de controles y archivos de estado existentes se guardan
-localmente en un ZIP separado para `mame_web`. Al cerrar, MAME termina su máquina,
-escribe sus archivos y la app confirma el almacenamiento antes de volver.
-Al abrir, se restauran en `/nvram`, `/cfg` y `/sta`.
-
-Esto no añade estados instantáneos a máquinas que no los soportan ni sincroniza
-partidas entre dispositivos. Los puntos/ajustes que conserva cada máquina
-dependen de sus archivos NVRAM y de su propia emulación.
+Desde 0.10.4, MAME web arranca de cero. NVRAM, configuración interna y estados se
+usan solo en la memoria temporal de la sesión, sin exportarlos a un ZIP ni
+restaurar archivos anteriores. El menú ofrece **Salir**. Esta política también
+se aplica a los núcleos arcade EmulatorJS: no montan el almacenamiento IDBFS de
+partidas. Nintendo DS y las demás consolas conservan su política de guardado.
 
 ## Verificación
 

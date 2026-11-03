@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 
 /// El menú conserva un foco Flutter explícito, independiente de la vista del motor.
 class GameMenu extends StatefulWidget {
-  const GameMenu({super.key, this.configureControls = false});
+  const GameMenu(
+      {super.key, this.configureControls = false, this.saveProgress = true});
   final bool configureControls;
+  final bool saveProgress;
   @override
   State<GameMenu> createState() => _GameMenuState();
 }
@@ -76,6 +78,8 @@ class _GameMenuState extends State<GameMenu> {
                   child: Text(switch (actions[i]) {
                     'resume' => 'Continuar',
                     'controls' => 'Configurar controles MAME',
-                    _ => 'Guardar y volver a la biblioteca'
+                    _ => widget.saveProgress
+                        ? 'Guardar y volver a la biblioteca'
+                        : 'Salir'
                   })))));
 }

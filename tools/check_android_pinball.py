@@ -181,7 +181,7 @@ def main():
                 capture('restarted.png')
                 adb('shell','input','keyevent','KEYCODE_BACK')
                 wait_state('menu')
-            tap(wait('Guardar y salir'))
+            tap(wait('Salir'))
             wait_state('closed',timeout=30)
             wait('Biblioteca')
             print('VPX incluido: vídeo, controles, menú y salida a GameClub comprobados.',flush=True)

@@ -1,4 +1,16 @@
-# GameClub 0.10.3
+# GameClub 0.10.4
+
+- MAME, NES, Atari 2600 y pinball muestran **Salir** y comienzan una partida nueva
+  en cada apertura. No se restauran las partidas de sesiones anteriores.
+- Los motores nativos MAME/NES/Atari usan una carpeta temporal por sesión que se
+  elimina al cerrar. Se desactiva la carga y escritura automática de SRAM.
+- MAME web no restaura NVRAM/estados ni exporta guardados. El modo libretro web
+  usa memoria temporal sin montar la base de partidas del navegador.
+- Nintendo DS y las demás consolas conservan batería/SRAM y guardado al salir.
+- Pinball conserva su NVRAM y configuración de máquina para evitar repetir la
+  inicialización de fábrica, sin guardar una instantánea de la partida.
+
+## Versión anterior · 0.10.3
 
 - Corregidas las carátulas de Visual Pinball/PinMAME: se reconocen los folletos
   frontales de las máquinas y los nombres de imagen `r2_` de LaunchBox.

@@ -131,6 +131,7 @@ class _ArcadePlayerState extends State<ArcadePlayer> {
           title: widget.game['title'] as String,
           coreLabel: plan['core_name'] as String,
           mameWebControls: plan['engine'] == 'mame_web',
+          saveProgress: false,
           onCoreFailed: next,
           onCoreStarted: () {
             if (!switching) widget.loader.remember(widget.game, plan);

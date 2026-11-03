@@ -198,13 +198,13 @@ ScoreViewWndY=8
                     if (restarting && !closing) {
                         restarting = false
                         handler.postDelayed({ loadTable() }, 600)
-                    } else finishSaved()
+                    } else finishClosed()
                 }
             }
         }
     }
     private fun loadTable() {
-        if (closing) { finishSaved(); return }
+        if (closing) { finishClosed(); return }
         ready = false
         progress.visibility = View.VISIBLE
         progress.text = "Cargando ${intent.getStringExtra("title") ?: primary.nameWithoutExtension}…"
@@ -217,7 +217,7 @@ ScoreViewWndY=8
                 check(nativeLoad(primary.path, presentation.optInt("mechanical", 35), presentation.optInt("electronic", 100), presentation.optInt("scale", 95), presentation.optBoolean("score", true)) == 0) { "El motor no pudo cargar la mesa. Revisa sus archivos y ROMs." }
                 loaded = true
                 if (!closing) check(nativePlay() == 0) { "El motor no pudo iniciar la mesa" }
-                else handler.post { finishSaved() }
+                else handler.post { finishClosed() }
             } catch (error: Throwable) { fail(error.message ?: "Error de VPX") }
         }
     }
@@ -226,7 +226,7 @@ ScoreViewWndY=8
         ready = false
         writeState("starting")
         if (initializeRom && !initializedReload) {
-            progress.text = "Inicializando la ROM por primera vez…\nSe conservarán tus partidas."
+            progress.text = "Inicializando la ROM por primera vez…\nSe conservará la configuración de la máquina."
             listOf(10000L, 20000L).forEach { delay -> handler.postDelayed({
                 if (!closing && loaded) tap(KeyEvent.KEYCODE_F3)
             }, delay) }
@@ -263,14 +263,14 @@ ScoreViewWndY=8
                 .setPositiveButton("Volver a GameClub") { _, _ -> finish() }.setCancelable(false).show()
         }
     }
-    private fun finishSaved() {
+    private fun finishClosed() {
         if (state != "error") { writeState("closed"); setResult(RESULT_OK) }
         handler.postDelayed({ finish() }, 400)
     }
     private fun stopTable() {
         if (closing) return
-        closing = true; releaseAll(); writeState("saving")
-        if (initialized && loaded) nativeStop() else finishSaved()
+        closing = true; releaseAll(); writeState("closing")
+        if (initialized && loaded) nativeStop() else finishClosed()
     }
     private fun restartTable() {
         if (closing || !loaded) return
@@ -322,7 +322,7 @@ ScoreViewWndY=8
             text = "Select/Y: moneda · Start: partida · A: bola\nLB/LT y RB/RT: flippers\nStart + Select o Atrás: menú\nCruceta para elegir, A para aceptar y B para continuar."
             setPadding(0, 0, 0, dp(12)); textSize = 16f
         })
-        val labels = listOf("Continuar", "Reiniciar mesa", "Guardar y salir", "Imagen y sonido")
+        val labels = listOf("Continuar", "Reiniciar mesa", "Salir", "Imagen y sonido")
         menuButtons = labels.mapIndexed { index, label -> Button(this).apply {
             text = label; isFocusable = true; isFocusableInTouchMode = false
             setOnFocusChangeListener { _, focused -> if (focused) menuSelection = index }

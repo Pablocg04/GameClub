@@ -1,4 +1,32 @@
-# Revisión funcional · GameClub 0.10.3
+# Revisión funcional · GameClub 0.10.4
+
+## Salida y partidas por sistema · 0.10.4
+
+- **39 pruebas Flutter**: política MAME/NES/Atari/VPX sin persistencia; menú
+  Salir frente al menú con guardado de Nintendo DS; rechazo de restauración
+  de batería antigua y descarte de nuevos autosaves arcade; Nintendo DS conserva
+  escritura, lectura y sobrescritura de su batería mediante la API local.
+- **Tres pruebas C++**: diseño táctil, mandos y almacenamiento de sesión.
+  Esta última verifica sesiones nuevas y simultáneas aisladas, eliminación de
+  NVRAM/estados temporales al salir y preservación de un archivo antiguo ignorado.
+- Windows release: Super Mario Bros., Super Mario Bros. 3 y Pac-Man Atari
+  NTSC/PAL con vídeo, audio, controles, menú y salida comprobados. El banco
+  introduce una batería antigua, comprueba que no se sobrescribe y exige que
+  no queden archivos de sesión. También pasa el banco MAME con Arkanoid.
+- Android TV en AVD: MAME Arkanoid con vídeo, entradas, ejes, menú, continuación,
+  salida y segundo arranque. En ambos cierres se comprueban la batería antigua
+  sin modificar y la carpeta de sesiones vacía.
+- APK móvil release ARM64: Attack from Mars, menú **Salir**, continuación,
+  reinicio y vuelta a la biblioteca. La NVRAM/configuración de PinMAME se conserva;
+  el puente carga/enciende la mesa en cada apertura sin restaurar un estado.
+- El modo web MAME deja de exportar/restaurar NVRAM y estados; el modo arcade
+  EmulatorJS no monta IDBFS y usa nombres de sesión independientes. El endpoint
+  local ignora autosaves antiguos y no entrega guardados a esas sesiones.
+- Compilaciones Windows, móvil y TV 0.10.4 (código Android 28), con análisis
+  limpio, recursos/hashes auditados y comprobación AAPT de ambas variantes.
+  La política se aplica en el cliente y sirve con el servidor 0.10.3 desplegado.
+
+## Revisión anterior · 0.10.3
 
 ## Imágenes Visual Pinball / PinMAME · 0.10.3
 

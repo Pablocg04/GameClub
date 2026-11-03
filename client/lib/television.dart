@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'retro_theme.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -317,7 +318,7 @@ class TelevisionGridState extends State<TelevisionGrid> {
         final columns = ((space.maxWidth - 32) / 210).floor().clamp(2, 8);
         final cellWidth = (space.maxWidth - 32 - 16 * (columns - 1)) / columns;
         final cardHeight =
-            math.min(cellWidth / .72, math.max(160.0, space.maxHeight - 32));
+            math.min(cellWidth / .72, math.max(80.0, space.maxHeight - 32));
         final height = cardHeight + 16;
         return Focus(
             onKeyEvent: (_, event) {
@@ -398,19 +399,34 @@ class FocusGameCard extends StatefulWidget {
 }
 
 class _FocusGameCardState extends State<FocusGameCard> {
-  bool focused = false;
+  bool focused = false, hovered = false;
   @override
-  Widget build(BuildContext context) => Card(
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-          side: BorderSide(
-              color: focused ? Colors.white : Colors.transparent, width: 3)),
-      child: InkWell(
-          focusNode: widget.focusNode,
-          autofocus: widget.autofocus,
-          onFocusChange: (value) => setState(() => focused = value),
-          focusColor: const Color(0x668c7aff),
-          onTap: widget.onTap,
-          child: widget.child));
+  Widget build(BuildContext context) => DecoratedBox(
+      decoration: ShapeDecoration(shape: const PixelBorder(), shadows: [
+        BoxShadow(
+            color: focused ? Retro.mint : Retro.ink, offset: const Offset(4, 5))
+      ]),
+      child: Material(
+          color: Retro.panel,
+          clipBehavior: Clip.hardEdge,
+          shape: PixelBorder(
+              side: BorderSide(
+                  color: focused ? Retro.mint : Retro.ink,
+                  width: focused ? 4 : 3)),
+          child: InkWell(
+              focusNode: widget.focusNode,
+              autofocus: widget.autofocus,
+              onFocusChange: (value) => setState(() => focused = value),
+              onHover: (value) => setState(() => hovered = value),
+              hoverColor: const Color(0x228549ed),
+              focusColor: const Color(0x2275e5ca),
+              onTap: widget.onTap,
+              child: DecoratedBox(
+                  decoration: BoxDecoration(
+                      border: hovered && !focused
+                          ? Border.all(color: Retro.lilac, width: 2)
+                          : null),
+                  child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: widget.child)))));
 }

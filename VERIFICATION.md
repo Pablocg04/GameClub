@@ -1,4 +1,33 @@
-# Revisión funcional · GameClub 0.10.4
+# Revisión funcional · GameClub 0.11.0
+
+## Biblioteca retro · 0.11.0
+
+- **47 pruebas Flutter superadas y análisis sin incidencias.** Se conservan las
+  regresiones de guardados, variantes, carátulas y mando. Siete pruebas nuevas
+  recorren biblioteca, ficha, favoritos y ajustes a 320×568, 390×844, 844×390,
+  1440×1000, TV 962×541, móvil con mando y texto ampliado al 150%.
+- Se comprueba que la primera ficha cabe en la cuadrícula; se carga la fuente
+  pixelada real. Ventanas bajas con teclado, mensajes vacíos desplazables y
+  selectores largos conservan sus acciones sin desbordamientos.
+- Regresión específica de giro con barras del sistema: el buscador conserva su
+  texto y filtro, y las fichas cambian a disposición horizontal en vistas bajas.
+- Windows release revisado con la biblioteca real de la Raspberry: carátulas,
+  filtros y ficha con portada/capturas. El backend permanece en **0.10.3**.
+- Compilaciones Windows, móvil y TV **0.11.0+29**. Auditoría de hashes de motores
+  y recursos VPX originales: móvil conserva el motor, TV lo excluye. AAPT verifica
+  versión/código, paquete, API mínima 24, tres ABI y lanzador de cada variante.
+- Fuente Press Start 2P y licencia OFL completas comprobadas en las tres apps.
+  El cambio afecta a presentación y navegación de biblioteca; las pruebas de
+  ejecución de motores de 0.10.4 se documentan abajo como antecedentes.
+- Los APK móvil y TV finales se instalaron en un AVD aislado Android 36.1
+  x86_64: biblioteca real, búsqueda de 1942, ficha/capturas, favoritos y ajustes.
+  Móvil conserva texto y filtro al girar y muestra títulos completos. TV recorre
+  pestañas con RB, enfoca con Select y abre la ficha con cruceta/A; se esperan
+  los cambios de foco entre pulsaciones. Capturas locales en
+  `dist/retro-release-0.11.0/`; banco: `tools/check_retro_release.py`.
+  No se trata de una prueba nueva en el móvil o televisor físicos.
+
+## Revisión anterior · 0.10.4
 
 ## Salida y partidas por sistema · 0.10.4
 

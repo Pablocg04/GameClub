@@ -1,5 +1,13 @@
 # Componentes de terceros
 
+## Tipografía de la biblioteca · 0.11.0
+
+Press Start 2P, copyright 2012 The Press Start 2P Project Authors, distribuida
+sin modificaciones bajo SIL Open Font License 1.1. Fuente original:
+<https://github.com/google/fonts/tree/main/ofl/pressstart2p>.
+La fuente y su licencia completa se incluyen en `client/assets/fonts/` y en
+los tres paquetes. Los dibujos de mandos se generan con código de GameClub.
+
 ## Visual Pinball y PinMAME · 0.9.0
 
 El motor Windows se descarga sin modificaciones desde la distribución oficial

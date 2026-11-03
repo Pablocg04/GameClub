@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api.dart';
+import 'retro_theme.dart';
 import 'integrated_player.dart';
 import 'native_console.dart';
 import 'game_files.dart';
@@ -63,14 +65,7 @@ class GameClubApp extends StatelessWidget {
                 return null;
               })
             },
-            theme: ThemeData(
-              brightness: Brightness.dark,
-              colorScheme: ColorScheme.fromSeed(
-                  seedColor: const Color(0xff8c7aff),
-                  brightness: Brightness.dark),
-              scaffoldBackgroundColor: const Color(0xff10111c),
-              useMaterial3: true,
-            ),
+            theme: Retro.theme(),
             home: LibraryPage(apiOverride: apiOverride),
           )));
 }
@@ -88,6 +83,7 @@ class _LibraryPageState extends State<LibraryPage> {
   GameClubApi api = GameClubApi('http://192.168.0.47:8001', '');
   final server = TextEditingController(text: 'http://192.168.0.47:8001');
   final token = TextEditingController();
+  final librarySearch = TextEditingController();
   List<Json> systems = [], games = [];
   Json settings = {};
   Map<String, String> executables = {};
@@ -150,6 +146,7 @@ class _LibraryPageState extends State<LibraryPage> {
     tvPerformance.dispose();
     server.dispose();
     token.dispose();
+    librarySearch.dispose();
     api.dio.close(force: true);
     playerHost?.close();
     super.dispose();
@@ -685,8 +682,32 @@ class _LibraryPageState extends State<LibraryPage> {
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                        Text(
-                            '${game['filename']} · ${formatSize(game['size'] as int)}'),
+                        Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                  width: 88,
+                                  height: 120,
+                                  child: PixelPanel(child: cover(game))),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                    Text(
+                                        (game['system_id'] as String)
+                                            .toUpperCase(),
+                                        style: Retro.pixel(9,
+                                            color: Retro.systemColor(
+                                                game['system_id'] as String))),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                        '${game['filename']} · ${formatSize(game['size'] as int)}',
+                                        style: const TextStyle(
+                                            color: Retro.muted)),
+                                  ])),
+                            ]),
                         const SizedBox(height: 16),
                         Text((game['description'] as String).isEmpty
                             ? 'Todavía no hay descripción disponible.'
@@ -773,11 +794,22 @@ class _LibraryPageState extends State<LibraryPage> {
           : '${(size / 1024).toStringAsFixed(1)} KB';
 
   Widget cover(Json game) {
-    Widget placeholder() => Container(
-        color: const Color(0xff25273d),
-        alignment: Alignment.center,
-        child: const Icon(Icons.videogame_asset_outlined,
-            size: 64, color: Color(0xff8c7aff)));
+    final accent = Retro.systemColor(game['system_id'] as String);
+    Widget placeholder() => ColoredBox(
+        color: Retro.panel,
+        child: LayoutBuilder(
+            builder: (context, space) => Center(
+                child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child:
+                            Column(mainAxisSize: MainAxisSize.min, children: [
+                          PixelController(color: accent),
+                          const SizedBox(height: 12),
+                          Text((game['system_id'] as String).toUpperCase(),
+                              style: Retro.pixel(9, color: accent)),
+                        ]))))));
     if (game['cover_url'] == null) return placeholder();
     return Image.network(
         '${api.imageUrl(game['cover_url'] as String)}?v=$revision',
@@ -787,8 +819,35 @@ class _LibraryPageState extends State<LibraryPage> {
         errorBuilder: (_, __, ___) => placeholder());
   }
 
+  Widget libraryBanner() => Padding(
+      padding: const EdgeInsets.fromLTRB(20, 18, 24, 12),
+      child: PixelPanel(
+          color: Retro.purple,
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
+          child: Row(children: [
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Text('PLAYER 1 / GAMECLUB',
+                      style: Retro.pixel(8, color: Retro.yellow)),
+                  const SizedBox(height: 12),
+                  Text(
+                      tab == 1
+                          ? 'LOS DE SIEMPRE.\nUNA PARTIDA MÁS.'
+                          : 'TU PRÓXIMA\nAVENTURA.',
+                      style: Retro.pixel(19)),
+                  const SizedBox(height: 10),
+                  const Text('Tu colección. Tus clásicos. Dale al play.',
+                      style: TextStyle(color: Retro.cream)),
+                ])),
+            const SizedBox(width: 20),
+            const PixelController(size: 180, color: Retro.yellow),
+          ])));
+
   Widget libraryView() {
     final tv = TelevisionScope.of(context);
+    final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
     final visibleSystems = systems
         .where((s) => showEmpty || (s['game_count'] as int) > 0)
         .toList();
@@ -796,184 +855,260 @@ class _LibraryPageState extends State<LibraryPage> {
         .where((g) =>
             (g['title'] as String).toLowerCase().contains(query.toLowerCase()))
         .toList();
-    return Column(children: [
-      Padding(
-          padding: const EdgeInsets.all(16),
-          child: CallbackShortcuts(
-              bindings: tv && MediaQuery.viewInsetsOf(context).bottom == 0
-                  ? {
-                      const SingleActivator(LogicalKeyboardKey.arrowDown): () =>
-                          tvFilter.requestFocus(),
-                    }
-                  : const {},
-              child: TextField(
-                focusNode: tv ? tvSearch : null,
-                decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: IconButton(
-                        tooltip: pinballOnly
-                            ? 'Quitar filtro de pinball MAME'
-                            : 'Pinballs de MAME',
-                        isSelected: pinballOnly,
-                        icon: const Icon(Icons.sports_baseball_outlined),
-                        onPressed: busy
-                            ? null
-                            : () {
-                                setState(() {
-                                  pinballOnly = !pinballOnly;
-                                  selectedSystem = pinballOnly ? 'mame' : null;
-                                  tab = 0;
-                                });
-                                reload();
-                              }),
-                    hintText: 'Buscar en la biblioteca',
-                    border: OutlineInputBorder()),
-                onChanged: (value) => setState(() {
-                  query = value;
-                }),
-              ))),
-      if (MediaQuery.viewInsetsOf(context).bottom == 0)
-        SizedBox(
-            height: 52,
-            child: tv
-                ? TelevisionFilters(
-                    labels: [
-                      'Todas',
-                      ...visibleSystems
-                          .map((s) => '${s['name']} · ${s['game_count']}')
-                    ],
-                    selected: selectedSystem == null
-                        ? 0
-                        : visibleSystems
-                                .indexWhere((s) => s['id'] == selectedSystem) +
-                            1,
-                    firstFocus: tvFilter,
-                    enabled: !busy,
-                    onSelected: (index) {
-                      selectedSystem = index == 0
-                          ? null
-                          : visibleSystems[index - 1]['id'] as String;
-                      if (selectedSystem != 'mame') pinballOnly = false;
-                      reload();
-                    },
-                    onDown: () => tvGridKey.currentState?.focusSelected(),
-                    onUp: () => tvSearch.requestFocus(),
-                    onMenu: () => tvNav[tab].requestFocus(),
-                  )
-                : ListView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    children: [
-                        Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: ChoiceChip(
-                                focusNode: tv ? tvFilter : null,
-                                label: const Text('Todas'),
-                                selected: selectedSystem == null,
-                                onSelected: busy
+    return LayoutBuilder(
+        builder: (context, space) => Column(children: [
+              if (space.maxWidth >= 650 && space.maxHeight >= 620)
+                libraryBanner(),
+              if (space.maxHeight >= 330)
+                Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+                    child: Row(children: [
+                      Container(width: 6, height: 24, color: Retro.mint),
+                      const SizedBox(width: 10),
+                      Expanded(
+                          child: Text(
+                              tab == 1 ? 'TUS FAVORITOS' : 'LA BIBLIOTECA',
+                              style:
+                                  Retro.pixel(space.maxWidth < 400 ? 10 : 12))),
+                      Text('${visibleGames.length} juegos',
+                          style: const TextStyle(
+                              color: Retro.muted, fontSize: 12)),
+                    ])),
+              Padding(
+                  padding: EdgeInsets.fromLTRB(
+                      20, space.maxHeight < 330 ? 4 : 12, 20, 4),
+                  child: CallbackShortcuts(
+                      bindings: tv && !keyboardOpen
+                          ? {
+                              const SingleActivator(
+                                      LogicalKeyboardKey.arrowDown):
+                                  () => tvFilter.requestFocus(),
+                            }
+                          : const {},
+                      child: TextField(
+                        controller: librarySearch,
+                        key: const ValueKey('library-search'),
+                        focusNode: tv ? tvSearch : null,
+                        decoration: InputDecoration(
+                            isDense: space.maxHeight < 330,
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: IconButton(
+                                tooltip: pinballOnly
+                                    ? 'Quitar filtro de pinball MAME'
+                                    : 'Pinballs de MAME',
+                                isSelected: pinballOnly,
+                                icon:
+                                    const Icon(Icons.sports_baseball_outlined),
+                                onPressed: busy
                                     ? null
-                                    : (_) {
-                                        selectedSystem = null;
-                                        pinballOnly = false;
+                                    : () {
+                                        setState(() {
+                                          pinballOnly = !pinballOnly;
+                                          selectedSystem =
+                                              pinballOnly ? 'mame' : null;
+                                          tab = 0;
+                                        });
                                         reload();
-                                      })),
-                        ...visibleSystems.map((s) => Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: ChoiceChip(
-                              label: Text('${s['name']} · ${s['game_count']}'),
-                              selected: selectedSystem == s['id'],
-                              onSelected: busy
+                                      }),
+                            hintText: 'Buscar en la biblioteca'),
+                        onChanged: (value) => setState(() {
+                          query = value;
+                        }),
+                      ))),
+              if (!keyboardOpen)
+                SizedBox(
+                    height: space.maxHeight < 330 ? 44 : 52,
+                    child: tv
+                        ? TelevisionFilters(
+                            labels: [
+                              'Todas',
+                              ...visibleSystems.map(
+                                  (s) => '${s['name']} · ${s['game_count']}')
+                            ],
+                            selected: selectedSystem == null
+                                ? 0
+                                : visibleSystems.indexWhere(
+                                        (s) => s['id'] == selectedSystem) +
+                                    1,
+                            firstFocus: tvFilter,
+                            enabled: !busy,
+                            onSelected: (index) {
+                              selectedSystem = index == 0
                                   ? null
-                                  : (_) {
-                                      selectedSystem = s['id'] as String;
-                                      if (selectedSystem != 'mame') {
-                                        pinballOnly = false;
-                                      }
-                                      reload();
-                                    },
-                            ))),
-                      ])),
-      Expanded(
-          child: loading
-              ? const Center(child: CircularProgressIndicator())
-              : status.isNotEmpty
-                  ? emptyState(Icons.wifi_off, status, 'Reintentar', reload)
-                  : visibleGames.isEmpty
-                      ? emptyState(
-                          Icons.sports_esports_outlined,
-                          'No hay juegos en esta vista.\nAñade tus ROMs o escanea las carpetas de la Raspberry.',
-                          'Añadir juego',
-                          addGames)
-                      : tv
-                          ? TelevisionGrid(
-                              key: tvGridKey,
-                              identity: '$tab-$selectedSystem-$query',
-                              autofocus: !tvNav.any((node) => node.hasFocus) &&
-                                  !tvFilter.hasFocus &&
-                                  !tvSearch.hasFocus,
-                              onMenu: () => tvNav[tab].requestFocus(),
-                              onFilters: () => tvFilter.requestFocus(),
-                              count: visibleGames.length,
-                              builder: (context, index, node, autofocus) =>
-                                  gameCard(visibleGames[index],
-                                      focusNode: node, autofocus: autofocus))
-                          : GridView.builder(
-                              padding: const EdgeInsets.all(16),
-                              gridDelegate:
-                                  const SliverGridDelegateWithMaxCrossAxisExtent(
-                                      maxCrossAxisExtent: 220,
-                                      mainAxisSpacing: 16,
-                                      crossAxisSpacing: 16,
-                                      childAspectRatio: 0.66),
-                              itemCount: visibleGames.length,
-                              itemBuilder: (context, index) {
-                                return gameCard(visibleGames[index]);
-                              })),
-    ]);
+                                  : visibleSystems[index - 1]['id'] as String;
+                              if (selectedSystem != 'mame') pinballOnly = false;
+                              reload();
+                            },
+                            onDown: () =>
+                                tvGridKey.currentState?.focusSelected(),
+                            onUp: () => tvSearch.requestFocus(),
+                            onMenu: () => tvNav[tab].requestFocus(),
+                          )
+                        : ListView(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            children: [
+                                Padding(
+                                    padding: const EdgeInsets.only(right: 8),
+                                    child: ChoiceChip(
+                                        focusNode: tv ? tvFilter : null,
+                                        label: const Text('Todas'),
+                                        selected: selectedSystem == null,
+                                        onSelected: busy
+                                            ? null
+                                            : (_) {
+                                                selectedSystem = null;
+                                                pinballOnly = false;
+                                                reload();
+                                              })),
+                                ...visibleSystems.map((s) => Padding(
+                                    padding: const EdgeInsets.only(right: 8),
+                                    child: ChoiceChip(
+                                      label: Text(
+                                          '${s['name']} · ${s['game_count']}'),
+                                      selected: selectedSystem == s['id'],
+                                      onSelected: busy
+                                          ? null
+                                          : (_) {
+                                              selectedSystem =
+                                                  s['id'] as String;
+                                              if (selectedSystem != 'mame') {
+                                                pinballOnly = false;
+                                              }
+                                              reload();
+                                            },
+                                    ))),
+                              ])),
+              Expanded(
+                  child: loading
+                      ? const Center(child: CircularProgressIndicator())
+                      : status.isNotEmpty
+                          ? emptyState(
+                              Icons.wifi_off, status, 'Reintentar', reload)
+                          : visibleGames.isEmpty
+                              ? emptyState(
+                                  Icons.sports_esports_outlined,
+                                  query.isNotEmpty
+                                      ? 'No hay juegos que coincidan con «$query».\nPrueba otro título o cambia de consola.'
+                                      : tab == 1
+                                          ? 'Tus clásicos favoritos tendrán su sitio aquí.\nMarca la estrella en la ficha de un juego.'
+                                          : 'Tu biblioteca está lista para la primera partida.\nAñade juegos o escanea tu colección.',
+                                  'Añadir juego',
+                                  addGames)
+                              : tv
+                                  ? TelevisionGrid(
+                                      key: tvGridKey,
+                                      identity: '$tab-$selectedSystem-$query',
+                                      autofocus:
+                                          !tvNav.any((node) => node.hasFocus) &&
+                                              !tvFilter.hasFocus &&
+                                              !tvSearch.hasFocus,
+                                      onMenu: () => tvNav[tab].requestFocus(),
+                                      onFilters: () => tvFilter.requestFocus(),
+                                      count: visibleGames.length,
+                                      builder:
+                                          (context, index, node, autofocus) =>
+                                              gameCard(visibleGames[index],
+                                                  focusNode: node,
+                                                  autofocus: autofocus))
+                                  : LayoutBuilder(builder: (context, grid) {
+                                      final columns = (grid.maxWidth / 240)
+                                          .ceil()
+                                          .clamp(1, 10);
+                                      final width = (grid.maxWidth -
+                                              32 -
+                                              16 * (columns - 1)) /
+                                          columns;
+                                      final height = math.min(width / .68,
+                                          math.max(80.0, grid.maxHeight - 32));
+                                      return GridView.builder(
+                                          padding: const EdgeInsets.all(16),
+                                          gridDelegate:
+                                              SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount: columns,
+                                                  mainAxisSpacing: 16,
+                                                  crossAxisSpacing: 16,
+                                                  childAspectRatio:
+                                                      width / height),
+                                          itemCount: visibleGames.length,
+                                          itemBuilder: (context, index) =>
+                                              gameCard(visibleGames[index]));
+                                    })),
+            ]));
   }
 
-  Widget gameCard(Json game, {FocusNode? focusNode, bool autofocus = false}) =>
-      FocusGameCard(
-          key: ValueKey('game-${game['id']}'),
-          focusNode: focusNode,
-          autofocus: autofocus,
-          onTap: busy ? null : () => detail(game),
-          child: Column(children: [
-            Expanded(
-                child: SizedBox(width: double.infinity, child: cover(game))),
-            Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(children: [
+  Widget gameCard(Json game, {FocusNode? focusNode, bool autofocus = false}) {
+    final accent = Retro.systemColor(game['system_id'] as String);
+    return FocusGameCard(
+        key: ValueKey('game-${game['id']}'),
+        focusNode: focusNode,
+        autofocus: autofocus,
+        onTap: busy ? null : () => detail(game),
+        child: LayoutBuilder(builder: (context, space) {
+          final compact = space.maxHeight < 180;
+          final artwork = Stack(fit: StackFit.expand, children: [
+            cover(game),
+            if (game['favorite'] == true)
+              const Positioned(
+                  top: 4,
+                  right: 4,
+                  child: ColoredBox(
+                      color: Retro.ink,
+                      child: Padding(
+                          padding: EdgeInsets.all(2),
+                          child: Icon(Icons.star,
+                              color: Retro.yellow, size: 18)))),
+          ]);
+          final caption = Padding(
+              padding: EdgeInsets.fromLTRB(
+                  10, compact ? 6 : 10, 10, compact ? 6 : 12),
+              child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text((game['system_id'] as String).toUpperCase(),
+                        style: Retro.pixel(7, color: accent)),
+                    const SizedBox(height: 6),
+                    Text(game['title'] as String,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 14,
+                            height: 1.2)),
+                  ]));
+          return compact
+              ? Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  SizedBox(width: space.maxHeight * .6, child: artwork),
+                  Container(width: 4, color: accent),
                   Expanded(
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                        Text(game['title'] as String,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w600)),
-                        Text((game['system_id'] as String).toUpperCase(),
-                            style: const TextStyle(
-                                color: Colors.white54, fontSize: 12)),
-                      ])),
-                  if (game['favorite'] == true)
-                    const Icon(Icons.star, color: Colors.amber, size: 18),
-                ])),
-          ]));
+                      child: Align(
+                          alignment: Alignment.centerLeft, child: caption)),
+                ])
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                      Expanded(child: artwork),
+                      Container(height: 4, color: accent),
+                      caption,
+                    ]);
+        }));
+  }
 
   Widget emptyState(IconData icon, String text, String label,
           Future<void> Function() action) =>
       Center(
-        child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Icon(icon, size: 64, color: const Color(0xff8c7aff)),
-              const SizedBox(height: 16),
-              Text(text, textAlign: TextAlign.center),
-              const SizedBox(height: 20),
-              FilledButton(onPressed: busy ? null : action, child: Text(label)),
-            ])),
+        child: SingleChildScrollView(
+            child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(icon, size: 64, color: Retro.lilac),
+                  const SizedBox(height: 16),
+                  Text(text, textAlign: TextAlign.center),
+                  const SizedBox(height: 20),
+                  FilledButton(
+                      onPressed: busy ? null : action, child: Text(label)),
+                ]))),
       );
 
   Future<void> saveConnection() async {
@@ -1025,6 +1160,7 @@ class _LibraryPageState extends State<LibraryPage> {
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
         DropdownButtonFormField<String>(
+            isExpanded: true,
             initialValue: DevicePlatform.mobileOrientation,
             decoration: const InputDecoration(
                 labelText: 'Orientación del juego',
@@ -1195,6 +1331,7 @@ class _LibraryPageState extends State<LibraryPage> {
           child: Text(
               'Integrados: Nintendo DS, Game Boy, Game Boy Color, Game Boy Advance, Super Nintendo y Nintendo 64. No requieren instalar emuladores. La primera carga prepara el motor automáticamente; los ajustes de controles y guardado están en el reproductor.')),
       DropdownButtonFormField<String>(
+          isExpanded: true,
           key: ValueKey('nds-profile-$ndsProfile'),
           initialValue: ndsProfile,
           decoration: const InputDecoration(
@@ -1247,8 +1384,7 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Focus(
-      onKeyEvent: (_, event) {
+  Widget build(BuildContext context) => Focus(onKeyEvent: (_, event) {
         if (event.synthesized &&
             {
               LogicalKeyboardKey.gameButtonA,
@@ -1277,125 +1413,188 @@ class _LibraryPageState extends State<LibraryPage> {
           return KeyEventResult.handled;
         }
         return KeyEventResult.ignored;
-      },
-      child: Padding(
-          padding: TelevisionScope.of(context)
-              ? const EdgeInsets.symmetric(horizontal: 24, vertical: 12)
-              : EdgeInsets.zero,
-          child: Scaffold(
-            appBar: AppBar(title: const Text('GameClub · 0.10.4'), actions: [
-              IconButton(
-                  tooltip: 'Escanear biblioteca',
-                  onPressed: busy
-                      ? null
-                      : () => perform(() async {
-                            await api.dio.post('/api/scan');
-                            await reload();
-                          }),
-                  icon: const Icon(Icons.sync)),
-              IconButton(
-                  tooltip: 'Añadir juego',
-                  onPressed: busy || systems.isEmpty ? null : addGames,
-                  icon: const Icon(Icons.add)),
-            ]),
-            body: Column(children: [
-              if (busy) LinearProgressIndicator(value: progress),
-              if (busy && uploadStatus != null)
-                Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Text(uploadStatus!,
-                        maxLines: 1, overflow: TextOverflow.ellipsis)),
-              Expanded(
-                  child: Focus(
-                      onKeyEvent: (_, event) {
-                        if (TelevisionScope.of(context) &&
-                            event is KeyDownEvent &&
-                            {
-                              LogicalKeyboardKey.gameButtonB,
-                              LogicalKeyboardKey.escape
-                            }.contains(event.logicalKey)) {
-                          tvNav[tab].requestFocus();
-                          return KeyEventResult.handled;
-                        }
-                        return KeyEventResult.ignored;
-                      },
-                      child: tab == 2 ? settingsView() : libraryView())),
-            ]),
-            bottomNavigationBar: TelevisionScope.of(context)
-                ? Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Row(
-                        children: List.generate(
-                            3,
-                            (index) => Expanded(
-                                child: Focus(
-                                    onKeyEvent: (_, event) {
-                                      if (event is! KeyDownEvent) {
-                                        return KeyEventResult.ignored;
-                                      }
-                                      if (event.logicalKey ==
-                                          LogicalKeyboardKey.arrowLeft) {
-                                        tvNav[(index + 2) % 3].requestFocus();
-                                        return KeyEventResult.handled;
-                                      }
-                                      if (event.logicalKey ==
-                                          LogicalKeyboardKey.arrowRight) {
-                                        tvNav[(index + 1) % 3].requestFocus();
-                                        return KeyEventResult.handled;
-                                      }
-                                      if (event.logicalKey ==
-                                          LogicalKeyboardKey.arrowUp) {
-                                        if (tab == 2) {
-                                          tvPerformance.requestFocus();
-                                        } else {
-                                          tvGridKey.currentState
-                                              ?.focusSelected();
-                                        }
-                                        return KeyEventResult.handled;
-                                      }
-                                      return KeyEventResult.ignored;
-                                    },
-                                    child: TextButton.icon(
-                                        focusNode: tvNav[index],
-                                        onPressed: busy
-                                            ? null
-                                            : () {
-                                                setState(() => tab = index);
-                                                reload();
-                                              },
-                                        style: TextButton.styleFrom(
-                                            backgroundColor: tab == index
-                                                ? const Color(0xff25273d)
-                                                : null),
-                                        icon: Icon([
-                                          Icons.grid_view,
-                                          Icons.star_outline,
-                                          Icons.settings_outlined
-                                        ][index]),
-                                        label: Text([
-                                          'Biblioteca',
-                                          'Favoritos',
-                                          'Ajustes'
-                                        ][index])))))))
-                : NavigationBar(
-                    selectedIndex: tab,
-                    onDestinationSelected: busy
-                        ? null
-                        : (value) {
-                            setState(() {
-                              tab = value;
-                            });
-                            reload();
-                          },
-                    destinations: const [
-                        NavigationDestination(
-                            icon: Icon(Icons.grid_view), label: 'Biblioteca'),
-                        NavigationDestination(
-                            icon: Icon(Icons.star_outline), label: 'Favoritos'),
-                        NavigationDestination(
-                            icon: Icon(Icons.settings_outlined),
-                            label: 'Ajustes'),
+      }, child: LayoutBuilder(builder: (context, space) {
+        final tv = TelevisionScope.of(context);
+        final desktop = space.maxWidth >= 1100 && !tv;
+        return PixelBackdrop(
+            child: Padding(
+                padding: tv
+                    ? const EdgeInsets.symmetric(horizontal: 24, vertical: 12)
+                    : EdgeInsets.zero,
+                child: Scaffold(
+                  backgroundColor: Colors.transparent,
+                  appBar: AppBar(
+                    toolbarHeight: 64,
+                    title: Row(mainAxisSize: MainAxisSize.min, children: [
+                      const PixelController(size: 44, color: Retro.mint),
+                      const SizedBox(width: 10),
+                      Flexible(child: Text('GAMECLUB', style: Retro.pixel(14))),
+                      if (space.maxWidth >= 480) ...[
+                        const SizedBox(width: 12),
+                        const Text('v0.11.0',
+                            style: TextStyle(fontSize: 11, color: Retro.muted)),
+                      ],
+                    ]),
+                    actions: [
+                      IconButton(
+                          tooltip: 'Escanear biblioteca',
+                          onPressed: busy
+                              ? null
+                              : () => perform(() async {
+                                    await api.dio.post('/api/scan');
+                                    await reload();
+                                  }),
+                          icon: const Icon(Icons.sync, color: Retro.mint)),
+                      IconButton(
+                          tooltip: 'Añadir juego',
+                          onPressed: busy || systems.isEmpty ? null : addGames,
+                          icon: const Icon(Icons.add_box_outlined,
+                              color: Retro.yellow)),
+                      const SizedBox(width: 8),
+                    ],
+                  ),
+                  body: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (desktop)
+                          SizedBox(
+                              width: 216,
+                              child: ColoredBox(
+                                  color: Retro.ink,
+                                  child: Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: [
+                                            const SizedBox(height: 24),
+                                            Text('TU COLECCIÓN',
+                                                style: Retro.pixel(9,
+                                                    color: Retro.muted)),
+                                            const SizedBox(height: 24),
+                                            for (var i = 0; i < 3; i++) ...[
+                                              navigationItem(i),
+                                              const SizedBox(height: 12),
+                                            ],
+                                            const Spacer(),
+                                            const PixelController(size: 130),
+                                            const SizedBox(height: 16),
+                                            Text(
+                                                'INSERT COIN?\nMEJOR, DALE AL PLAY.',
+                                                style: Retro.pixel(7,
+                                                    color: Retro.yellow),
+                                                textAlign: TextAlign.center),
+                                            const SizedBox(height: 24),
+                                          ])))),
+                        Expanded(
+                            child: Column(children: [
+                          if (busy) LinearProgressIndicator(value: progress),
+                          if (busy && uploadStatus != null)
+                            Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                child: Text(uploadStatus!,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis)),
+                          Expanded(
+                              child: Focus(
+                                  onKeyEvent: (_, event) {
+                                    if (tv &&
+                                        event is KeyDownEvent &&
+                                        {
+                                          LogicalKeyboardKey.gameButtonB,
+                                          LogicalKeyboardKey.escape
+                                        }.contains(event.logicalKey)) {
+                                      tvNav[tab].requestFocus();
+                                      return KeyEventResult.handled;
+                                    }
+                                    return KeyEventResult.ignored;
+                                  },
+                                  child: tab == 2
+                                      ? settingsView()
+                                      : libraryView())),
+                        ])),
                       ]),
-          )));
+                  bottomNavigationBar: desktop ||
+                          MediaQuery.viewInsetsOf(context).bottom > 0
+                      ? null
+                      : SafeArea(
+                          top: false,
+                          child: ColoredBox(
+                              color: Retro.ink,
+                              child: Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Row(children: [
+                                    for (var i = 0; i < 3; i++)
+                                      Expanded(
+                                          child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 3),
+                                              child: navigationItem(i))),
+                                  ])))),
+                )));
+      }));
+
+  Widget navigationItem(int index) {
+    final tv = TelevisionScope.of(context);
+    final compact = MediaQuery.sizeOf(context).height < 600;
+    final icon = Icon(
+        [Icons.shelves, Icons.star_outline, Icons.settings_outlined][index],
+        size: compact ? 18 : 22);
+    final label = Text(['Biblioteca', 'Favoritos', 'Ajustes'][index],
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700));
+    return Focus(
+        onKeyEvent: (_, event) {
+          if (!tv || event is! KeyDownEvent) return KeyEventResult.ignored;
+          if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+            tvNav[(index + 2) % 3].requestFocus();
+            return KeyEventResult.handled;
+          }
+          if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+            tvNav[(index + 1) % 3].requestFocus();
+            return KeyEventResult.handled;
+          }
+          if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+            if (tab == 2) {
+              tvPerformance.requestFocus();
+            } else {
+              tvGridKey.currentState?.focusSelected();
+            }
+            return KeyEventResult.handled;
+          }
+          return KeyEventResult.ignored;
+        },
+        child: TextButton(
+            focusNode: tv ? tvNav[index] : null,
+            onPressed: busy
+                ? null
+                : () {
+                    setState(() => tab = index);
+                    reload();
+                  },
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.resolveWith(
+                  (states) => states.contains(WidgetState.focused)
+                      ? Retro.mint
+                      : tab == index
+                          ? Retro.purple
+                          : Retro.ink),
+              foregroundColor: WidgetStateProperty.resolveWith((states) =>
+                  states.contains(WidgetState.focused)
+                      ? Retro.ink
+                      : Retro.cream),
+              padding: WidgetStatePropertyAll(EdgeInsets.symmetric(
+                  horizontal: 8, vertical: compact ? 10 : 14)),
+            ),
+            child: compact
+                ? Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    icon,
+                    const SizedBox(width: 4),
+                    Flexible(child: label)
+                  ])
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [icon, const SizedBox(height: 6), label])));
+  }
 }

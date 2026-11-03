@@ -191,7 +191,8 @@ void main() {
     api.dio.httpClientAdapter = TelevisionAdapter();
     await tester.pumpWidget(GameClubApp(apiOverride: api));
     await tester.pumpAndSettle();
-    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(TelevisionGrid), findsNothing);
+    expect(find.text('Biblioteca'), findsOneWidget);
     DevicePlatform.gamepadConnected.value = true;
     await tester.pumpAndSettle();
     expect(find.byType(TelevisionGrid), findsOneWidget);
@@ -200,7 +201,8 @@ void main() {
     expect(FocusManager.instance.primaryFocus?.debugLabel, 'Menú TV 1');
     DevicePlatform.gamepadConnected.value = false;
     await tester.pumpAndSettle();
-    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(TelevisionGrid), findsNothing);
+    expect(find.text('Favoritos'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });

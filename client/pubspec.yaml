@@ -1,7 +1,7 @@
 name: gameclub
 description: Biblioteca de videojuegos para Android y Windows conectada a tu Raspberry.
 publish_to: none
-version: 0.10.4+28
+version: 0.11.0+29
 environment:
   sdk: '>=3.5.0 <4.0.0'
 dependencies:
@@ -29,7 +29,12 @@ dev_dependencies:
   image: ^4.5.4
 flutter:
   uses-material-design: true
+  fonts:
+    - family: PressStart2P
+      fonts:
+        - asset: assets/fonts/PressStart2P-Regular.ttf
   assets:
+    - assets/fonts/OFL-PressStart2P.txt
     - assets/native-notices.txt
     - assets/native_console_cores.json
     - assets/native-cores/android-arm64-v8a/

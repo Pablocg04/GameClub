@@ -1,4 +1,18 @@
-# GameClub 0.10.4
+# GameClub 0.11.0
+
+- Nueva biblioteca retro: predominio del morado, acentos menta/rosa/amarillo,
+  tipografía Press Start 2P, dibujos pixel art y marcos negros escalonados.
+- Menú lateral en ventanas amplias de PC y navegación inferior adaptada a
+  móvil y TV; disposición compacta para pantallas horizontales o de poca altura.
+- Carátulas y fichas renovadas, bandas de color por sistema, estrellas de
+  favoritos y foco de mando visible en menta. Las fichas muestran su portada.
+- Búsqueda, filtros por consola, favoritos, subida de juegos y ajustes se
+  mantienen; mensajes distintos para búsquedas vacías y favoritos sin juegos.
+- Corregidos recortes con teclado, ventanas pequeñas y selectores largos al
+  conectar un mando al móvil. Se conserva la política de guardados de 0.10.4.
+- PC/móvil conservan Visual Pinball; TV sigue ocultándolo y excluyendo su motor.
+
+## Versión anterior · 0.10.4
 
 - MAME, NES, Atari 2600 y pinball muestran **Salir** y comienzan una partida nueva
   en cada apertura. No se restauran las partidas de sesiones anteriores.

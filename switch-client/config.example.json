@@ -1,0 +1,5 @@
+{
+  "server": "http://192.168.0.47:8001",
+  "token": "",
+  "cores": "sdmc:/retroarch/cores"
+}

@@ -1431,7 +1431,7 @@ class _LibraryPageState extends State<LibraryPage> {
                       Flexible(child: Text('GAMECLUB', style: Retro.pixel(14))),
                       if (space.maxWidth >= 480) ...[
                         const SizedBox(width: 12),
-                        const Text('v0.11.0',
+                        const Text('v0.12.0',
                             style: TextStyle(fontSize: 11, color: Retro.muted)),
                       ],
                     ]),

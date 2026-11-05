@@ -3,8 +3,15 @@
 Código: <https://github.com/Pablocg04/GameClub>. Descargas:
 <https://github.com/Pablocg04/GameClub/releases>.
 
-Biblioteca de videojuegos alojada en una Raspberry Pi 5, con cliente para **Windows y Android**.
+Biblioteca de videojuegos alojada en una Raspberry Pi 5, con clientes para **Windows, Android y Switch homebrew**.
 La Raspberry organiza y entrega los archivos; los emuladores se ejecutan en el dispositivo de juego.
+
+## Nintendo Switch homebrew · 0.12.0
+
+Cliente nativo en `dist/switch-0.12.0/GameClub-Switch.nro`, con biblioteca,
+carátulas, búsqueda, favoritos, teclado y mando. Abre los núcleos NRO de una
+instalación de RetroArch para Switch; no incluye emuladores ni juegos.
+Instalación, motores y límites de validación: [SWITCH.md](SWITCH.md).
 
 ## Biblioteca retro · 0.11.0
 
@@ -12,11 +19,11 @@ Interfaz de biblioteca morada con acentos de color, tipografía pixelada y marco
 negros escalonados. Menú lateral en PC y navegación adaptada a móvil y TV, con
 foco visible para mando. Consulta [RELEASE_NOTES.md](RELEASE_NOTES.md).
 
-## Android y Android TV · 0.11.0
+## Android y Android TV · 0.12.0
 
-- **Móvil/tablet:** `dist/android-mobile-0.11.0/GameClub-Android.apk`.
+- **Móvil/tablet:** `dist/android-mobile-0.12.0/GameClub-Android.apk`.
   Controles clásicos grandes y juego vertical u horizontal. [ANDROID_MOBILE.md](ANDROID_MOBILE.md).
-- **Android TV / Google TV:** `dist/android-tv-0.11.0/GameClub-AndroidTV.apk`.
+- **Android TV / Google TV:** `dist/android-tv-0.12.0/GameClub-AndroidTV.apk`.
   Launcher de TV, orientación horizontal y navegación por mando. [ANDROID_TV.md](ANDROID_TV.md).
 
 Son dos variantes de la misma base y conservan los datos al actualizar el paquete
@@ -31,7 +38,7 @@ recibe mandos Bluetooth/USB, adapta la navegación al conectar un mando y los me
 conservan su foco. Los controles táctiles arcade tienen cruceta, A/B/X/Y, L/R y
 Select/Start. Consulta [MAME_NATIVE.md](MAME_NATIVE.md).
 
-El paquete Windows está en `dist/windows-0.11.0/` e incluye el host nativo.
+El paquete Windows está en `dist/windows-0.12.0/` e incluye el host nativo.
 **0.7.0 añade NES y Atari 2600 nativas**, con Nestopia UE y Stella incluidos en
 las tres apps. Consulta [NATIVE_CONSOLES.md](NATIVE_CONSOLES.md).
 

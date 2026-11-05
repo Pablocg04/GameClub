@@ -1,5 +1,35 @@
 # Componentes de terceros
 
+## Cliente Nintendo Switch · 0.12.0
+
+Cliente propio C++/SDL2, compilado con devkitA64 r30 y libnx 4.12.0. Los paquetes
+oficiales de devkitPro están fijados con versión/tamaño/SHA-256 en
+`switch-client/toolchain-lock.json`. El compilador no se redistribuye.
+
+- [libnx](https://github.com/switchbrew/libnx), licencia ISC.
+- [SDL2 2.28.5](https://github.com/libsdl-org/SDL/tree/release-2.28.5) y
+  [SDL2_image 2.0.4](https://github.com/libsdl-org/SDL_image/tree/release-2.0.4),
+  licencia zlib.
+- [curl 7.69.1](https://github.com/curl/curl/tree/curl-7_69_1), licencia curl/MIT.
+- [Mesa 20.1.0 para Switch](https://github.com/devkitPro/mesa),
+  [libdrm_nouveau](https://github.com/devkitPro/libdrm_nouveau), libpng, zlib,
+  libjpeg-turbo y libwebp: avisos originales en `switch-client/licenses/`.
+- [nlohmann/json 3.12.0](https://github.com/nlohmann/json/tree/v3.12.0), licencia
+  MIT; cabecera y aviso íntegros en `switch-client/vendor/`.
+- [Lato](https://github.com/google/fonts/tree/main/ofl/lato) y Press Start 2P,
+  licencia SIL OFL 1.1. Se generan atlas de glifos para su uso en la interfaz;
+  se conservan las fuentes originales y sus licencias.
+- GCC/libstdc++ usan la excepción de biblioteca de ejecución; se conservan los
+  avisos de esa excepción y de newlib.
+
+Los avisos y licencias se incrustan en el RomFS del NRO. RetroArch y sus núcleos
+no se incluyen ni se modifican: GameClub abre los NRO que el usuario tenga en su
+SD. Fuentes y documentación de ese proyecto:
+<https://github.com/libretro/RetroArch>, <https://docs.libretro.com/guides/install-libnx/>.
+
+La vista de escritorio usada en pruebas utiliza los SDK oficiales SDL2 2.32.10
+y SDL2_image 2.8.12 para Windows; esas DLL de prueba no forman parte del NRO.
+
 ## Tipografía de la biblioteca · 0.11.0
 
 Press Start 2P, copyright 2012 The Press Start 2P Project Authors, distribuida

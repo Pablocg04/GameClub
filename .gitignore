@@ -19,6 +19,12 @@ client/.idea/
 client/*.iml
 client/.metadata
 client/native/vendor/
+switch-client/build/
+switch-client/build-host/
+*.nro
+*.nacp
+*.elf
+*.map
 # Juegos, BIOS, estados y archivos generados, independientemente de su carpeta.
 *.nes
 *.a26

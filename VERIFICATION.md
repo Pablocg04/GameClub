@@ -1,4 +1,27 @@
-# Revisión funcional · GameClub 0.11.0
+# Revisión funcional · GameClub 0.12.0
+
+## NRO para Switch · 0.12.0
+
+- Compilación cruzada C++17 con devkitA64 r30/GCC 16.1.0 y libnx 4.12.0. ELF
+  de 64 bits, máquina AArch64, cabecera NRO0, NACP con título/versión, icono y
+  RomFS con las tres tipografías gráficas y avisos de terceros comprobados.
+- **33 comprobaciones nativas superadas**, con una API HTTP aislada y fixtures
+  propios: autenticación y 401; catálogo/favoritos; URLs y rutas inválidas;
+  aislamiento por servidor; caché y revisión; descarga truncada sin publicar;
+  encabezados NRO inválidos; dependencias MAME y traversal rechazado; rutas de
+  batería estables para otras consolas y sesiones nuevas para NES/MAME/Atari.
+  Se conservan carpetas ajenas y guardados al limpiar sesiones marcadas.
+- Seis vistas del mismo código SDL2 renderizadas en escritorio: biblioteca,
+  favoritos, consolas, ajustes, ficha y búsqueda. También se consulta la API
+  real de la Raspberry y se renderizan sus carátulas. No se modifican sus juegos.
+- **47 pruebas Flutter superadas y análisis sin incidencias.** Builds Windows,
+  móvil y TV 0.12.0+30. Se conserva el servidor desplegado 0.10.3.
+- **Sin prueba en Switch física:** no se certifican todavía el arranque desde
+  Homebrew Menu, Wi-Fi/teclado/Joy-Con reales, apertura de RetroArch o rendimiento
+  de cada núcleo. Los tests del lanzador comprueban preparación y argumentos;
+  no ejecutan esos núcleos ni presentan los fixtures como juegos emulados.
+
+## Revisión anterior · 0.11.0
 
 ## Biblioteca retro · 0.11.0
 

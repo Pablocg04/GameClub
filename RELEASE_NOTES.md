@@ -1,4 +1,22 @@
-# GameClub 0.11.0
+# GameClub 0.12.0
+
+- Primer cliente nativo homebrew para Nintendo Switch, distribuido como NRO ARM64.
+  Biblioteca retro morada, carátulas, búsqueda, favoritos compartidos, filtros por
+  consola y ajustes de servidor/token con el teclado de Switch.
+- Abre núcleos de RetroArch para Switch instalados por el usuario. Detecta los
+  disponibles y prepara los juegos en la SD; MAME resuelve sus dependencias con
+  los planes de la Raspberry. No incluye emuladores, BIOS ni ROMs.
+- Caché aislada por servidor y revisión del juego, descargas temporales comprobadas
+  por tamaño y rutas validadas. MAME/NES/Atari usan sesiones nuevas y otras consolas
+  conservan batería local; no se modifica el archivo de configuración de RetroArch.
+- Control por cruceta/stick, A/B/X/Y, L/R, ZL/ZR, pantalla táctil y salida con +.
+- Compilación y estructura NRO comprobadas; 33 comprobaciones nativas y vistas del
+  mismo código SDL2 verificadas en escritorio. Falta probar arranque, controles y
+  lanzamiento efectivo de los núcleos en una Switch física. Guía: `SWITCH.md`.
+- Windows, móvil y TV se entregan también como 0.12.0+30. TV sigue excluyendo VPX;
+  PC y móvil lo conservan y se mantiene la política de guardados por sistema.
+
+## Versión anterior · 0.11.0
 
 - Nueva biblioteca retro: predominio del morado, acentos menta/rosa/amarillo,
   tipografía Press Start 2P, dibujos pixel art y marcos negros escalonados.

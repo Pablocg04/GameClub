@@ -1,5 +1,6 @@
 #include "library.hpp"
 #include <iostream>
+#include "../../switch-pinball/include/utc.hpp"
 
 using namespace gc;
 static int checks = 0;
@@ -57,7 +58,7 @@ int main(int argc, char **argv) {
         bad["id"] = "../outside";
         items.push_back(bad);
         bad = one;
-        bad["system_id"] = "vpinball";
+        bad["system_id"] = "unsupported";
         items.push_back(bad);
         bad = one;
         bad["filename"] = "../bad.zip";
@@ -69,8 +70,15 @@ int main(int argc, char **argv) {
                   filterGames(games, "nes", "missing", false).empty(),
               "búsqueda y favoritos");
         rejects([] { parseGames(Json::object()); }, "catálogo no array");
-        check(coreNames("vpinball").empty() && coreNames("switch").empty() && !coreNames("nds").empty(),
+        check(!coreNames("vpinball").empty() && coreNames("switch").empty() && !coreNames("nds").empty(),
               "sistemas soportados");
+        std::tm utc{};
+        utc.tm_year = 70; utc.tm_mday = 1;
+        check(gameclubTimeGM(&utc) == 0, "UTC: época Unix");
+        utc.tm_year = 100; utc.tm_mon = 1; utc.tm_mday = 29;
+        check(gameclubTimeGM(&utc) == 951782400, "UTC: año bisiesto");
+        utc.tm_year = 123; utc.tm_mon = 12; utc.tm_mday = 1;
+        check(gameclubTimeGM(&utc) == 1704067200, "UTC: mes normalizado");
         if (argc >= 3) {
             fs::path root = fs::absolute(argv[2]);
             fs::create_directories(root);
@@ -87,7 +95,7 @@ int main(int argc, char **argv) {
             std::atomic<bool> cancel{false};
             auto r = request(config, "/api/games", cancel);
             auto list = parseGames(Json::parse(r.data));
-            check(list.size() == 3, "API autenticada real");
+            check(list.size() == 4, "API autenticada real con mesas VPX");
             auto first = prepareLaunch(root, config, list[0], cancel, {});
             check(fs::file_size(first.rom) == 4 && first.args.find("--appendconfig") != std::string::npos,
                   "descarga y lanzamiento");
@@ -122,6 +130,47 @@ int main(int argc, char **argv) {
             unauthorized.token = "incorrect";
             rejects([&] { request(unauthorized, "/api/games", cancel); }, "401 visible");
             rejects([&] { request(config, "//evil.example", cancel); }, "endpoint externo rechazado");
+            Game pin;
+            pin.id = "pinball"; pin.system = "vpinball"; pin.filename = "Fixture.zip";
+            rejects([&] { prepareLaunch(root, config, pin, cancel, {}); }, "VPX exige su motor nativo");
+            fakeCore(root / "pinball/GameClubPinball.nro");
+            bool extracting = false, intermediate = false;
+            int phases = 0;
+            auto native = prepareLaunch(root, config, pin, cancel, [&](uint64_t done, uint64_t total) {
+                if (extracting && done > 0 && done < total) intermediate = true;
+            }, [&](const std::string &text) {
+                ++phases;
+                extracting = text.find("Extrayendo") != std::string::npos;
+            });
+            check(phases >= 5 && intermediate, "VPX: fases y progreso durante archivos grandes");
+            check(native.rom.filename() == "Fixture.vpx" && fs::is_regular_file(native.rom.parent_path()/"pinmame/roms/fixture.zip"),
+                  "VPX: extraer mesa y ROM del manifiesto");
+            check(native.args.find("--gameclub-state") != std::string::npos && native.args.find("-Play") != std::string::npos &&
+                  native.args.find("--appendconfig") == std::string::npos, "VPX: lanzamiento nativo");
+            auto nvram = native.config.parent_path()/"nvram/fixture.nv";
+            writeText(nvram, "machine configuration");
+            auto repeated = prepareLaunch(root, config, pin, cancel, {});
+            check(native.config == repeated.config && fs::file_size(nvram) == 21, "VPX: NVRAM estable entre sesiones");
+            auto hostile = pin; hostile.id = "pinball-evil";
+            rejects([&] { prepareLaunch(root, config, hostile, cancel, {}); }, "VPX: traversal del manifiesto rechazado");
+            hostile.id = "pinball-crc";
+            rejects([&] { prepareLaunch(root, config, hostile, cancel, {}); }, "VPX: CRC incorrecto rechazado");
+            auto interrupted = pin; interrupted.id = "pinball-cancel";
+            extracting = false;
+            rejects([&] {
+                prepareLaunch(root, config, interrupted, cancel, [&](uint64_t done, uint64_t) {
+                    if (extracting && done > 0) cancel = true;
+                }, [&](const std::string &text) { extracting = text.find("Extrayendo") != std::string::npos; });
+            }, "VPX: cancelar durante la extracción de un archivo");
+            const auto canceledFolder = libraryRoot(root, config) / "pinball/pinball-cancel";
+            bool leftover = false;
+            for (const auto &item : fs::directory_iterator(canceledFolder))
+                if (item.is_directory()) leftover = true;
+            check(!leftover, "VPX: cancelar limpia la extracción y no publica la caché");
+            check(fs::is_regular_file(canceledFolder / "package.bin"), "VPX: conservar descarga completa al cancelar extracción");
+            cancel = false;
+            auto resumed = prepareLaunch(root, config, interrupted, cancel, {});
+            check(fs::is_regular_file(resumed.rom), "VPX: reintentar tras cancelar sin volver a descargar");
             auto keep = libraryRoot(root, config) / "sessions/run-user-data";
             writeText(keep / "notes.txt", "preserve");
             auto save = libraryRoot(root, config) / "saves/gba/gba/battery/game.srm";

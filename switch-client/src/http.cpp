@@ -13,6 +13,7 @@ namespace {
 struct Sink {
     Response response;
     FILE *file = nullptr;
+    std::vector<char> buffer;
     size_t written = 0, limit;
     const std::atomic<bool> &cancel;
     Progress progress;
@@ -78,6 +79,8 @@ Response request(const Config &config, const std::string &endpoint, const std::a
         sink.file = std::fopen(destination.string().c_str(), "wb");
         if (!sink.file)
             throw std::runtime_error("No se pudo abrir la descarga en la SD");
+        sink.buffer.resize(256 * 1024);
+        std::setvbuf(sink.file, sink.buffer.data(), _IOFBF, sink.buffer.size());
     }
 #ifdef __SWITCH__
     CURL *curl = curl_easy_init();
@@ -93,6 +96,9 @@ Response request(const Config &config, const std::string &endpoint, const std::a
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 8L);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, destination.empty() ? 180L : 3600L);
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+    curl_easy_setopt(curl, CURLOPT_BUFFERSIZE, 256L * 1024);
+    curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 1024L);
+    curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 45L);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 0L);
     curl_easy_setopt(curl, CURLOPT_PROTOCOLS, long(CURLPROTO_HTTP | CURLPROTO_HTTPS));
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, receive);

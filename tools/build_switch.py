@@ -93,13 +93,16 @@ def main():
     env['PATH']=str(sdk/'devkitA64/bin')+os.pathsep+str(sdk/'tools/bin')+os.pathsep+env['PATH']
     version=re.search(r'^version:\s*([^+\s]+)',(root/'client/pubspec.yaml').read_text(),re.M).group(1)
     common=['-std=gnu++17','-O2','-g','-Wall','-Wextra','-Wno-unused-parameter','-ffunction-sections','-fdata-sections',
+        '-DGAMECLUB_SWITCH_VERSION="'+version+'"',
         '-march=armv8-a+crc+crypto','-mtune=cortex-a57','-mtp=soft','-fPIE','-ftls-model=local-exec','-D__SWITCH__','-D_REENTRANT','-DCURL_STATICLIB',
         '-isystem',str(sdk/'libnx/include'),'-isystem',str(sdk/'portlibs/switch/include'),'-isystem',str(sdk/'portlibs/switch/include/SDL2'),
         '-I'+str(root/'switch-client/vendor'),'-I'+str(root/'switch-client/src')]
     objects=[]
-    for name in ('main','http'):
+    for name in ('main','http','pinball'):
         obj=build/(name+'.o');objects.append(str(obj))
         subprocess.run([str(compiler),*common,'-c',str(root/f'switch-client/src/{name}.cpp'),'-o',str(obj)],env=env,check=True)
+    obj=build/'miniz.o';objects.append(str(obj))
+    subprocess.run([str(compiler),*common,'-DMINIZ_NO_ZLIB_APIS','-c',str(root/'switch-client/vendor/miniz/miniz.c'),'-o',str(obj)],env=env,check=True)
     elf=build/'GameClub.elf'
     libs=['-lSDL2_image','-lSDL2','-lcurl','-lpng','-ljpeg','-lwebp','-lz','-lEGL','-lglapi','-ldrm_nouveau','-lnx','-lm','-pthread']
     subprocess.run([str(compiler),*common,'-specs='+str(sdk/'libnx/switch.specs'),*objects,

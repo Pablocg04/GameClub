@@ -1,0 +1,22 @@
+diff --git a/src/wine.c b/src/wine.c
+index 773682b..65635b8 100644
+--- a/src/wine.c
++++ b/src/wine.c
+@@ -1545,7 +1545,7 @@ HRESULT WINAPI PathAllocCombine(const WCHAR *path1, const WCHAR *path2, DWORD fl
+ BOOL WINAPI ReadFile(HANDLE hFile, LPVOID lpBuffer, DWORD nNumberOfBytesToRead, LPDWORD lpNumberOfBytesRead, LPOVERLAPPED lpOverlapped)
+ {
+    *lpNumberOfBytesRead = (DWORD)fread(lpBuffer, 1, nNumberOfBytesToRead, hFile);
+-   return ferror(hFile) ? FALSE : TRUE;
++   return ferror((FILE *)hFile) ? FALSE : TRUE;
+ }
+ 
+ BOOL WINAPI RemoveDirectoryW(LPCWSTR lpPathName)
+@@ -1574,7 +1574,7 @@ BOOL WINAPI WriteFile(HANDLE hFile, LPCVOID lpBuffer, DWORD nNumberOfBytesToWrit
+    *lpNumberOfBytesWritten = 0;
+    while (*lpNumberOfBytesWritten < nNumberOfBytesToWrite) {
+       fputc(*pBuffer++, hFile);
+-      if(feof(hFile)) break;
++      if(feof((FILE *)hFile)) break;
+       (*lpNumberOfBytesWritten)++;
+    }
+    return TRUE;

@@ -1,0 +1,31 @@
+{
+  "pinmame": {
+    "repository": "https://github.com/vpinball/pinmame.git",
+    "commit": "23321ec7de6dfd563a1c64153bc75f26e5059b9f",
+    "directory": "pinmame-vpx"
+  },
+  "vpinball": {
+    "repository": "https://github.com/vpinball/vpinball.git",
+    "commit": "af26b2d9392b4c9ec3e3edff4bbd69562085a44c"
+  },
+  "SDL3": {
+    "repository": "https://github.com/devkitPro/SDL.git",
+    "commit": "c329016c0e338ab4397ad930f83330c9fe058348"
+  },
+  "libwinevbs": {
+    "repository": "https://github.com/vpinball/libwinevbs.git",
+    "commit": "bcc790e58d394b282c327feca2a7c921ca022e8d"
+  },
+  "freeimage": {
+    "repository": "https://github.com/toxieainc/freeimage.git",
+    "commit": "b1613452a0c3849d43ac877b154cf51ff9e078d3"
+  },
+  "SDL_image": {
+    "repository": "https://github.com/libsdl-org/SDL_image.git",
+    "commit": "bec9134a26c7d0f31b36d6083c25296e04cabff5"
+  },
+  "SDL_ttf": {
+    "repository": "https://github.com/libsdl-org/SDL_ttf.git",
+    "commit": "a1ce3670aec736ecbf0936c43f2f0cc53aa61e5b"
+  }
+}

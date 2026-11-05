@@ -105,12 +105,25 @@ struct Worker {
         std::function<Event()> work;
     };
     std::atomic<bool> cancel{false};
+    std::atomic<bool> cancelOperation{false};
     std::atomic<uint64_t> received{0}, total{0};
     std::mutex mutex;
     std::condition_variable wake;
     std::deque<Task> jobs;
     std::deque<Event> events;
     std::thread thread;
+    std::mutex statusMutex;
+    std::string statusText = "Preparando juego...";
+    void setStatus(const std::string &text) {
+        std::lock_guard<std::mutex> lock(statusMutex);
+        statusText = text;
+        received = 0;
+        total = 0;
+    }
+    std::string status() {
+        std::lock_guard<std::mutex> lock(statusMutex);
+        return statusText;
+    }
     Worker()
         : thread([this] {
               for (;;) {
@@ -137,6 +150,7 @@ struct Worker {
           }) {}
     ~Worker() {
         cancel = true;
+        cancelOperation = true;
         wake.notify_all();
         if (thread.joinable())
             thread.join();
@@ -178,7 +192,7 @@ class App {
     std::map<std::string, SDL_Texture *> textures;
     std::set<std::string> requested;
     std::string query, system, notice = "Conectando con tu biblioteca...", message, editText;
-    bool side = false, busy = false, details = false, editing = false;
+    bool side = false, busy = false, details = false, editing = false, launching = false;
     int tab = 0, selected = 0, field = 0, systemIndex = 0, generation = 1, editField = 0;
     std::string pickId;
     uint64_t inputTime = 0;
@@ -403,7 +417,17 @@ class App {
         auto *game = current();
         if (!game || busy)
             return;
+#ifdef __SWITCH__
+        if (game->system == "vpinball" && appletGetAppletType() != AppletType_Application &&
+            appletGetAppletType() != AppletType_SystemApplication) {
+            message = "Pinball necesita memoria completa. Abre Homebrew Menu manteniendo R al iniciar un juego instalado y vuelve a abrir GameClub.";
+            return;
+        }
+#endif
         busy = true;
+        launching = true;
+        worker.cancelOperation = false;
+        worker.setStatus("Preparando juego...");
         notice = "Preparando juego...";
         auto cfg = config;
         auto g = *game;
@@ -414,10 +438,18 @@ class App {
             [this, cfg, g] {
                 Event e;
                 e.type = 3;
-                e.launch = prepareLaunch(root, cfg, g, worker.cancel, [this](uint64_t a, uint64_t b) {
-                    worker.received = a;
-                    worker.total = b;
-                });
+                try {
+                    e.launch = prepareLaunch(root, cfg, g, worker.cancelOperation, [this](uint64_t a, uint64_t b) {
+                        worker.received = a;
+                        worker.total = b;
+                    }, [this](const std::string &text) { worker.setStatus(text); });
+                } catch (const std::exception &error) {
+                    if (g.system == "vpinball") {
+                        std::ofstream log(root / "pinball-prepare.log", std::ios::app);
+                        log << "ERROR: " << error.what() << '\n';
+                    }
+                    throw;
+                }
                 return e;
             },
             true);
@@ -499,16 +531,28 @@ class App {
                 notice = "Favoritos actualizados";
             } else if (event.type == 3) {
                 busy = false;
+                launching = false;
+                if (worker.cancelOperation) {
+                    notice = "Preparación cancelada";
+                    continue;
+                }
 #ifdef __SWITCH__
                 if (!envHasNextLoad()) {
                     message = "El Homebrew Menu no permite abrir otro NRO en este entorno.";
                     continue;
                 }
                 auto rc = envSetNextLoad(event.launch.core.generic_string().c_str(), event.launch.args.c_str());
+                {
+                    std::ofstream log(root / "pinball-prepare.log", std::ios::app);
+                    u64 memory = 0;
+                    svcGetInfo(&memory, InfoType_TotalMemorySize, CUR_PROCESS_HANDLE, 0);
+                    log << "AppletType: " << int(appletGetAppletType()) << ", memoria: " << memory << '\n';
+                    log << "envSetNextLoad: " << rc << '\n';
+                }
                 if (R_SUCCEEDED(rc))
                     running = false;
                 else
-                    message = "No se pudo abrir el núcleo de RetroArch (" + std::to_string(rc) + ").";
+                    message = "No se pudo abrir el motor NRO (" + std::to_string(rc) + ").";
 #else
                 writeText(root / "launch-preview.json", Json{{"core", event.launch.core.generic_string()},
                                                              {"rom", event.launch.rom.generic_string()},
@@ -518,6 +562,7 @@ class App {
 #endif
             } else if (event.type == 5) {
                 busy = false;
+                launching = false;
                 message = event.message;
                 notice = "No se pudo completar la operación";
             }
@@ -542,8 +587,11 @@ class App {
             return;
         }
         if (busy) {
-            if (key == Back)
-                notice = "Espera a que termine la operación, o pulsa + para salir.";
+            if (key == Back && launching) {
+                worker.cancelOperation = true;
+                worker.setStatus("Cancelando preparación...");
+                notice = "Cancelando preparación...";
+            }
             return;
         }
         if (key == Refresh) {
@@ -702,7 +750,7 @@ class App {
         rect(0, 0, 1280, 68, ink);
         controller(20, 20, 3, mint);
         title.text(renderer, "GAMECLUB", 82, 22, cream);
-        small.text(renderer, "SWITCH / 0.12.0", 290, 25, muted);
+        small.text(renderer, "SWITCH / " GAMECLUB_SWITCH_VERSION, 290, 25, muted);
         rect(0, 68, 210, 652, ink);
         small.text(renderer, "TU COLECCIÓN", 20, 92, muted);
         const char *labels[] = {"Biblioteca", "Favoritos", "Consolas", "Ajustes"};
@@ -789,29 +837,32 @@ class App {
             cover(g, 262, 126, 280, 385);
             title.text(renderer, g.system, 575, 125, accent(g.system), 620);
             body.text(renderer, g.title, 575, 174, cream, 620, 3);
-            small.text(renderer, "Se abre con RetroArch para Switch.", 575, 292, muted, 610, 2);
+            small.text(renderer, g.system == "vpinball" ? "Motor nativo Visual Pinball + PinMAME."
+                                                       : "Se abre con RetroArch para Switch.", 575, 292, muted, 610, 2);
             small.text(renderer,
                        persists(g.system) ? "Conserva la batería de este juego en la SD."
                                           : "Cada apertura empieza de cero, sin restaurar partida.",
                        575, 348, mint, 610, 3);
-            auto core = findCore(config, g.system);
-            small.text(renderer, core.empty() ? "Falta el núcleo. Revisa Ajustes." : core.filename().string(), 575, 427,
+            auto core = g.system == "vpinball" ? root / "pinball/GameClubPinball.nro" : findCore(config, g.system);
+            if (!fs::is_regular_file(core)) core.clear();
+            small.text(renderer, core.empty() ? (g.system == "vpinball" ? "Falta el motor. Instala el ZIP de pinball."
+                                                                     : "Falta el núcleo. Revisa Ajustes.") : core.filename().string(), 575, 427,
                        core.empty() ? pink : muted, 610, 2);
             pixel(575, 548, 235, 58, ink);
             body.text(renderer, g.favorite ? "X Quitar favorito" : "X Favorito", 593, 566, cream, 210);
             pixel(850, 548, 352, 58, yellow);
-            body.text(renderer, "A Jugar con RetroArch", 870, 566, ink, 320);
+            body.text(renderer, g.system == "vpinball" ? "A Jugar pinball" : "A Jugar con RetroArch", 870, 566, ink, 320);
         }
-        if (busy && worker.total) {
-            pixel(430, 280, 650, 145, panel);
-            body.text(renderer, "Preparando juego...", 460, 307, cream, 590);
-            double ratio = std::min(1., double(worker.received) / double(worker.total));
+        if (busy && launching) {
+            pixel(430, 280, 650, 185, panel);
+            body.text(renderer, worker.status(), 460, 307, cream, 590);
+            auto total = worker.total.load(), received = worker.received.load();
+            double ratio = total ? std::min(1., double(received) / double(total)) : 0.;
             rect(460, 358, 580, 18, ink);
             rect(460, 358, int(580 * ratio), 18, mint);
-            small.text(renderer,
-                       std::to_string(worker.received / 1048576) + " / " + std::to_string(worker.total / 1048576) +
-                           " MiB",
-                       460, 392, muted, 590);
+            small.text(renderer, total ? std::to_string(received / (1024*1024)) + " / " +
+                       std::to_string(total / (1024*1024)) + " MiB" : "Preparando archivos...", 460, 389, muted, 580);
+            small.text(renderer, "B Cancelar", 460, 426, cream, 580);
         }
         if (editing) {
             pixel(285, 240, 900, 230, panel);
@@ -981,6 +1032,9 @@ int main(int argc, char **argv) {
                     break;
                 }
                 SDL_RenderPresent(renderer);
+#ifdef __SWITCH__
+                SDL_Delay(1);
+#endif
                 if (headless)
                     SDL_Delay(16);
             }

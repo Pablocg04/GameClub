@@ -8,6 +8,8 @@ from pathlib import Path
 import subprocess
 import threading
 import urllib.parse
+import zipfile
+import copy
 from PIL import Image, ImageDraw
 
 
@@ -30,6 +32,17 @@ def main():
     games=[{'id':s,'title':t,'system_id':s,'filename':s+'.zip','size':4,'revision':'1',
             'favorite':s=='nes','cover_url':'/api/games/'+s+'/cover'}
            for s,t in [('nes','Mi clásico NES'),('gba','Aventura GBA'),('mame','Arcade de prueba')]]
+    pinball_buffer=io.BytesIO()
+    with zipfile.ZipFile(pinball_buffer,'w',zipfile.ZIP_DEFLATED) as z:
+        z.writestr('Folder/Fixture.vpx',bytes.fromhex('d0cf11e0a1b11ae1')+b'GameClub fixture' * 300000)
+        z.writestr('Folder/fixture.zip',b'GameClub transport fixture, not a ROM')
+    pinball=pinball_buffer.getvalue()
+    games.append({'id':'pinball','title':'Mesa de prueba','system_id':'vpinball','filename':'Fixture.zip',
+                  'size':len(pinball),'revision':'1','favorite':False,'cover_url':'/api/games/pinball/cover'})
+    with zipfile.ZipFile(io.BytesIO(pinball)) as z:
+        pinball_manifest={'table':'Fixture.vpx','signature':'fixture123','revision':'1','size':len(pinball),
+            'raw_table':False,'files':[{'member':i.filename,'destination':'Fixture.vpx' if i.filename.endswith('.vpx') else 'pinmame/roms/fixture.zip',
+                                      'size':i.file_size,'crc':f'{i.CRC:08x}'} for i in z.infolist()]}
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self,*_):pass
@@ -43,6 +56,13 @@ def main():
             url=urllib.parse.urlparse(self.path)
             if url.path=='/api/games':return self.reply(200,games)
             if url.path.endswith('/cover'):return self.reply(200,cover,'image/jpeg')
+            if url.path.endswith('/pinball'):
+                value=copy.deepcopy(pinball_manifest)
+                if '/pinball-evil/' in url.path:value['files'][0]['destination']='../escape.vpx'
+                if '/pinball-crc/' in url.path:value['files'][0]['crc']='ffffffff'
+                return self.reply(200,value)
+            if url.path.startswith('/api/games/pinball') and url.path.endswith('/download'):
+                return self.reply(200,pinball,'application/zip')
             if url.path.endswith('/download') or url.path=='/api/mame/download':return self.reply(200,content,'application/octet-stream')
             if url.path.endswith('/arcade/cores'):
                 malicious='/evil/' in url.path
@@ -69,7 +89,8 @@ def main():
         assert counts['/api/games/nes/download']==1, 'La caché válida no debe volver a descargar'
         shots=[]
         for name,extra in [('library',[]),('favorites',['--tab','1']),('systems',['--tab','2']),
-                           ('settings',['--tab','3']),('detail',['--detail','nes']),('search',['--query','clásico'])]:
+                           ('settings',['--tab','3']),('detail',['--detail','nes']),('search',['--query','clásico']),
+                           ('pinball-detail',['--detail','pinball'])]:
             destination=folder/(name+'.png')
             subprocess.run([str(preview),'--headless','--frames','90','--assets',str(root/'switch-client/build/romfs'),
                             '--data-dir',str(data),'--screenshot',str(destination),*extra],check=True)
@@ -78,7 +99,7 @@ def main():
         assert counts['/api/games']>=7
         (folder/'report.json').write_text(json.dumps({'api':url,'requests':dict(counts),'screenshots':shots,
             'physical_switch_tested':False},ensure_ascii=False,indent=2),encoding='utf-8')
-        print('API, aislamiento, descargas, guardados, MAME y seis vistas nativas comprobados.',flush=True)
+        print('API, aislamiento, descargas, guardados, MAME, VPX y siete vistas nativas comprobados.',flush=True)
     finally:
         server.shutdown();server.server_close();thread.join()
 

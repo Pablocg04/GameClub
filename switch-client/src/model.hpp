@@ -19,6 +19,10 @@ struct Game {
     uint64_t size = 0;
     bool favorite = false;
 };
+struct Launch {
+    fs::path core, rom, config;
+    std::string args;
+};
 struct Config {
     std::string server = "http://192.168.0.47:8001", token;
     std::string cores = "sdmc:/retroarch/cores";
@@ -84,6 +88,8 @@ inline bool persists(const std::string &system) {
     return system != "nes" && system != "atari2600" && system != "mame" && system != "vpinball";
 }
 inline std::vector<std::string> coreNames(const std::string &s) {
+    if (s == "vpinball")
+        return {"GameClubPinball.nro"};
     if (s == "nes")
         return {"nestopia_libretro_libnx.nro", "fceumm_libretro_libnx.nro", "quicknes_libretro_libnx.nro"};
     if (s == "atari2600")

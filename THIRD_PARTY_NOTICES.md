@@ -1,5 +1,37 @@
 # Componentes de terceros
 
+## Motor Nintendo Switch · 0.13.0
+
+El port de GameClub compila Visual Pinball X y PinMAME como un NRO nativo, con
+PinMAME, B2S y FlexDMD enlazados estáticamente. No son binarios oficiales para
+Switch. Revisiones exactas: `switch-pinball/upstream.json`; modificaciones:
+`switch-pinball/patches/`; compilación: `tools/build_switch_pinball.py`.
+
+- Visual Pinball: revisión `af26b2d9392b4c9ec3e3edff4bbd69562085a44c`, con sus
+  licencias GPL y heredadas indicadas en el aviso original del proyecto.
+- PinMAME: revisión `23321ec7de6dfd563a1c64153bc75f26e5059b9f`, BSD y licencia
+  histórica de MAME según cada archivo. No se incorporan ROMs de máquinas.
+- Wine VBScript (`libwinevbs`): revisión `bcc790e58d394b282c327feca2a7c921ca022e8d`,
+  con los avisos LGPL de sus fuentes.
+- SDL3 para libnx: rama de devkitPro fijada a
+  `c329016c0e338ab4397ad930f83330c9fe058348`, licencia zlib; SDL_image y SDL_ttf
+  se compilan desde las revisiones fijadas en el mismo manifiesto.
+- FreeImage y sus bibliotecas de formatos conservan sus licencias y avisos
+  originales; FFmpeg, FreeType, HarfBuzz, libass, FriBidi y dav1d se obtienen de
+  los paquetes verificados de devkitPro, fijados en
+  `switch-pinball/toolchain-extra-lock.json`.
+- miniz 3.1.0, copyright RAD Game Tools, Valve Software, Rich Geldreich y
+  Tenacious Software LLC, licencia MIT. Se incorpora al lanzador Switch para
+  descomprimir los paquetes del propietario; fuente y aviso se conservan en
+  `switch-client/vendor/miniz/` y `switch-client/licenses/LICENSE-miniz.txt`.
+
+Los recursos auxiliares de FlexDMD provienen del APK oficial de la misma revisión
+VPX usada en móvil, comprobados con `client/platform-config/pinball_runtime.json`.
+El ZIP Switch conserva los avisos originales y sus comprobaciones SHA-256. Las
+fuentes y parches del port están disponibles en el repositorio GameClub y los
+repositorios públicos de los proyectos citados por el manifiesto. Esta versión
+experimental todavía requiere la prueba de ejecución en una Switch física.
+
 ## Cliente Nintendo Switch · 0.12.0
 
 Cliente propio C++/SDL2, compilado con devkitA64 r30 y libnx 4.12.0. Los paquetes

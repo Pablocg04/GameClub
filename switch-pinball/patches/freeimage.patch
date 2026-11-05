@@ -1,0 +1,27 @@
+diff --git a/Source/LibRawLite/libraw/libraw.h b/Source/LibRawLite/libraw/libraw.h
+index 0553172..6f4f84a 100644
+--- a/Source/LibRawLite/libraw/libraw.h
++++ b/Source/LibRawLite/libraw/libraw.h
+@@ -39,6 +39,9 @@ it under the terms of the one of two licenses as you choose:
+ #endif
+ 
+ #include <limits.h>
++#ifdef __SWITCH__
++#include <arpa/inet.h>
++#endif
+ #include <memory.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+diff --git a/Source/LibRawLite/src/utils/utils_libraw.cpp b/Source/LibRawLite/src/utils/utils_libraw.cpp
+index b43bf78..fbaaade 100644
+--- a/Source/LibRawLite/src/utils/utils_libraw.cpp
++++ b/Source/LibRawLite/src/utils/utils_libraw.cpp
+@@ -658,7 +658,7 @@ void LibRaw::free_omp_buffers(char** buffers, int buffer_count)
+ 
+ void 	LibRaw::libraw_swab(void *arr, size_t len)
+ {
+-#ifdef LIBRAW_OWN_SWAB
++#if defined(LIBRAW_OWN_SWAB) || defined(__SWITCH__)
+ 	uint16_t *array = (uint16_t*)arr;
+ 	size_t bytes = len/2;
+ 	for(; bytes; --bytes)

@@ -1,5 +1,6 @@
 #pragma once
 #include "http.hpp"
+#include "pinball.hpp"
 #include <chrono>
 #include <set>
 
@@ -66,10 +67,6 @@ inline void fetchFile(const Config &config, const std::atomic<bool> &cancel, con
         throw;
     }
 }
-struct Launch {
-    fs::path core, rom, config;
-    std::string args;
-};
 inline void validateCore(const fs::path &path) {
     std::ifstream input(path, std::ios::binary);
     char header[0x80]{};
@@ -78,7 +75,9 @@ inline void validateCore(const fs::path &path) {
         throw std::runtime_error("El núcleo instalado no es un NRO válido: " + path.filename().string());
 }
 inline Launch prepareLaunch(const fs::path &root, const Config &config, const Game &game,
-                            const std::atomic<bool> &cancel, Progress progress) {
+                            const std::atomic<bool> &cancel, Progress progress, Status status = {}) {
+    if (game.system == "vpinball")
+        return preparePinball(root, config, game, cancel, std::move(progress), std::move(status));
     Launch result;
     result.core = findCore(config, game.system);
     if (result.core.empty())

@@ -1,9 +1,11 @@
-# GameClub para Nintendo Switch · 0.12.0
+# GameClub para Nintendo Switch · 0.13.0
 
 Cliente **homebrew nativo ARM64**, independiente de Flutter, distribuido como
 `GameClub-Switch.nro`. Se conecta al mismo servidor de la Raspberry que PC,
 móvil y TV. Incluye biblioteca retro morada, carátulas, filtros por consola,
 búsqueda, favoritos y ajustes de servidor/token desde el teclado de Switch.
+La versión 0.13.0 añade integración con un motor nativo experimental de Visual
+Pinball/PinMAME. Se instala con el ZIP completo descrito en [SWITCH_PINBALL.md](SWITCH_PINBALL.md).
 
 **Estado experimental:** NRO compilado y comprobado por formato y pruebas de
 escritorio; todavía no ejecutado en una Switch física.
@@ -21,6 +23,9 @@ escritorio; todavía no ejecutado en una Switch física.
    y sus núcleos. La carpeta predeterminada es `sdmc:/retroarch/cores` y se puede
    cambiar en Ajustes. Se necesita un entorno Homebrew Menu que permita abrir
    otro NRO; RetroArch recomienda ejecutarlo con acceso completo a memoria.
+6. Para las mesas **Visual Pinball**, instala `GameClub-Switch-Pinball-0.13.0.zip`
+   en la raíz de la SD. Incluye GameClub, el motor nativo y sus recursos; estas
+   mesas se abren con VPX/PinMAME y no utilizan RetroArch.
 
 El NRO incluye sus fuentes, icono y recursos; no necesita copiar una carpeta de
 assets. No incluye ROMs, BIOS ni núcleos de emulación. Guía del proyecto RetroArch:
@@ -44,7 +49,7 @@ biblioteca. Esta primera versión no encadena automáticamente la vuelta.
 
 ## Sistemas y motores externos
 
-Se muestran NES, Atari 2600, GB/GBC, GBA, SNES, MAME, Nintendo DS, N64, PSX y PSP.
+Se muestran NES, Atari 2600, GB/GBC, GBA, SNES, MAME, Nintendo DS, N64, PSX, PSP y Visual Pinball.
 La presencia en el catálogo no certifica rendimiento ni compatibilidad de todos
 sus juegos. El núcleo debe existir como NRO válido antes de descargar el juego.
 
@@ -60,6 +65,7 @@ sus juegos. El núcleo debe existir como NRO válido antes de descargar el juego
 | Nintendo 64 | `mupen64plus_next` |
 | PlayStation | `pcsx_rearmed` |
 | PSP | `ppsspp` |
+| Visual Pinball/PinMAME | Motor independiente `switch/gameclub/pinball/GameClubPinball.nro` con sus recursos |
 
 Se aceptan los nombres `<núcleo>_libretro_libnx.nro` y
 `<núcleo>_libretro.nro`. MAME utiliza los planes del servidor, descarga ZIP
@@ -67,9 +73,10 @@ principal/padres/BIOS/CHD disponibles y conserva sus nombres dentro de una carpe
 por juego y firma de dependencias. El núcleo realiza la validación final.
 
 Los formatos de varias partes como CUE/M3U y los archivos 7z/DSi todavía no se
-preparan en este cliente. Se rechazan con un mensaje. Visual Pinball y los demás
-sistemas sin adaptador no aparecen en la biblioteca Switch. PC y móvil conservan
-Visual Pinball; la variante TV sigue excluyendo su motor.
+preparan en este cliente. Se rechazan con un mensaje. Visual Pinball prepara sus
+paquetes ZIP/VPXZ y mesas VPX para el motor nativo. Los demás sistemas sin
+adaptador no aparecen en la biblioteca Switch. PC y móvil conservan Visual
+Pinball; la variante TV sigue excluyendo su motor.
 
 ## Caché y guardados
 
@@ -83,6 +90,8 @@ Datos privados de GameClub en `sdmc:/switch/gameclub/`:
 - `saves/<sistema>/<juego>/battery/`: batería de las consolas con persistencia.
 - `sessions/run-.../`: configuración temporal de cada lanzamiento. Solo se
   eliminan al arrancar de nuevo las carpetas marcadas por GameClub.
+- `libraries/<servidor>/pinball-state/<mesa>/`: NVRAM/configuración del pinball y
+  su registro `switch-player.log`. La caché de mesa y ROMs se guarda aparte.
 
 MAME, NES y Atari comienzan cada apertura en una carpeta nueva, sin cargar estados
 anteriores ni batería de otras sesiones. RetroArch puede escribir archivos
@@ -128,3 +137,6 @@ real consultada desde la vista de escritorio. Los fixtures no son juegos.
 **Pendiente en hardware:** arranque en Homebrew Menu, red/teclado/Joy-Con reales,
 apertura de los núcleos y persistencia efectiva de cada uno. La validación de
 escritorio y de formato no sustituye esas pruebas en una Switch física.
+Las pruebas nativas actuales incluyen extracción de VPX, CRC, rutas inseguras,
+lanzamiento del motor y NVRAM estable, progreso y cancelación: 47 comprobaciones. La ejecución efectiva
+de Visual Pinball/PinMAME en la consola está pendiente de la prueba física.

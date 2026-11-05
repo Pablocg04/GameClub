@@ -12,13 +12,14 @@ import urllib.request
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--directory', type=Path)
+    parser.add_argument('--lock', type=Path, help='Manifiesto de paquetes adicionales fijados por SHA-256')
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     destination = (args.directory or root/'dist/switch-toolchain').resolve()
     destination.mkdir(parents=True, exist_ok=True)
     extraction = destination/'root'
     extraction.mkdir(exist_ok=True)
-    packages = json.loads((root/'switch-client/toolchain-lock.json').read_text())
+    packages = json.loads((args.lock or root/'switch-client/toolchain-lock.json').read_text())
 
     def fetch(package):
         target = destination/package['file']
@@ -43,7 +44,9 @@ def main():
                     assert target.resolve().is_relative_to(extraction), member.name
                     if member.isfile():
                         target.parent.mkdir(parents=True, exist_ok=True)
-                        target.write_bytes(source.extractfile(member).read())
+                        raw = source.extractfile(member).read()
+                        if not target.is_file() or target.read_bytes() != raw:
+                            target.write_bytes(raw)
                     elif member.islnk() or member.issym():
                         original = extraction/member.linkname if member.islnk() else target.parent/member.linkname
                         assert original.resolve().is_relative_to(extraction), member.linkname
@@ -51,7 +54,8 @@ def main():
     for original, target in links:
         if original.is_file():
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(original, target)
+            if not target.is_file() or target.read_bytes() != original.read_bytes():
+                shutil.copyfile(original, target)
         else:
             raise RuntimeError('Enlace de paquete sin destino: '+str(original))
     print(extraction/'opt/devkitpro', flush=True)

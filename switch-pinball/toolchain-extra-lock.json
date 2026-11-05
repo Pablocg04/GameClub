@@ -1,0 +1,82 @@
+[
+  {
+    "name": "switch-ffmpeg",
+    "version": "7.1-5",
+    "file": "switch-ffmpeg-7.1-5-any.pkg.tar.zst",
+    "sha256": "22810bc38de15a1daed16496bfc6c9efcd2a1804f1409f43eaa2a7b4658a031c",
+    "size": 10440545,
+    "repo": "",
+    "depends": [
+      "switch-zlib",
+      "switch-bzip2",
+      "switch-libass",
+      "switch-libfribidi",
+      "switch-freetype",
+      "switch-dav1d"
+    ]
+  },
+  {
+    "name": "switch-dav1d",
+    "version": "1.5.0-1",
+    "file": "switch-dav1d-1.5.0-1-any.pkg.tar.zst",
+    "sha256": "612fa74cce39b1b7838d9d9b42bb4d1073fa8ccb6e4bbf092425190fa7826884",
+    "size": 437420,
+    "repo": "",
+    "depends": []
+  },
+  {
+    "name": "switch-freetype",
+    "version": "2.13.3-1",
+    "file": "switch-freetype-2.13.3-1-any.pkg.tar.zst",
+    "sha256": "1271c1c81758a29f6c47ccb3c34769aa03737775fff05d7ae6f64f36d77fe004",
+    "size": 2077556,
+    "repo": "",
+    "depends": [
+      "switch-bzip2",
+      "switch-libpng",
+      "switch-zlib"
+    ]
+  },
+  {
+    "name": "switch-bzip2",
+    "version": "1.0.8-1",
+    "file": "switch-bzip2-1.0.8-1-any.pkg.tar.xz",
+    "sha256": "f12b167f55ef49e2ddd9b2287cdfb702a2521f88e24ef23966b31d7c56e8acba",
+    "size": 34060,
+    "repo": "",
+    "depends": []
+  },
+  {
+    "name": "switch-libfribidi",
+    "version": "1.0.12-1",
+    "file": "switch-libfribidi-1.0.12-1-any.pkg.tar.xz",
+    "sha256": "d335f5b8d6256d5a3b1fcbe23280892b32a1b6edf2c1a50ecd76bbec55bcf987",
+    "size": 39896,
+    "repo": "",
+    "depends": []
+  },
+  {
+    "name": "switch-libass",
+    "version": "0.17.3-1",
+    "file": "switch-libass-0.17.3-1-any.pkg.tar.zst",
+    "sha256": "c618ed7c9f0a88924cc7dc23baddcb227979689501754af520310dcf4b1f63e6",
+    "size": 145830,
+    "repo": "",
+    "depends": [
+      "switch-freetype",
+      "switch-libfribidi",
+      "switch-harfbuzz"
+    ]
+  },
+  {
+    "name": "switch-harfbuzz",
+    "version": "10.0.1-1",
+    "file": "switch-harfbuzz-10.0.1-1-any.pkg.tar.zst",
+    "sha256": "9d1ed03d580ed4cb3dd55365773d2e12bffefab9cff97a48ac9f5fd68051c14c",
+    "size": 1386310,
+    "repo": "",
+    "depends": [
+      "switch-freetype"
+    ]
+  }
+]

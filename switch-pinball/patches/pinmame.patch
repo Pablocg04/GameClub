@@ -1,0 +1,39 @@
+diff --git a/ext/sse2neon.h b/ext/sse2neon.h
+index 18ed02a..238c341 100644
+--- a/ext/sse2neon.h
++++ b/ext/sse2neon.h
+@@ -348,8 +348,8 @@
+  */
+ #if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__)
+ #error "sse2neon requires little-endian target; big-endian is not supported"
+-#elif defined(__ARMEB__) || defined(__AARCH64EB__) || \
+-    defined(__BIG_ENDIAN__) || defined(_BIG_ENDIAN)
++#elif !defined(__BYTE_ORDER__) && (defined(__ARMEB__) || defined(__AARCH64EB__) || \
++    defined(__BIG_ENDIAN__) || defined(_BIG_ENDIAN))
+ #error "sse2neon requires little-endian target; big-endian is not supported"
+ #endif
+ 
+diff --git a/src/libpinmame/ticker.c b/src/libpinmame/ticker.c
+index 7b40c1d..8a9f0a4 100644
+--- a/src/libpinmame/ticker.c
++++ b/src/libpinmame/ticker.c
+@@ -3,6 +3,14 @@
+ #if !defined(_WIN32) && !defined(_WIN64)
+ 
+ #include "driver.h"
++#ifdef __SWITCH__
++#include <switch/arm/counter.h>
++
++cycles_t osd_cycles(void) { return armGetSystemTick(); }
++cycles_t osd_cycles_per_second(void) { return armGetSystemTickFreq(); }
++cycles_t osd_profiling_ticks(void) { return armGetSystemTick(); }
++
++#else
+ #include <sys/time.h>
+ 
+ inline cycles_t osd_cycles(void) {
+@@ -25,3 +33,4 @@ inline cycles_t osd_profiling_ticks(void) {
+ }
+ 
+ #endif
++#endif

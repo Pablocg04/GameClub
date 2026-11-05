@@ -1,4 +1,31 @@
-# Revisión funcional · GameClub 0.12.0
+# Revisión funcional · GameClub 0.13.0
+
+## Port Visual Pinball/PinMAME para Switch · 0.13.0
+
+- Fuentes VPX/PinMAME, SDL3/libnx, Wine VBScript, FreeImage, B2S y FlexDMD
+  compiladas para AArch64. Enlace estático y NRO0 con icono/NACP/versión
+  comprobados por `tools/package_switch_pinball.py`.
+- 47 comprobaciones nativas superadas. Las nuevas cubren preparación de mesa y
+  ROM desde el manifiesto, CRC incorrecto, traversal, motor ausente, argumentos
+  nativos y NVRAM estable. También comprueban progreso durante archivos grandes,
+  cancelación a mitad de extracción, limpieza y reintento conservando la descarga.
+  Los paquetes de prueba son fixtures propios, no juegos.
+- Preparación local de South Park (Sega), con el mismo código HTTP/miniz del
+  lanzador contra la Raspberry: descarga de 67.600.224 bytes y extracción de la
+  mesa de 82.911.232 bytes completadas. Esta prueba se ejecuta en Windows y no
+  certifica velocidad de SD ni ejecución del motor en Switch.
+- Siete vistas del lanzador renderizadas, incluida la ficha de pinball. Análisis Flutter limpio y 47 pruebas
+  superadas; el cambio de Flutter en esta versión solo actualiza la numeración.
+- SDK y dependencias fijados por SHA-256/revisión, parches idempotentes y
+  preparación reproducible comprobada. No se instala el SDK globalmente ni se
+  cambian ROMs, paquetes o configuración del servidor Raspberry.
+- **Primera prueba física fallida:** el propietario confirma que GameClub abre,
+  pero comunica descarga lenta y bloqueo antes de jugar al pinball. La revisión
+  añade búferes de escritura, fases/progreso, cancelación y registros de apertura.
+  La segunda prueba sigue pendiente: vídeo, audio, mandos, emulación efectiva y
+  compatibilidad/rendimiento de mesas no están certificados.
+
+## Revisión anterior · 0.12.0
 
 ## NRO para Switch · 0.12.0
 

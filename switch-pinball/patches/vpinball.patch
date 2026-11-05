@@ -1,0 +1,242 @@
+diff --git a/plugins/flexdmd/common.cpp b/plugins/flexdmd/common.cpp
+index 93306ab..4086cc4 100644
+--- a/plugins/flexdmd/common.cpp
++++ b/plugins/flexdmd/common.cpp
+@@ -1,6 +1,9 @@
+ // license:GPLv3+
+ 
+ #include "common.h"
++#ifdef __SWITCH__
++#include <SDL3/SDL_filesystem.h>
++#endif
+ 
+ #include <sstream>
+ #include <algorithm>
+@@ -159,6 +162,9 @@ static T GetModulePath(HMODULE hModule)
+ 
+ std::filesystem::path GetPluginPath()
+ {
++#ifdef __SWITCH__
++   return std::filesystem::path("/switch/gameclub/pinball/plugins/flexdmd");
++#else
+ #ifdef _WIN32
+    HMODULE hm = nullptr;
+    if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, _T("FlexDMDPluginLoad"), &hm) == 0)
+@@ -181,6 +187,7 @@ std::filesystem::path GetPluginPath()
+ 
+    std::filesystem::path path(pathBuf);
+    return path.empty() ? path : path.parent_path();
++#endif
+ }
+ 
+ }
+diff --git a/plugins/flexdmd/common.h b/plugins/flexdmd/common.h
+index 1f8c23d..c66ca14 100644
+--- a/plugins/flexdmd/common.h
++++ b/plugins/flexdmd/common.h
+@@ -17,7 +17,9 @@
+ #endif
+ 
+ #ifndef _WIN32
++#ifndef __SWITCH__
+ #include <dlfcn.h>
++#endif
+ #include <climits>
+ #include <unistd.h>
+ #endif
+diff --git a/plugins/pinmame/Controller.cpp b/plugins/pinmame/Controller.cpp
+index 29c2405..3f0f8c4 100644
+--- a/plugins/pinmame/Controller.cpp
++++ b/plugins/pinmame/Controller.cpp
+@@ -33,6 +33,9 @@ Controller::Controller(const MsgPluginAPI* api, unsigned int endpointId, const P
+    memcpy(const_cast<char*>(m_pinmameConfig.vpmPath), config.vpmPath, sizeof(m_pinmameConfig.vpmPath));
+ 
+    PinmameSetConfig(&m_pinmameConfig);
++#ifdef __SWITCH__
++   GameClubPinMAMEApplyPaths();
++#endif
+    PinmameSetHandleKeyboard(0);
+    PinmameSetHandleMechanics(0xFF);
+ 
+@@ -168,6 +171,9 @@ void Controller::Run(long hParentWnd, int nMinVersion)
+          memcpy(const_cast<char*>(pinmameConfig->vpmPath), m_pinmameConfig.vpmPath, sizeof(m_pinmameConfig.vpmPath));
+          *const_cast<int*>(&pinmameConfig->sampleRate) = 0;
+          PinmameSetConfig(pinmameConfig);
++#ifdef __SWITCH__
++         GameClubPinMAMEApplyPaths();
++#endif
+          delete pinmameConfig;
+       }
+       settings->Release();
+diff --git a/plugins/pinmame/common.h b/plugins/pinmame/common.h
+index 553e5b3..6e42643 100644
+--- a/plugins/pinmame/common.h
++++ b/plugins/pinmame/common.h
+@@ -27,6 +27,9 @@ using std::vector;
+ #include "plugins/ScriptablePlugin.h"
+ 
+ namespace PinMAME {
++#ifdef __SWITCH__
++void GameClubPinMAMEApplyPaths();
++#endif
+ 
+ LPI_USE_CPP();
+ #define LOGD PinMAME::LPI_LOGD_CPP
+diff --git a/src/core/FileLocator.cpp b/src/core/FileLocator.cpp
+index 0e573c0..8ac1b3f 100644
+--- a/src/core/FileLocator.cpp
++++ b/src/core/FileLocator.cpp
+@@ -19,7 +19,9 @@ FileLocator::FileLocator()
+ std::filesystem::path FileLocator::EvaluateAppPath()
+ {
+    std::filesystem::path appPath;
+-#ifdef __ANDROID__
++#ifdef __SWITCH__
++   appPath = "/switch/gameclub/pinball/";
++#elif defined(__ANDROID__)
+    // Android may not open files in the APK resources through fopen so we copy them outside of the apk in the internal storage
+    appPath = std::filesystem::path(SDL_GetAndroidInternalStoragePath()) / ""sv;
+ #elif defined(__APPLE__) && defined(TARGET_OS_IOS) && TARGET_OS_IOS && !defined(__LIBVPINBALL__)
+@@ -35,7 +37,9 @@ std::filesystem::path FileLocator::EvaluateAppPath()
+ void FileLocator::SetupPrefPath()
+ {
+    std::filesystem::path basePrefPath;
+-#if defined(__ANDROID__)
++#if defined(__SWITCH__)
++   basePrefPath = "/switch/gameclub/pinball/preferences";
++#elif defined(__ANDROID__)
+    char* szPrefPath = SDL_GetPrefPath(NULL, "");
+    basePrefPath = szPrefPath;
+    SDL_free(szPrefPath);
+diff --git a/src/core/def.h b/src/core/def.h
+index 066adeb..03f8d1a 100644
+--- a/src/core/def.h
++++ b/src/core/def.h
+@@ -331,7 +331,10 @@ static const string platform_cpu[2] = { "x86"s, "arm"s };
+ #endif
+ static const string platform_bits[2] = { "32"s, "64"s };
+ 
+-#if defined(_MSC_VER) || defined(__MINGW32__)
++#if defined(__SWITCH__)
++ #define GET_PLATFORM_OS_ENUM 6
++ #define GET_PLATFORM_OS "switch"
++#elif defined(_MSC_VER) || defined(__MINGW32__)
+  #define GET_PLATFORM_OS_ENUM 0
+  #define GET_PLATFORM_OS "windows"
+ #elif defined(__ANDROID__) // leave here, as it also defines linux
+@@ -352,7 +355,7 @@ static const string platform_bits[2] = { "32"s, "64"s };
+  #define GET_PLATFORM_OS "macos"
+ #endif
+ #endif
+-static const string platform_os[6] = { "windows"s, "android"s, "linux"s, "ios"s, "tvos"s, "macos"s };
++static const string platform_os[7] = { "windows"s, "android"s, "linux"s, "ios"s, "tvos"s, "macos"s, "switch"s };
+ 
+ #if defined(ENABLE_BGFX)
+  #define GET_PLATFORM_RENDERER_ENUM 2
+diff --git a/src/core/player.cpp b/src/core/player.cpp
+index e83af84..c5ca40f 100644
+--- a/src/core/player.cpp
++++ b/src/core/player.cpp
+@@ -126,7 +126,10 @@ Player::Player(PinTable *const table, const PlayMode playMode)
+ 
+    PLOGI << "Loading player plugins"; // For profiling
+    
+-#ifdef __LIBVPINBALL__
++#ifdef __SWITCH__
++   extern void GameClubSetupPinMAME(MsgPI::MsgPluginManager&);
++   GameClubSetupPinMAME(m_pluginManager);
++#elif defined(__LIBVPINBALL__)
+    VPinballLib::VPinballLib::SetupStaticPlugins(m_pluginManager);
+ #else
+    class SDLModuleLoader final : public MsgPI::MsgModuleLoader
+diff --git a/src/input/InputManager.cpp b/src/input/InputManager.cpp
+index 540b822..cad9eb7 100644
+--- a/src/input/InputManager.cpp
++++ b/src/input/InputManager.cpp
+@@ -82,7 +82,7 @@ InputManager::InputManager(Player* player)
+    // Initialize device handlers
+    m_inputHandlers.push_back(std::make_unique<SDLInputHandler>(*this));
+    m_sdlHandler = static_cast<SDLInputHandler*>(m_inputHandlers.back().get());
+-   #ifndef __LIBVPINBALL__
++   #if !defined(__LIBVPINBALL__) && !defined(__SWITCH__)
+       m_inputHandlers.push_back(std::make_unique<OpenPinDevHandler>(*this));
+    #endif
+ 
+diff --git a/src/input/OpenPinDevHandler.cpp b/src/input/OpenPinDevHandler.cpp
+index b8082b0..7dca7f6 100644
+--- a/src/input/OpenPinDevHandler.cpp
++++ b/src/input/OpenPinDevHandler.cpp
+@@ -10,7 +10,7 @@
+ 
+ #include "core/stdafx.h"
+ 
+-#ifndef __LIBVPINBALL__
++#if !defined(__LIBVPINBALL__) && !defined(__SWITCH__)
+ 
+ #include "input/OpenPinDevHandler.h"
+ 
+diff --git a/src/renderer/RenderDevice.cpp b/src/renderer/RenderDevice.cpp
+index 1fedf4e..f601750 100644
+--- a/src/renderer/RenderDevice.cpp
++++ b/src/renderer/RenderDevice.cpp
+@@ -1386,6 +1386,10 @@ RenderDevice::RenderDevice(
+          SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+          SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+          SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
++      #elif defined(__SWITCH__)
++         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
++         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
++         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+       #else
+          SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+          //This would enforce a 4.1 context, disabling all recent features (storage buffers, debug information,...)
+@@ -1401,6 +1405,12 @@ RenderDevice::RenderDevice(
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+ 
+    m_sdl_context = SDL_GL_CreateContext(m_outputWnd[0]->GetCore());
++#ifdef __SWITCH__
++   if (!m_sdl_context) {
++      PLOGE << "Switch: no se pudo crear el contexto OpenGL 4.3: " << SDL_GetError();
++      exit(-1);
++   }
++#endif
+ 
+    SDL_GL_MakeCurrent(m_outputWnd[0]->GetCore(), m_sdl_context);
+ 
+diff --git a/src/ui/live/ingameui/HomePage.cpp b/src/ui/live/ingameui/HomePage.cpp
+index a29f15e..5300a70 100644
+--- a/src/ui/live/ingameui/HomePage.cpp
++++ b/src/ui/live/ingameui/HomePage.cpp
+@@ -88,10 +88,16 @@ void HomePage::BuildPage()
+             RequestRebuild();
+          }));
+ 
++#ifdef __SWITCH__
++   AddItem(std::make_unique<InGameUIItem>("Salir"s, ""s, [this]() {
++      m_player->m_ptable->QuitPlayer(Player::CS_CLOSE_APP);
++   }));
++#else
+    if (g_isMobile)
+       AddItem(std::make_unique<InGameUIItem>("Quit"s, ""s, [this]() {
+          m_player->m_ptable->QuitPlayer(Player::CS_CLOSE_CAPTURE_SCREENSHOT);
+       }));
++#endif
+ 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    AddItem(std::make_unique<InGameUIItem>(InGameUIItem::LabelType::Header, "Settings"s));
+diff --git a/third-party/include/implot/implot.cpp b/third-party/include/implot/implot.cpp
+index 7d1359a..73bcb89 100644
+--- a/third-party/include/implot/implot.cpp
++++ b/third-party/include/implot/implot.cpp
+@@ -955,7 +955,10 @@ inline int GetTimeStep(int max_divs, ImPlotTimeUnit unit) {
+ 
+ ImPlotTime MkGmtTime(struct tm *ptm) {
+     ImPlotTime t;
+-#ifdef _WIN32
++#ifdef __SWITCH__
++    extern time_t GameClubImPlotTimeGM(const struct tm *);
++    t.S = GameClubImPlotTimeGM(ptm);
++#elif defined(_WIN32)
+     t.S = _mkgmtime(ptm);
+ #else
+     t.S = timegm(ptm);

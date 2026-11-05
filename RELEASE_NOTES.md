@@ -1,4 +1,24 @@
-# GameClub 0.12.0
+# GameClub 0.13.0
+
+- Port nativo experimental de Visual Pinball X y PinMAME para Nintendo Switch,
+  con complementos PinMAME, B2S y FlexDMD estáticos. No usa Android ni RetroArch
+  para abrir mesas VPX.
+- GameClub muestra Visual Pinball, descarga sus paquetes, valida tamaños/CRC,
+  extrae los recursos con rutas comprobadas y solicita abrir el motor desde Homebrew Menu.
+- Controles Joy-Con: L/ZL y R/ZR flippers, A lanzador, X/− moneda, Y inicio,
+  B/+ menú. Acción **Salir**, partida nueva y NVRAM/configuración por mesa.
+- ZIP de SD con lanzador, NRO del motor, scripts, fuentes, imágenes y shaders.
+  Sin mesas ni ROMs. Guía de instalación y registros: `SWITCH_PINBALL.md`.
+- 47 comprobaciones nativas, siete vistas del lanzador y 47 pruebas Flutter.
+- Tras el bloqueo comunicado en la primera prueba física: escritura con búfer,
+  progreso de extracción, cancelación, reintento con descarga conservada y
+  registro `pinball-prepare.log`. La ejecución de mesas sigue en prueba.
+  **Pendiente de prueba física:** arranque, vídeo, audio, mandos y rendimiento
+  real de cada mesa. La compilación no equivale a esa prueba.
+- Windows, móvil y TV se entregan como 0.13.0+31. PC y móvil conservan VPX;
+  TV mantiene su exclusión y conserva los pinballs MAME.
+
+## Versión anterior · 0.12.0
 
 - Primer cliente nativo homebrew para Nintendo Switch, distribuido como NRO ARM64.
   Biblioteca retro morada, carátulas, búsqueda, favoritos compartidos, filtros por

@@ -1,4 +1,32 @@
-# Revisión funcional · GameClub 0.13.2
+# Revisión funcional · GameClub 0.13.3
+
+## Lectura de shaders y sincronización · 0.13.3
+
+- El registro físico de 0.13.2 confirma RGBA8888 aceptado y contexto OpenGL creado.
+  Aparece un aviso de sincronización y los ocho archivos GLFX del reproductor
+  informan de cero shaders. El log termina tras SMAA; no prueba una mesa jugable.
+- Los recursos copiados de un checkout Windows tenían CRLF. `std::getline` en
+  Horizon conservaba `\r`, generando claves como `TECHNIQUES\r`; la búsqueda de
+  `TECHNIQUES` quedaba vacía. La comprobación antigua de stringstream aceptaba
+  la cadena vacía y registraba cero compilaciones como éxito.
+- Parser para Horizon separado y usado por motor/pruebas: lectura binaria,
+  eliminación de CR/BOM, defines e includes con propagación de errores/límite
+  de recursión. El motor rechaza explícitamente archivos sin técnicas. El
+  empaquetado normaliza los shaders a LF y comprueba sus secciones de técnicas.
+- 66 comprobaciones nuevas sobre los 10 GLFX reales y 94 técnicas. LF y CRLF
+  producen mapas de secciones idénticos, con defines y funciones referenciadas.
+  BOM, includes ausentes/malformados, recursión y técnicas ausentes comprobados.
+- Prueba adicional mediante SDL3 y contexto OpenGL 4.3 oculto en Windows:
+  83 programas mono compilados y enlazados en NVIDIA GeForce RTX 4060 Ti. Usa
+  las secciones exportadas por el parser y la generación de fuentes correspondiente
+  al backend standalone/mono. No prueba el driver de Switch, renderizado de una
+  mesa, audio ni PinMAME. Informe: `dist/switch-shader-gpu-0.13.3/report.json`.
+- Frame pacing convertido a VSync en Horizon antes de inicializar GL: el modo
+  de escritorio carece de fuente DWM/DXGI en este sistema.
+- El propietario confirma que la biblioteca ya navega fluida con 0.13.2.
+  Se conservan sus correcciones. **Nueva prueba del motor en Switch pendiente.**
+
+## Revisión anterior · 0.13.2
 
 ## Formato de pantalla y navegación · 0.13.2
 

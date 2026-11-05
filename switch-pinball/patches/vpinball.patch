@@ -194,7 +194,7 @@ index 1e67e32..f7c4946 100644
           feedback.Finalizing();
  
 diff --git a/src/renderer/RenderDevice.cpp b/src/renderer/RenderDevice.cpp
-index 1fedf4e..e94262d 100644
+index 1fedf4e..bc82889 100644
 --- a/src/renderer/RenderDevice.cpp
 +++ b/src/renderer/RenderDevice.cpp
 @@ -1,6 +1,9 @@
@@ -207,7 +207,21 @@ index 1fedf4e..e94262d 100644
  #include "renderer/Renderer.h"
  
  #include "parts/Collection.h"
-@@ -1336,6 +1339,15 @@ RenderDevice::RenderDevice(
+@@ -1188,6 +1191,13 @@ RenderDevice::RenderDevice(
+    , m_bgfxCallback(*this)
+    #endif
+ {
++#ifdef __SWITCH__
++   // Horizon has no DWM/DXGI wait source for VPX's desktop frame-pacing mode.
++   if (syncMode == VideoSyncMode::VSM_FRAME_PACING) {
++      syncMode = VideoSyncMode::VSM_VSYNC;
++      PLOGI << "GameClub: using display VSync on Horizon";
++   }
++#endif
+    // Main render target (playfield window or VR target)
+    m_outputWnd.push_back(wnd);
+    VPX::Window* swapchainWnd = wnd;
+@@ -1336,6 +1346,15 @@ RenderDevice::RenderDevice(
        ShowError("Failed to setup OpenGL context");
        exit(-1);
     }
@@ -223,7 +237,7 @@ index 1fedf4e..e94262d 100644
     colorFormat back_buffer_format;
     switch (mode->format)
     {
-@@ -1355,6 +1367,8 @@ RenderDevice::RenderDevice(
+@@ -1355,6 +1374,8 @@ RenderDevice::RenderDevice(
     }
     }
  
@@ -232,7 +246,7 @@ index 1fedf4e..e94262d 100644
     memset(m_samplerStateCache, 0, sizeof(m_samplerStateCache));
  
     #if defined(__OPENGLES__) || (defined(__APPLE__) && (defined(TARGET_OS_IOS) && TARGET_OS_IOS))
-@@ -1386,6 +1400,10 @@ RenderDevice::RenderDevice(
+@@ -1386,6 +1407,10 @@ RenderDevice::RenderDevice(
           SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
           SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
           SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
@@ -243,7 +257,7 @@ index 1fedf4e..e94262d 100644
        #else
           SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
           //This would enforce a 4.1 context, disabling all recent features (storage buffers, debug information,...)
-@@ -1401,6 +1419,12 @@ RenderDevice::RenderDevice(
+@@ -1401,6 +1426,12 @@ RenderDevice::RenderDevice(
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
  
     m_sdl_context = SDL_GL_CreateContext(m_outputWnd[0]->GetCore());
@@ -256,7 +270,7 @@ index 1fedf4e..e94262d 100644
  
     SDL_GL_MakeCurrent(m_outputWnd[0]->GetCore(), m_sdl_context);
  
-@@ -2168,9 +2192,13 @@ void RenderDevice::WaitForVSync(const bool asynchronous)
+@@ -2168,9 +2199,13 @@ void RenderDevice::WaitForVSync(const bool asynchronous)
        m_vsyncCount++;
        m_presentTimestampReference = usec();
     };
@@ -269,6 +283,56 @@ index 1fedf4e..e94262d 100644
 +      // update inline on Horizon, whose threading backend cannot detach.
        lambda();
  }
+ 
+diff --git a/src/renderer/Shader.cpp b/src/renderer/Shader.cpp
+index 9b17367..e5a7851 100644
+--- a/src/renderer/Shader.cpp
++++ b/src/renderer/Shader.cpp
+@@ -1,6 +1,9 @@
+ // license:GPLv3+
+ 
+ #include "core/stdafx.h"
++#ifdef __SWITCH__
++#include "glfx_parser.hpp"
++#endif
+ #include "Shader.h"
+ 
+ #include "core/VPApp.h"
+@@ -1795,6 +1798,14 @@ bool Shader::UseGeometryShader() const
+ 
+ //parse a file. Is called recursively for includes
+ bool Shader::parseFile(const string& fileNameRoot, const string& filename, int level, ankerl::unordered_dense::map<string, string> &values, const string& parentMode) {
++#ifdef __SWITCH__
++   const string defines = "#define GLSL\n\n"s + (UseGeometryShader() ? "#define USE_GEOMETRY_SHADER 1\n"s : "#define USE_GEOMETRY_SHADER 0\n"s)
++      + (m_isStereo ? "#define N_EYES 2\n"s : "#define N_EYES 1\n"s);
++   string error;
++   const bool result = gameclub::parseGlfx(m_shaderPath, filename, level, values, parentMode, defines, error);
++   if (!result) PLOGE << error;
++   return result;
++#else
+    if (level > 16) {//Can be increased, but looks very much like an infinite recursion.
+       PLOGE << "Reached more than 16 includes while trying to include " << filename << " Aborting...";
+       return false;
+@@ -1848,6 +1859,7 @@ bool Shader::parseFile(const string& fileNameRoot, const string& filename, int l
+       return false;
+    }
+    return true;
++#endif
+ }
+ 
+ //compile and link shader. Also write the created shader files
+@@ -2225,6 +2237,12 @@ void Shader::Load(const std::string& name)
+       ReportError(e, -1, __FILE__, __LINE__);
+       return;
+    }
++#ifdef __SWITCH__
++   const auto techniqueCount = gameclub::glfxTechniqueCount(values);
++   PLOGI << "GameClub: " << name << " contains " << techniqueCount << " shader techniques";
++   if (techniqueCount == 0)
++      throw std::runtime_error("No shader techniques found in " + name);
++#endif
+    ankerl::unordered_dense::map<string, string>::iterator it = values.find("GLOBAL"s);
+    string global = (it != values.end()) ? it->second : string();
  
 diff --git a/src/renderer/Texture.cpp b/src/renderer/Texture.cpp
 index bb6d25d..2c60e36 100644

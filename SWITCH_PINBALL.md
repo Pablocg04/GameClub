@@ -1,4 +1,4 @@
-# Visual Pinball + PinMAME para Switch · GameClub 0.13.2
+# Visual Pinball + PinMAME para Switch · GameClub 0.13.3
 
 Port nativo experimental para Horizon/libnx. Incluye el reproductor de Visual
 Pinball X, la biblioteca de emulación PinMAME y los complementos estáticos
@@ -10,7 +10,7 @@ se deben comprobar en una Switch física. No se incluyen mesas, ROMs ni BIOS.
 
 ## Instalación y primera prueba
 
-1. Extrae `GameClub-Switch-Pinball-0.13.2.zip` en la raíz de la SD. Quedarán
+1. Extrae `GameClub-Switch-Pinball-0.13.3.zip` en la raíz de la SD. Quedarán
    `switch/gameclub/GameClub-Switch.nro` y
    `switch/gameclub/pinball/GameClubPinball.nro`, junto a los recursos del motor.
 2. Conserva todos los archivos de `switch/gameclub/pinball/`. Copiar solo el NRO
@@ -102,6 +102,11 @@ registro. Los paquetes originales de la Raspberry no se modifican.
   carga de plugins/audio y creación de ventana. 0.13.2 corrige el rechazo del
   formato RGBA8888 que impedía inicializar el renderizador. Falta comprobar
   físicamente el siguiente arranque del motor.
+- 0.13.3 corrige los nombres de sección de shaders al leer archivos CRLF en
+  Horizon y distribuye esos recursos con finales LF. El motor detecta archivos
+  sin técnicas. Se han validado 10 GLFX/94 técnicas y compilado/enlazado los 83
+  programas mono en OpenGL 4.3 de escritorio. La consola usa ahora VSync para
+  evitar el aviso del modo de frame pacing de escritorio. Prueba física pendiente.
 
 ## Reproducir la compilación
 
@@ -118,3 +123,13 @@ En Windows con Python 3.14, Pillow, Git y CMake/Ninja:
 están en `switch-pinball/patches/`; las fuentes y objetos se preparan en
 `dist/switch-ports`. Los paquetes del SDK se verifican por SHA-256 y quedan
 aislados en el proyecto. Se conservan sus licencias y las de los motores.
+
+La comprobación de shaders se ejecuta junto a `tools/check_switch.py` tras
+compilar los targets de `switch-client`. Para repetir además la prueba de
+compilación/enlace en la GPU de un PC Windows con OpenGL 4.3 y SDL3:
+
+```powershell
+.\.venv\Scripts\python.exe tools/check_switch_shaders.py --dll dist/windows-0.13.3/SDL3.dll --sections dist/switch-checks/glfx/sections --output dist/switch-shader-gpu-0.13.3
+```
+
+Esta prueba local comprueba shaders; no sustituye el arranque en Switch.

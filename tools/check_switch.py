@@ -93,6 +93,10 @@ def main():
         formats=tests.with_name('gameclub_switch_format_test.exe')
         if formats.is_file():
             subprocess.run([str(formats)],check=True,timeout=30)
+        shaders=tests.with_name('gameclub_switch_glfx_test.exe')
+        if shaders.is_file():
+            subprocess.run([str(shaders),str(root/'dist/switch-ports/vpinball/src/shaders/hlsl_glsl'),
+                            str(folder/'glfx')],check=True,timeout=30)
         assert counts['/api/games/nes/download']==1, 'La caché válida no debe volver a descargar'
         shots=[]
         for name,extra in [('library',[]),('favorites',['--tab','1']),('systems',['--tab','2']),

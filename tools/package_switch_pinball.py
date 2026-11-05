@@ -77,6 +77,11 @@ def main():
     tree(source/'src/assets', engine/'assets')
     tree(source/'scripts', engine/'scripts')
     tree(source/'src/shaders/hlsl_glsl', engine/'shaders-10.8.1')
+    for shader in (engine/'shaders-10.8.1').iterdir():
+        if shader.is_file():
+            shader.write_bytes(shader.read_bytes().replace(b'\r\n', b'\n').removeprefix(b'\xef\xbb\xbf'))
+    for shader in (engine/'shaders-10.8.1').glob('*.glfx'):
+        assert b'////TECHNIQUES\n' in shader.read_bytes(), 'Secciones de shader no válidas: '+shader.name
     # Assets from the same official VPX revision used by the Android package.
     registry = json.loads((ROOT/'client/platform-config/pinball_runtime.json').read_text())
     assets = ROOT/'client/native/vendor/pinball/assets/pinball'

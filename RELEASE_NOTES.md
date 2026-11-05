@@ -1,4 +1,22 @@
-# GameClub 0.13.2
+# GameClub 0.13.3
+
+- Corrige la lectura de los shaders GLFX en Horizon: los finales CRLF dejaban
+  `TECHNIQUES\r` y otras secciones con nombres distintos, por lo que se compilaban
+  cero programas. El parser compartido elimina CR/BOM, propaga errores de includes
+  y detecta la ausencia de técnicas. El ZIP distribuye los shaders con finales LF.
+- El modo de frame pacing de escritorio se adapta a VSync en Switch antes de
+  crear el renderizador, evitando el aviso del dispositivo DWM/DXGI inexistente.
+- 66 comprobaciones nuevas de GLFX: 10 archivos, 94 técnicas, secciones y funciones
+  equivalentes con LF/CRLF/BOM, includes ausentes/incorrectos y recursión. Se suman
+  a las 68 anteriores del cliente, hilos y formatos.
+- Los 83 programas usados por el modo de una pantalla se han compilado y enlazado
+  en OpenGL 4.3 de escritorio con los shaders analizados por el nuevo parser.
+  Esto comprueba GLSL e interfaces, no el driver de Switch ni emulación real.
+- El propietario confirma navegación fluida con 0.13.2. No se cambia esa ruta.
+- Windows, móvil y TV 0.13.3+34, con sus motores anteriores y TV sin VPX. Raspberry
+  sin cambios. La ejecución jugable de una mesa en Switch sigue pendiente de prueba.
+
+## Versión anterior · 0.13.2
 
 - Corrige `Invalid Output format: 373694468`: el motor acepta RGBA8888 y otros
   órdenes de canales válidos de SDL con OpenGL de escritorio en Switch. La

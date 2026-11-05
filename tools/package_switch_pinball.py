@@ -17,6 +17,7 @@ from build_switch import verify as verify_launcher
 def verify_engine(path, version):
     raw = path.read_bytes()
     assert raw[16:20] == b'NRO0'
+    assert ('GameClub '+version+': VPX/PinMAME').encode() in raw, 'El motor no fue recompilado para esta versión'
     size = struct.unpack_from('<I', raw, 24)[0]
     assert 128 < size < len(raw) and raw[size:size+4] == b'ASET'
     for offset in (32, 40, 48):
@@ -44,6 +45,9 @@ def main():
     header = elf.read_bytes()[:64]
     assert header[:5] == b'\x7fELF\x02' and struct.unpack_from('<H', header, 18)[0] == 183
     assert elf.stat().st_size > 1024*1024, 'El enlace del motor no está terminado'
+    symbols = subprocess.check_output([str(SDK/'devkitA64/bin/aarch64-none-elf-nm.exe'),
+                                       '-C', str(elf)], text=True)
+    assert 'std::thread::detach()' not in symbols, 'El motor todavía usa detach, no implementado por el SDK Horizon'
     env = os.environ.copy()
     env['DEVKITPRO'] = SDK.as_posix()
     env['PATH'] = str(SDK/'devkitA64/bin')+os.pathsep+env['PATH']

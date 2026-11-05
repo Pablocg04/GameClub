@@ -1,4 +1,4 @@
-# Visual Pinball + PinMAME para Switch · GameClub 0.13.0
+# Visual Pinball + PinMAME para Switch · GameClub 0.13.1
 
 Port nativo experimental para Horizon/libnx. Incluye el reproductor de Visual
 Pinball X, la biblioteca de emulación PinMAME y los complementos estáticos
@@ -10,7 +10,7 @@ se deben comprobar en una Switch física. No se incluyen mesas, ROMs ni BIOS.
 
 ## Instalación y primera prueba
 
-1. Extrae `GameClub-Switch-Pinball-0.13.0.zip` en la raíz de la SD. Quedarán
+1. Extrae `GameClub-Switch-Pinball-0.13.1.zip` en la raíz de la SD. Quedarán
    `switch/gameclub/GameClub-Switch.nro` y
    `switch/gameclub/pinball/GameClubPinball.nro`, junto a los recursos del motor.
 2. Conserva todos los archivos de `switch/gameclub/pinball/`. Copiar solo el NRO
@@ -87,6 +87,13 @@ registro. Los paquetes originales de la Raspberry no se modifican.
   bloqueo al preparar/iniciar un pinball. Esta revisión añade escritura con
   búfer, progreso de extracción, cancelación y registros para localizarlo. No se
   considera resuelta la ejecución de mesas hasta repetir la prueba física.
+- El registro de Fish Tales confirmó el inicio de VPX y la carga de recursos.
+  Se localizó una incompatibilidad al terminar el grupo de hilos: el SDK usado
+  devuelve ENOSYS en `pthread_detach`, utilizado por la implementación original.
+  0.13.1 sustituye esa operación por `join`, también al redimensionar el grupo,
+  y evita otro `detach` en el renderizador standalone. Se libera además el
+  búfer temporal de imágenes antiguas y el motor deja de abrir una sesión de
+  red innecesaria. Son correcciones pendientes de nueva prueba en consola.
 
 ## Reproducir la compilación
 

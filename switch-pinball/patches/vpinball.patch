@@ -175,8 +175,26 @@ index b8082b0..7dca7f6 100644
  
  #include "input/OpenPinDevHandler.h"
  
+diff --git a/src/parts/pintable.cpp b/src/parts/pintable.cpp
+index 1e67e32..f7c4946 100644
+--- a/src/parts/pintable.cpp
++++ b/src/parts/pintable.cpp
+@@ -1945,7 +1945,13 @@ HRESULT PinTable::LoadGameFromFilename(const std::filesystem::path &filename, VP
+             // Resolve collection parts
+             for (int i = 0; i < m_vcollection.size(); i++)
+                m_vcollection[i].InitPostLoad(this);
++#ifdef __SWITCH__
++            PLOGI << "GameClub: collections resolved; joining table loader workers";
++#endif
+          }
++#ifdef __SWITCH__
++         PLOGI << "GameClub: table loader workers joined";
++#endif
+          pstmGame->Release();
+          feedback.Finalizing();
+ 
 diff --git a/src/renderer/RenderDevice.cpp b/src/renderer/RenderDevice.cpp
-index 1fedf4e..f601750 100644
+index 1fedf4e..a15f7ef 100644
 --- a/src/renderer/RenderDevice.cpp
 +++ b/src/renderer/RenderDevice.cpp
 @@ -1386,6 +1386,10 @@ RenderDevice::RenderDevice(
@@ -203,6 +221,59 @@ index 1fedf4e..f601750 100644
  
     SDL_GL_MakeCurrent(m_outputWnd[0]->GetCore(), m_sdl_context);
  
+@@ -2168,9 +2178,13 @@ void RenderDevice::WaitForVSync(const bool asynchronous)
+       m_vsyncCount++;
+       m_presentTimestampReference = usec();
+    };
++#ifndef __SWITCH__
+    if (asynchronous)
+       std::thread(lambda).detach(); // Reuse thread ? (we always at most one running at a time)
+    else
++#endif
++      // Standalone has no OS wait inside lambda. Run this counter/timestamp
++      // update inline on Horizon, whose threading backend cannot detach.
+       lambda();
+ }
+ 
+diff --git a/src/renderer/Texture.cpp b/src/renderer/Texture.cpp
+index bb6d25d..2c60e36 100644
+--- a/src/renderer/Texture.cpp
++++ b/src/renderer/Texture.cpp
+@@ -953,7 +953,8 @@ Texture* Texture::CreateFromObjectReader(IObjectReader& reader, PinTable* const
+             assert(ppb == nullptr && size != 0);
+ 
+             // Uncompress to RGBA image
+-            uint8_t* const __restrict tmp = new uint8_t[size * 4];
++            auto pixelStorage = std::make_unique<uint8_t[]>(size * 4);
++            uint8_t* const __restrict tmp = pixelStorage.get();
+             const LZWReader lzwreader(br.m_pistream, tmp, width * 4);
+ 
+             // Find out if all alpha values are 0x00 or 0xFF
+@@ -967,6 +968,7 @@ Texture* Texture::CreateFromObjectReader(IObjectReader& reader, PinTable* const
+ 
+             // Create a FreeImage from LZW data, optionally dropping a constant (0 or 255) alpha channel
+             FIBITMAP* dib = FreeImage_Allocate(width, height, has_alpha ? 32 : 24);
++            if (!dib) return false;
+             uint8_t* const pdst = (uint8_t*)FreeImage_GetBits(dib);
+             const unsigned int pitch = width * 4;
+             const unsigned int pitch_dst = FreeImage_GetPitch(dib);
+@@ -981,9 +983,15 @@ Texture* Texture::CreateFromObjectReader(IObjectReader& reader, PinTable* const
+                   copy_rgba_rgb<false>(dst, src, width); // copy without alpha channel
+             }
+ 
++            pixelStorage.reset(); // The converted image owns its copy; release the legacy pixels now.
+             // Convert to a lossless webp
+             auto memStream = FreeImage_OpenMemory();
+-            FreeImage_SaveToMemory(FREE_IMAGE_FORMAT::FIF_WEBP, dib, memStream, WEBP_LOSSLESS);
++            if (!memStream) { FreeImage_Unload(dib); return false; }
++            if (!FreeImage_SaveToMemory(FREE_IMAGE_FORMAT::FIF_WEBP, dib, memStream, WEBP_LOSSLESS)) {
++               FreeImage_CloseMemory(memStream);
++               FreeImage_Unload(dib);
++               return false;
++            }
+             ppb = new PinBinary();
+             ppb->m_buffer.resize(FreeImage_TellMemory(memStream));
+             ppb->m_name = name;
 diff --git a/src/ui/live/ingameui/HomePage.cpp b/src/ui/live/ingameui/HomePage.cpp
 index a29f15e..5300a70 100644
 --- a/src/ui/live/ingameui/HomePage.cpp
@@ -224,6 +295,88 @@ index a29f15e..5300a70 100644
  
     ////////////////////////////////////////////////////////////////////////////////////////////////
     AddItem(std::make_unique<InGameUIItem>(InGameUIItem::LabelType::Header, "Settings"s));
+diff --git a/third-party/include/ThreadPool.h b/third-party/include/ThreadPool.h
+index d4ff56c..44b0a32 100644
+--- a/third-party/include/ThreadPool.h
++++ b/third-party/include/ThreadPool.h
+@@ -75,6 +75,11 @@ private:
+ 
+     // synchronization
+     std::mutex queue_mutex;
++#ifdef __SWITCH__
++    // Horizon's libnx threading backend supports join, but not detach.
++    // Serialize resize operations while retired workers are joined.
++    std::mutex resize_mutex;
++#endif
+     std::condition_variable condition_producers;
+     std::condition_variable condition_consumers;
+ 
+@@ -171,7 +176,13 @@ inline ThreadPool::~ThreadPool()
+     pool_size = 0;
+     condition_consumers.notify_all();
+     condition_producers.notify_all();
++#ifdef __SWITCH__
++    lock.unlock();
++    for (auto &worker : workers)
++        if (worker.joinable()) worker.join();
++#else
+     condition_consumers.wait(lock, [this]{ return this->workers.empty(); });
++#endif
+     assert(in_flight == 0);
+ }
+ 
+@@ -210,6 +221,27 @@ inline void ThreadPool::set_queue_size_limit(std::size_t limit)
+ 
+ inline void ThreadPool::set_pool_size(std::size_t limit)
+ {
++#ifdef __SWITCH__
++    std::lock_guard resize_lock(resize_mutex);
++    limit = (std::max)(limit, std::size_t{1});
++    std::vector<std::thread> retired;
++    {
++        std::unique_lock lock(queue_mutex);
++        if (stop) return;
++        const auto old_size = pool_size;
++        pool_size = limit;
++        if (limit > old_size) {
++            for (auto i = old_size; i < limit; ++i) start_worker(i, lock);
++        } else if (limit < old_size) {
++            for (auto i = limit; i < workers.size(); ++i)
++                retired.push_back(std::move(workers[i]));
++            workers.resize(limit);
++            condition_consumers.notify_all();
++        }
++    }
++    for (auto &worker : retired) worker.join();
++    return;
++#else
+     if (limit < 1)
+         limit = 1;
+ 
+@@ -234,6 +266,7 @@ inline void ThreadPool::set_pool_size(std::size_t limit)
+     else if (pool_size < old_size)
+         // notify all worker threads to start downsizing
+         this->condition_consumers.notify_all();
++#endif
+ }
+ 
+ inline void ThreadPool::start_worker(
+@@ -261,6 +294,7 @@ inline void ThreadPool::start_worker(
+                     if ((this->stop && this->tasks.empty())
+                         || (!this->stop && pool_size < worker_number + 1))
+                     {
++#ifndef __SWITCH__
+                         // detach this worker, effectively marking it stopped
+                         this->workers[worker_number].detach();
+                         // downsize the workers vector as much as possible
+@@ -270,6 +304,7 @@ inline void ThreadPool::start_worker(
+                         // if this is last worker, notify the destructor
+                         if (this->workers.empty())
+                             this->condition_consumers.notify_all();
++#endif
+                         return;
+                     }
+                     else if (!this->tasks.empty())
 diff --git a/third-party/include/implot/implot.cpp b/third-party/include/implot/implot.cpp
 index 7d1359a..73bcb89 100644
 --- a/third-party/include/implot/implot.cpp

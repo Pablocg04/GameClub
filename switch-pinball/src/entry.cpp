@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <vector>
 #include <string>
+#include <exception>
 #include <pinmame/libpinmame.h>
 #include <unistd.h>
 
@@ -26,7 +27,6 @@ void GameClubPinMAMEApplyPaths() {
 
 int main(int argc, char **argv) {
     romfsInit();
-    socketInitializeDefault();
     SDL_SetMainReady();
     if (chdir("sdmc:/") != 0)
         return 1;
@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
     std::freopen(log.c_str(), "a", stderr);
     std::setvbuf(stdout, nullptr, _IONBF, 0);
     std::setvbuf(stderr, nullptr, _IONBF, 0);
-    std::puts("GameClub: VPX/PinMAME nativo para Horizon/libnx");
+    std::puts("GameClub " GAMECLUB_PINBALL_VERSION ": VPX/PinMAME nativo para Horizon/libnx");
     for (const auto &item : {std::pair{PINMAME_FILE_TYPE_NVRAM, "nvram"},
                              std::pair{PINMAME_FILE_TYPE_CONFIG, "cfg"},
                              std::pair{PINMAME_FILE_TYPE_HIGHSCORE, "hi"}}) {
@@ -82,10 +82,18 @@ int main(int argc, char **argv) {
     }
     GameClubSetupInput();
     std::puts("GameClub: entrando en Visual Pinball");
-    int status = WinMain(nullptr, nullptr, nullptr, 0);
+    int status = 1;
+    try {
+        status = WinMain(nullptr, nullptr, nullptr, 0);
+    } catch (const std::exception &error) {
+        std::fprintf(stderr, "GameClub: excepción del motor: %s\n", error.what());
+        SDL_Quit();
+    } catch (...) {
+        std::fprintf(stderr, "GameClub: excepción desconocida del motor\n");
+        SDL_Quit();
+    }
     std::printf("GameClub: salida del motor, código %d\n", status);
     fsdevCommitDevice("sdmc");
-    socketExit();
     romfsExit();
     return status;
 }

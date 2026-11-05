@@ -86,6 +86,9 @@ def main():
     data=Path(tempfile.mkdtemp(prefix='run-',dir=folder))
     try:
         subprocess.run([str(tests),url,str(data)],check=True)
+        threads=tests.with_name('gameclub_switch_threads_test.exe')
+        if threads.is_file():
+            subprocess.run([str(threads)],check=True,timeout=30)
         assert counts['/api/games/nes/download']==1, 'La caché válida no debe volver a descargar'
         shots=[]
         for name,extra in [('library',[]),('favorites',['--tab','1']),('systems',['--tab','2']),

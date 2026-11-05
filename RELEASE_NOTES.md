@@ -1,4 +1,22 @@
-# GameClub 0.13.0
+# GameClub 0.13.1
+
+- Corrige la incompatibilidad del grupo de hilos de VPX con Horizon: el SDK no
+  implementa `pthread_detach`. Ahora el motor espera con `join` al terminar la
+  carga de la mesa, sin una excepción al liberar esos hilos. También se elimina
+  el `detach` del contador de sincronización del renderizador standalone.
+- Libera el búfer temporal de las imágenes antiguas durante la carga y comprueba
+  fallos de asignación/conversión. Registra excepciones del motor y su versión.
+- El motor local no inicializa sockets innecesarios. La foto de la primera prueba
+  mostraba un fatal posterior en `bsdsocket`; no se afirma todavía que esta medida
+  resuelva ese segundo síntoma.
+- 47 comprobaciones del lanzador y 8 regresiones de hilos con la rama Horizon,
+  incluidos cierre, trabajo pendiente, excepciones, crecimiento y reducción.
+- Primera prueba de Fish Tales: VPX sí inicia y carga recursos; no se certifica
+  todavía imagen, audio o una mesa jugable. Nueva prueba física pendiente.
+- Windows, móvil y TV compilados como 0.13.1+32; conservan sus motores anteriores
+  y TV sigue excluyendo Visual Pinball. Raspberry sin cambios.
+
+## Versión anterior · 0.13.0
 
 - Port nativo experimental de Visual Pinball X y PinMAME para Nintendo Switch,
   con complementos PinMAME, B2S y FlexDMD estáticos. No usa Android ni RetroArch

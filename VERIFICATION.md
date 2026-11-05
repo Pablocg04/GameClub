@@ -1,4 +1,31 @@
-# Revisión funcional · GameClub 0.13.0
+# Revisión funcional · GameClub 0.13.1
+
+## Corrección de cierre durante la carga · 0.13.1
+
+- El log del propietario confirma VPX iniciado y Fish Tales abierto. Entre
+  `PinTable Data loaded` e `Images, Sounds and Items loaded` transcurren unos
+  cuatro minutos. Después registra resolución de capas y termina antes de
+  `InitTablePostLoad`; todavía no hay evidencia de renderizado ni de PinMAME en
+  ejecución.
+- El grupo de hilos original llama a `std::thread::detach()` al destruirse justo
+  después de resolver las colecciones. Desensamblado del ELF anterior: ese método
+  llama a `pthread_detach`, cuyo backend devuelve incondicionalmente ENOSYS (88).
+  La excepción sin capturar en el hilo encaja con ese punto de interrupción.
+- Grupo de hilos Horizon corregido para conservar handles y hacer `join` desde
+  el propietario. Crecimiento/reducción serializados; no se descarta trabajo.
+  El renderizador standalone actualiza su contador en línea sin otro `detach`.
+- 8 regresiones de la rama Horizon comprobadas en escritorio, además de las
+  47 del lanzador. La prueba compila sin permitir llamadas a `detach`; comprueba
+  trabajo pendiente, futuros, excepciones, cambios de tamaño y fin de hilos/TLS.
+  El ELF nuevo no enlaza `std::thread::detach()`.
+- Corregida la fuga del búfer de píxeles al importar imágenes BITS antiguas y
+  comprobados errores de FreeImage. Excepciones de motor registradas y limpieza
+  SDL al salir. Se elimina la inicialización de sockets del motor local.
+- La foto muestra 2162-0002 / programa 0100000000000012, servicio `bsdsocket`.
+  No hay informe de ese servicio que permita afirmar la causa del fatal posterior.
+  **Nueva prueba en Switch pendiente; no se certifica todavía una mesa jugable.**
+
+## Revisión anterior · 0.13.0
 
 ## Port Visual Pinball/PinMAME para Switch · 0.13.0
 

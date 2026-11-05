@@ -55,6 +55,7 @@ def main():
             if self.headers.get('Authorization')!='Bearer fixture-token':return self.reply(401,{'detail':'Token incorrecto'})
             url=urllib.parse.urlparse(self.path)
             if url.path=='/api/games':return self.reply(200,games)
+            if url.path=='/api/games/cover-039/cover':return self.reply(200,b'broken fixture','image/jpeg')
             if url.path.endswith('/cover'):return self.reply(200,cover,'image/jpeg')
             if url.path.endswith('/pinball'):
                 value=copy.deepcopy(pinball_manifest)
@@ -89,6 +90,9 @@ def main():
         threads=tests.with_name('gameclub_switch_threads_test.exe')
         if threads.is_file():
             subprocess.run([str(threads)],check=True,timeout=30)
+        formats=tests.with_name('gameclub_switch_format_test.exe')
+        if formats.is_file():
+            subprocess.run([str(formats)],check=True,timeout=30)
         assert counts['/api/games/nes/download']==1, 'La caché válida no debe volver a descargar'
         shots=[]
         for name,extra in [('library',[]),('favorites',['--tab','1']),('systems',['--tab','2']),
@@ -100,8 +104,22 @@ def main():
             picture=Image.open(destination);assert picture.size==(1280,720)
             shots.append(str(destination))
         assert counts['/api/games']>=7
+        # Fill beyond cache capacity, then revisit resident pages. Reverse IDs
+        # expose eviction by alphabetical key rather than by recent use.
+        games.extend({'id':f'cover-{39-i:03}', 'title':f'A Cover {i:03}', 'system_id':'nes',
+                      'filename':f'Cover{i}.nes', 'size':4, 'revision':'1', 'favorite':False,
+                      'cover_url':None if i==1 else f'/api/games/cover-{39-i:03}/cover'} for i in range(40))
+        subprocess.run([str(preview),'--headless','--frames','480','--exercise-covers',
+                        '--assets',str(root/'switch-client/build/romfs'),'--data-dir',str(data)],check=True,timeout=45)
+        navigation=json.loads((data/'launcher-performance.json').read_text())
+        assert navigation['cover_uploads']>=30, navigation
+        assert navigation['cover_uploads']<=44 and navigation['cover_jobs']<=60, navigation
+        assert navigation['cached_textures']<=32, navigation
+        assert counts['/api/games/cover-039/cover']==1, 'No repetir una carátula dañada cada frame'
+        assert counts['/api/games/cover-038/cover']==0, 'No solicitar carátulas ausentes'
+        print('Navegación tras llenar caché:',navigation,flush=True)
         (folder/'report.json').write_text(json.dumps({'api':url,'requests':dict(counts),'screenshots':shots,
-            'physical_switch_tested':False},ensure_ascii=False,indent=2),encoding='utf-8')
+            'navigation':navigation,'physical_switch_tested':False},ensure_ascii=False,indent=2),encoding='utf-8')
         print('API, aislamiento, descargas, guardados, MAME, VPX y siete vistas nativas comprobados.',flush=True)
     finally:
         server.shutdown();server.server_close();thread.join()

@@ -2,6 +2,9 @@
 #include "miniz/miniz.h"
 #include <map>
 #include <memory>
+#ifdef _WIN32
+#include <thread>
+#endif
 
 namespace gc {
 namespace {
@@ -28,6 +31,20 @@ void checkTable(const fs::path &path) {
     f.read(bytes, sizeof(bytes));
     if (f.gcount() != 8 || std::string(bytes, 8) != magic)
         throw std::runtime_error("El paquete no contiene una mesa VPX válida");
+}
+void publishCache(const fs::path &staging, const fs::path &cache) {
+    std::error_code error;
+    fs::rename(staging, cache, error);
+#ifdef _WIN32
+    // Windows can briefly deny a directory rename just after its files close.
+    // Preserve atomic publication; retry only sharing/access failures, bounded.
+    for (int retry = 0; error && retry < 5 &&
+         (error == std::errc::permission_denied || error == std::errc::device_or_resource_busy || error.value() == 32); ++retry) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(25 << retry));
+        fs::rename(staging, cache, error);
+    }
+#endif
+    if (error) throw fs::filesystem_error("Publicar caché de pinball", staging, cache, error);
 }
 struct Extract {
     FILE *file;
@@ -162,7 +179,7 @@ Launch preparePinball(const fs::path &root, const Config &config, const Game &ga
                     throw std::runtime_error("La caché de la mesa necesita revisión");
                 fs::remove_all(cache);
             }
-            fs::rename(staging, cache);
+            publishCache(staging, cache);
         } catch (...) {
             fs::remove_all(staging);
             throw;

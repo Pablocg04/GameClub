@@ -1,5 +1,6 @@
 #define SDL_MAIN_HANDLED
 #include "library.hpp"
+#include "lru.hpp"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <condition_variable>
@@ -9,6 +10,7 @@
 #include <map>
 #include <mutex>
 #include <thread>
+#include <memory>
 #ifdef __SWITCH__
 #include <curl/curl.h>
 #include <switch.h>
@@ -96,6 +98,7 @@ struct Event {
     fs::path path;
     std::vector<Game> games;
     Launch launch;
+    std::shared_ptr<SDL_Surface> image;
     bool favorite = false;
 };
 struct Worker {
@@ -148,13 +151,14 @@ struct Worker {
                   events.push_back(std::move(event));
               }
           }) {}
-    ~Worker() {
+    void stop() {
         cancel = true;
         cancelOperation = true;
         wake.notify_all();
         if (thread.joinable())
             thread.join();
     }
+    ~Worker() { stop(); }
     void push(int generation, bool quiet, std::function<Event()> task, bool priority = false) {
         std::lock_guard<std::mutex> lock(mutex);
         Task t{generation, quiet, std::move(task)};
@@ -189,8 +193,10 @@ class App {
     std::vector<Game> games;
     std::vector<size_t> visible;
     std::vector<std::string> systems;
-    std::map<std::string, SDL_Texture *> textures;
-    std::set<std::string> requested;
+    LruCache<std::shared_ptr<SDL_Texture>> textures{32};
+    std::set<std::string> requested, unavailable;
+    std::map<std::string, fs::path> corePaths;
+    uint64_t coverJobs = 0, coverLoads = 0;
     std::string query, system, notice = "Conectando con tu biblioteca...", message, editText;
     bool side = false, busy = false, details = false, editing = false, launching = false;
     int tab = 0, selected = 0, field = 0, systemIndex = 0, generation = 1, editField = 0;
@@ -262,7 +268,10 @@ class App {
         notice = "Actualizando biblioteca...";
         auto cfg = config;
         auto folder = libraryRoot(root, cfg);
+        worker.clearCovers();
         requested.clear();
+        unavailable.clear();
+        corePaths.clear();
         worker.push(
             generation, false,
             [this, cfg, folder] {
@@ -279,62 +288,45 @@ class App {
     std::string coverKey(const Game &game) { return game.id + "-" + (safeId(game.revision) ? game.revision : "0"); }
     void cover(const Game &game, int x, int y, int w, int h) {
         auto key = coverKey(game);
-        auto texture = textures.find(key);
-        if (texture == textures.end()) {
+        auto texture = textures.get(key);
+        if (!texture && !unavailable.count(key) && requested.size() < 4 && requested.insert(key).second) {
+            // Disk access, decoding and scaling must stay off the rendering thread.
             auto path = libraryRoot(root, config) / "covers" / (key + ".jpg");
-            if (fs::is_regular_file(path)) {
-                SDL_Surface *original = IMG_Load(path.string().c_str());
-                if (original && original->w > 0 && original->h > 0) {
-                    double ratio = std::min(180.0 / original->w, 240.0 / original->h);
-                    SDL_Surface *scaled = SDL_CreateRGBSurfaceWithFormat(0, std::max(1, int(original->w * ratio)),
-                                                                         std::max(1, int(original->h * ratio)), 32,
-                                                                         SDL_PIXELFORMAT_RGBA32);
-                    if (scaled) {
-                        SDL_BlitScaled(original, nullptr, scaled, nullptr);
-                        SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, scaled);
-                        SDL_FreeSurface(scaled);
-                        if (t) {
-                            SDL_SetTextureScaleMode(t, SDL_ScaleModeLinear);
-                            if (textures.size() >= 24) {
-                                SDL_DestroyTexture(textures.begin()->second);
-                                textures.erase(textures.begin());
-                            }
-                            textures[key] = t;
-                        }
-                    }
-                }
-                if (original)
-                    SDL_FreeSurface(original);
-                texture = textures.find(key);
-            }
-            if (!game.cover.empty() && requested.insert(key).second && !fs::is_regular_file(path)) {
-                auto cfg = config;
-                auto endpoint = game.cover;
-                worker.push(generation, true, [this, cfg, path, endpoint, key] {
-                    auto temp = fs::path(path.string() + ".part");
-                    try {
+            auto cfg = config;
+            auto endpoint = game.cover;
+            ++coverJobs;
+            worker.push(generation, true, [this, cfg, path, endpoint, key] {
+                Event e;
+                e.type = 1;
+                e.id = key;
+                auto temp = fs::path(path.string() + ".part");
+                try {
+                    if (!fs::is_regular_file(path)) {
+                        if (endpoint.empty()) return e;
                         request(cfg, endpoint, worker.cancel, 8 * 1024 * 1024, "GET", "", temp);
                         fs::rename(temp, path);
-                    } catch (...) {
-                        std::error_code ec;
-                        fs::remove(temp, ec);
-                        throw;
                     }
-                    Event e;
-                    e.type = 1;
-                    e.id = key;
-                    return e;
-                });
-            }
+                    std::shared_ptr<SDL_Surface> original(IMG_Load(path.string().c_str()), SDL_FreeSurface);
+                    if (!original || original->w <= 0 || original->h <= 0) return e;
+                    double ratio = std::min(180.0 / original->w, 240.0 / original->h);
+                    e.image.reset(SDL_CreateRGBSurfaceWithFormat(0, std::max(1, int(original->w * ratio)),
+                        std::max(1, int(original->h * ratio)), 32, SDL_PIXELFORMAT_RGBA32), SDL_FreeSurface);
+                    if (e.image && SDL_BlitScaled(original.get(), nullptr, e.image.get(), nullptr)) e.image.reset();
+                } catch (...) {
+                    std::error_code ec;
+                    fs::remove(temp, ec);
+                }
+                return e;
+            });
         }
-        if (texture != textures.end()) {
+        if (texture) {
             int tw = 0, th = 0;
-            SDL_QueryTexture(texture->second, nullptr, nullptr, &tw, &th);
+            SDL_QueryTexture(texture->get(), nullptr, nullptr, &tw, &th);
             double ratio = std::min(double(w) / tw, double(h) / th);
             int dw = int(tw * ratio), dh = int(th * ratio);
             rect(x, y, w, h, ink);
             SDL_Rect dst{x + (w - dw) / 2, y + (h - dh) / 2, dw, dh};
-            SDL_RenderCopy(renderer, texture->second, nullptr, &dst);
+            SDL_RenderCopy(renderer, texture->get(), nullptr, &dst);
         } else {
             rect(x, y, w, h, panel);
             int scale = std::max(2, std::min(w / 20, h / 12));
@@ -460,9 +452,9 @@ class App {
             saveConfig(root, config);
             ++generation;
             worker.clear();
-            for (auto &t : textures)
-                SDL_DestroyTexture(t.second);
             textures.clear();
+            unavailable.clear();
+            corePaths.clear();
             games.clear();
             system.clear();
             query.clear();
@@ -479,6 +471,11 @@ class App {
 
   public:
     bool running = true;
+    Json performance() const {
+        return { {"cover_jobs", coverJobs}, {"cover_uploads", coverLoads},
+                 {"cached_textures", textures.size()}, {"pending_covers", requested.size()},
+                 {"version", GAMECLUB_SWITCH_VERSION} };
+    }
     std::string startupDetail;
     App(SDL_Renderer *r, fs::path data, fs::path resources, std::string q, int initialTab, std::string detail)
         : renderer(r), root(std::move(data)), assets(std::move(resources)), query(std::move(q)), tab(initialTab),
@@ -497,8 +494,8 @@ class App {
         reload();
     }
     ~App() {
-        for (auto &t : textures)
-            SDL_DestroyTexture(t.second);
+        worker.stop();
+        textures.clear();
         SDL_DestroyTexture(title.texture);
         SDL_DestroyTexture(body.texture);
         SDL_DestroyTexture(small.texture);
@@ -522,6 +519,17 @@ class App {
                         }
                     pickId.clear();
                 }
+            } else if (event.type == 1) {
+                requested.erase(event.id);
+                if (event.image) {
+                    auto texture = std::shared_ptr<SDL_Texture>(SDL_CreateTextureFromSurface(renderer, event.image.get()), SDL_DestroyTexture);
+                    if (texture) {
+                        SDL_SetTextureScaleMode(texture.get(), SDL_ScaleModeLinear);
+                        textures.put(event.id, std::move(texture));
+                        unavailable.erase(event.id);
+                        ++coverLoads;
+                    } else unavailable.insert(event.id);
+                } else unavailable.insert(event.id);
             } else if (event.type == 2) {
                 for (auto &g : games)
                     if (g.id == event.id)
@@ -843,8 +851,13 @@ class App {
                        persists(g.system) ? "Conserva la batería de este juego en la SD."
                                           : "Cada apertura empieza de cero, sin restaurar partida.",
                        575, 348, mint, 610, 3);
-            auto core = g.system == "vpinball" ? root / "pinball/GameClubPinball.nro" : findCore(config, g.system);
-            if (!fs::is_regular_file(core)) core.clear();
+            auto found = corePaths.find(g.system);
+            if (found == corePaths.end()) {
+                auto path = g.system == "vpinball" ? root / "pinball/GameClubPinball.nro" : findCore(config, g.system);
+                if (!fs::is_regular_file(path)) path.clear();
+                found = corePaths.emplace(g.system, std::move(path)).first;
+            }
+            const auto &core = found->second;
             small.text(renderer, core.empty() ? (g.system == "vpinball" ? "Falta el motor. Instala el ZIP de pinball."
                                                                      : "Falta el núcleo. Revisa Ajustes.") : core.filename().string(), 575, 427,
                        core.empty() ? pink : muted, 610, 2);
@@ -886,7 +899,7 @@ int main(int argc, char **argv) {
     fs::path assets, root;
     std::string screenshot, query, detail;
     int frames = 0, tab = 0;
-    bool headless = false;
+    bool headless = false, exerciseCovers = false;
 #ifdef __SWITCH__
     romfsInit();
     auto socketResult = socketInitializeDefault();
@@ -903,6 +916,8 @@ int main(int argc, char **argv) {
         std::string arg = argv[i];
         if (arg == "--headless")
             headless = true;
+        else if (arg == "--exercise-covers")
+            exerciseCovers = true;
         else if (i + 1 < argc) {
             std::string value = argv[++i];
             if (arg == "--assets")
@@ -931,7 +946,12 @@ int main(int argc, char **argv) {
         if (R_FAILED(socketResult))
             throw std::runtime_error("No se pudo iniciar la red");
 #endif
-        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER))
+#ifdef __SWITCH__
+        const auto subsystems = SDL_INIT_VIDEO;
+#else
+        const auto subsystems = SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER;
+#endif
+        if (SDL_Init(subsystems))
             throw std::runtime_error(SDL_GetError());
         IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
         if (headless) {
@@ -950,6 +970,9 @@ int main(int argc, char **argv) {
         {
             App app(renderer, root, assets, query, tab, detail);
             uint64_t lastMove = 0;
+            const auto began = SDL_GetTicks64();
+            uint64_t drawnFrames = 0;
+            double maxDrawMs = 0;
             int direction = -1, count = 0;
             while (app.running) {
 #ifdef __SWITCH__
@@ -1020,8 +1043,18 @@ int main(int argc, char **argv) {
                     } else if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT)
                         app.click(event.button.x, event.button.y);
                 }
+#ifndef __SWITCH__
+                if (exerciseCovers && count > 0 && count <= 420 && count % 60 == 0) {
+                    const Input moves[] = {PageForward, PageForward, PageForward, PageBack, PageForward, PageBack, PageForward};
+                    app.key(moves[count / 60 - 1]);
+                }
+#endif
+                const auto drawStart = SDL_GetPerformanceCounter();
                 app.poll();
                 app.draw();
+                maxDrawMs = std::max(maxDrawMs, 1000.0 * double(SDL_GetPerformanceCounter() - drawStart) /
+                                                 double(SDL_GetPerformanceFrequency()));
+                ++drawnFrames;
                 if (frames && ++count >= frames) {
                     if (!screenshot.empty()) {
                         SDL_Surface *shot = SDL_CreateRGBSurfaceWithFormat(0, 1280, 720, 32, SDL_PIXELFORMAT_RGBA32);
@@ -1038,6 +1071,18 @@ int main(int argc, char **argv) {
                 if (headless)
                     SDL_Delay(16);
             }
+            try {
+                auto report = app.performance();
+                report["frames"] = drawnFrames;
+                report["elapsed_ms"] = SDL_GetTicks64() - began;
+                report["max_draw_ms"] = maxDrawMs;
+                SDL_RendererInfo info{};
+                if (SDL_GetRendererInfo(renderer, &info) == 0) {
+                    report["renderer"] = info.name ? info.name : "unknown";
+                    report["accelerated"] = bool(info.flags & SDL_RENDERER_ACCELERATED);
+                }
+                writeText(root / "launcher-performance.json", report.dump(2));
+            } catch (...) { /* Telemetry must never prevent launching or exiting. */ }
         }
     } catch (const std::exception &e) {
         exitCode = 1;

@@ -1,4 +1,33 @@
-# Revisión funcional · GameClub 0.13.1
+# Revisión funcional · GameClub 0.13.2
+
+## Formato de pantalla y navegación · 0.13.2
+
+- El nuevo log físico confirma `table loader workers joined`, carga de PinMAME
+  y FlexDMD, dispositivos de audio iniciados y ventana 1280×720 creada. El fallo
+  actual es `Invalid Output format: 373694468`, correspondiente a RGBA8888.
+  El bloque OpenGL de VPX solo aceptaba ese formato al compilar para OpenGL ES.
+- Adaptación de formato para Horizon probada con los enums reales de SDL3 y el
+  valor literal del registro; se conservan precisión y canales RGB/RGBA/10 bits.
+  Se rechazan formatos no admitidos. 9 comprobaciones de esta función.
+- El propietario confirma que la lentitud aparece al recorrer páginas/cargar
+  carátulas. La caché anterior expulsaba la primera clave alfabética, pudiendo
+  descartar carátulas visibles y recargarlas en cada dibujo. Se sustituye por LRU;
+  cuatro regresiones nuevas comprueban uso reciente, límite y liberación/limpieza.
+- Descarga, consulta de SD, decodificación y escalado de carátulas ejecutados en
+  el worker. El hilo gráfico solo crea texturas pequeñas y dibuja. Hasta cuatro
+  cargas pendientes y 32 texturas; resultados negativos cacheados hasta recargar.
+- Prueba de navegación con más de 32 carátulas, claves en orden inverso y vueltas
+  a páginas residentes; incluye JPEG dañado y carátula ausente para detectar
+  reintentos continuos. El informe registra trabajos, subidas y renderer. Los
+  tiempos de escritorio no se presentan como FPS de Switch.
+- Resultado del recorrido de 480 frames: 40 trabajos, 38 imágenes válidas subidas
+  y 32 texturas residentes; sin recargas al volver a las páginas conservadas.
+  La imagen dañada se solicita una vez y la ausente no genera petición HTTP.
+- 51 comprobaciones del cliente, 8 de hilos y 9 de formato, más siete vistas y
+  la navegación de estrés. **Otra prueba física sigue pendiente:** el formato
+  corregido aún no certifica imagen, audio de juego, emulación ni rendimiento.
+
+## Revisión anterior · 0.13.1
 
 ## Corrección de cierre durante la carga · 0.13.1
 

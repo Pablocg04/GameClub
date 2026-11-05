@@ -1,4 +1,6 @@
 #include "library.hpp"
+#include "lru.hpp"
+#include <memory>
 #include <iostream>
 #include "../../switch-pinball/include/utc.hpp"
 
@@ -25,6 +27,26 @@ static void fakeCore(const fs::path &p) {
 }
 int main(int argc, char **argv) {
     try {
+        LruCache<int> covers(24);
+        for (int i = 0; i < 24; ++i) covers.put("old-" + std::to_string(i), i);
+        covers.put("aaa-visible", 100);
+        bool preserved = true;
+        for (int i = 0; i < 100; ++i) {
+            const auto value = covers.get("aaa-visible");
+            preserved = preserved && value && *value == 100;
+            covers.put("zzz-" + std::to_string(i), i);
+        }
+        check(preserved, "LRU: carátula visible conservada durante 100 inserciones");
+        check(covers.size() == 24 && !covers.get("old-0"), "LRU: límite y descarte del menos usado");
+        std::weak_ptr<int> retired;
+        {
+            LruCache<std::shared_ptr<int>> owned(1);
+            auto resource = std::make_shared<int>(1); retired = resource;
+            owned.put("a", std::move(resource));
+            owned.put("b", std::make_shared<int>(2));
+            check(retired.expired(), "LRU: liberar recursos expulsados");
+            owned.clear(); check(owned.size() == 0, "LRU: limpiar al cambiar servidor");
+        }
         check(validServer("http://192.168.0.47:8001"), "servidor LAN");
         check(validServer("https://gameclub.example/library"), "servidor HTTPS con prefijo");
         check(!validServer("http://user:password@host") && !validServer("file:///etc/passwd") &&

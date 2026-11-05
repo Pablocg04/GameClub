@@ -1,4 +1,23 @@
-# GameClub 0.13.1
+# GameClub 0.13.2
+
+- Corrige `Invalid Output format: 373694468`: el motor acepta RGBA8888 y otros
+  órdenes de canales válidos de SDL con OpenGL de escritorio en Switch. La
+  0.13.1 ya supera el cierre de hilos, carga plugins/audio y crea la ventana,
+  pero el registro de la consola termina en esa validación de formato.
+- Navegación del lanzador: caché LRU de 32 carátulas, sin expulsar por orden de
+  nombre. Lectura, descarga, decodificación y escalado en segundo plano; subidas
+  a GPU en el hilo gráfico y cola limitada. Las carátulas ausentes/dañadas no se
+  vuelven a buscar en cada frame. Se evita consultar motores en SD en cada dibujo.
+- El lanzador usa PadState para los mandos en Switch sin inicializar además los
+  gamepads de SDL. Guarda `launcher-performance.json` al salir o abrir un motor
+  para comprobar renderer, frames y actividad de carátulas en la consola.
+- 51 comprobaciones de cliente, 8 de hilos y 9 de formatos. Prueba adicional de
+  40 carátulas, páginas repetidas y archivos ausentes/dañados, más siete vistas.
+- Windows, móvil y TV 0.13.2+33; se conservan los motores anteriores y la exclusión
+  de VPX en TV. Raspberry sin cambios. Nueva prueba física pendiente: no se
+  certifica todavía una mesa jugable ni los FPS de la interfaz en Switch.
+
+## Versión anterior · 0.13.1
 
 - Corrige la incompatibilidad del grupo de hilos de VPX con Horizon: el SDK no
   implementa `pthread_detach`. Ahora el motor espera con `join` al terminar la

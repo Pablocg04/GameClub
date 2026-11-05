@@ -1,4 +1,4 @@
-# Visual Pinball + PinMAME para Switch · GameClub 0.13.1
+# Visual Pinball + PinMAME para Switch · GameClub 0.13.2
 
 Port nativo experimental para Horizon/libnx. Incluye el reproductor de Visual
 Pinball X, la biblioteca de emulación PinMAME y los complementos estáticos
@@ -10,7 +10,7 @@ se deben comprobar en una Switch física. No se incluyen mesas, ROMs ni BIOS.
 
 ## Instalación y primera prueba
 
-1. Extrae `GameClub-Switch-Pinball-0.13.1.zip` en la raíz de la SD. Quedarán
+1. Extrae `GameClub-Switch-Pinball-0.13.2.zip` en la raíz de la SD. Quedarán
    `switch/gameclub/GameClub-Switch.nro` y
    `switch/gameclub/pinball/GameClubPinball.nro`, junto a los recursos del motor.
 2. Conserva todos los archivos de `switch/gameclub/pinball/`. Copiar solo el NRO
@@ -57,6 +57,10 @@ comprueba que Homebrew Menu tenga acceso completo a memoria antes de descargar.
 `sd:/switch/gameclub/pinball-start.log` confirma que el motor ha llegado a su
 punto de entrada, antes de abrir las preferencias privadas de la mesa.
 
+Si se nota lentitud en la biblioteca, `sd:/switch/gameclub/launcher-performance.json`
+se escribe al salir o abrir un motor. Contiene el renderer utilizado, frames y
+actividad de la caché de carátulas; no contiene servidor ni token.
+
 Cada mesa tiene una carpeta privada bajo:
 
 `sd:/switch/gameclub/libraries/<servidor>/pinball-state/<id-mesa>/`
@@ -90,10 +94,14 @@ registro. Los paquetes originales de la Raspberry no se modifican.
 - El registro de Fish Tales confirmó el inicio de VPX y la carga de recursos.
   Se localizó una incompatibilidad al terminar el grupo de hilos: el SDK usado
   devuelve ENOSYS en `pthread_detach`, utilizado por la implementación original.
-  0.13.1 sustituye esa operación por `join`, también al redimensionar el grupo,
+  Desde 0.13.1 se sustituye esa operación por `join`, también al redimensionar el grupo,
   y evita otro `detach` en el renderizador standalone. Se libera además el
   búfer temporal de imágenes antiguas y el motor deja de abrir una sesión de
   red innecesaria. Son correcciones pendientes de nueva prueba en consola.
+- La siguiente prueba con South Park confirma el cierre correcto de esos hilos,
+  carga de plugins/audio y creación de ventana. 0.13.2 corrige el rechazo del
+  formato RGBA8888 que impedía inicializar el renderizador. Falta comprobar
+  físicamente el siguiente arranque del motor.
 
 ## Reproducir la compilación
 

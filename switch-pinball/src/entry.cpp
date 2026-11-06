@@ -9,6 +9,7 @@
 #include <exception>
 #include <pinmame/libpinmame.h>
 #include <unistd.h>
+#include "session_logs.hpp"
 
 extern int g_argc;
 extern const char **g_argv;
@@ -57,11 +58,13 @@ int main(int argc, char **argv) {
         return 1;
     gameclubState = state;
     const auto log = (state / "switch-player.log").string();
-    std::freopen(log.c_str(), "w", stdout);
+    const bool rotated = gameclub::rotateSessionLogs(state);
+    std::freopen(log.c_str(), rotated ? "w" : "a", stdout);
     std::freopen(log.c_str(), "a", stderr);
     std::setvbuf(stdout, nullptr, _IONBF, 0);
     std::setvbuf(stderr, nullptr, _IONBF, 0);
     std::puts("GameClub " GAMECLUB_PINBALL_VERSION ": VPX/PinMAME nativo para Horizon/libnx");
+    if (!rotated) std::puts("GameClub: no se pudo rotar el registro; se conserva el contenido anterior");
     for (const auto &item : {std::pair{PINMAME_FILE_TYPE_NVRAM, "nvram"},
                              std::pair{PINMAME_FILE_TYPE_CONFIG, "cfg"},
                              std::pair{PINMAME_FILE_TYPE_HIGHSCORE, "hi"}}) {

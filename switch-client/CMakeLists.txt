@@ -41,4 +41,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/../dist/switch-ports/prefix/include/SDL3/SDL_pixe
   target_include_directories(gameclub_switch_format_test PRIVATE ../switch-pinball/include ../dist/switch-ports/prefix/include)
   target_compile_options(gameclub_switch_format_test PRIVATE /utf-8 /EHsc)
   add_test(NAME switch_display_format COMMAND gameclub_switch_format_test)
+  add_executable(gameclub_switch_runtime_test ../switch-pinball/tests/runtime_test.cpp)
+  target_include_directories(gameclub_switch_runtime_test PRIVATE ../switch-pinball/include ../dist/switch-ports/prefix/include)
+  target_compile_options(gameclub_switch_runtime_test PRIVATE /utf-8 /EHsc)
 endif()

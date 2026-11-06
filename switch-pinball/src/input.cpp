@@ -1,21 +1,12 @@
 #include <SDL3/SDL.h>
+#include "input_bindings.hpp"
+#include <cstdio>
 #include <array>
 #include <map>
 #include <mutex>
 
 namespace {
-struct Key { SDL_Scancode scan; SDL_Keycode code; };
-// Raw libnx pad ordering is defined by devkitPro's SDL Switch driver.
-constexpr std::array<Key, 16> keys{{
-    {SDL_SCANCODE_RETURN, SDLK_RETURN}, {SDL_SCANCODE_ESCAPE, SDLK_ESCAPE},
-    {SDL_SCANCODE_5, SDLK_5}, {SDL_SCANCODE_1, SDLK_1},
-    {SDL_SCANCODE_7, SDLK_7}, {SDL_SCANCODE_8, SDLK_8},
-    {SDL_SCANCODE_LSHIFT, SDLK_LSHIFT}, {SDL_SCANCODE_RSHIFT, SDLK_RSHIFT},
-    {SDL_SCANCODE_LSHIFT, SDLK_LSHIFT}, {SDL_SCANCODE_RSHIFT, SDLK_RSHIFT},
-    {SDL_SCANCODE_ESCAPE, SDLK_ESCAPE}, {SDL_SCANCODE_5, SDLK_5},
-    {SDL_SCANCODE_LEFT, SDLK_LEFT}, {SDL_SCANCODE_UP, SDLK_UP},
-    {SDL_SCANCODE_RIGHT, SDLK_RIGHT}, {SDL_SCANCODE_DOWN, SDLK_DOWN}
-}};
+constexpr auto &keys = gameclub::buttonKeys;
 std::map<SDL_JoystickID, uint32_t> pads;
 std::array<bool, SDL_SCANCODE_COUNT> previous{};
 std::mutex mutex;
@@ -54,6 +45,8 @@ bool SDLCALL filter(void *, SDL_Event *event) {
         generated.key.scancode = key.scan;
         generated.key.key = key.code;
         generated.key.down = held[key.scan];
+        if (held[key.scan] && (key.scan == SDL_SCANCODE_1 || key.scan == SDL_SCANCODE_5 || key.scan == SDL_SCANCODE_F12))
+            std::printf("GameClub: control %s\n", key.scan == SDL_SCANCODE_1 ? "START" : key.scan == SDL_SCANCODE_5 ? "COIN" : "MENU");
         SDL_PushEvent(&generated);
     }
     return removed;

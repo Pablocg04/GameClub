@@ -134,10 +134,20 @@ index 066adeb..03f8d1a 100644
  #if defined(ENABLE_BGFX)
   #define GET_PLATFORM_RENDERER_ENUM 2
 diff --git a/src/core/player.cpp b/src/core/player.cpp
-index e83af84..c5ca40f 100644
+index e83af84..76cb8ae 100644
 --- a/src/core/player.cpp
 +++ b/src/core/player.cpp
-@@ -126,7 +126,10 @@ Player::Player(PinTable *const table, const PlayMode playMode)
+@@ -1,6 +1,9 @@
+ // license:GPLv3+
+ 
+ #include "core/stdafx.h"
++#ifdef __SWITCH__
++#include "texture_upload_queue.hpp"
++#endif
+ 
+ #include <iomanip>
+ #include <ctime>
+@@ -126,7 +129,10 @@ Player::Player(PinTable *const table, const PlayMode playMode)
  
     PLOGI << "Loading player plugins"; // For profiling
     
@@ -149,6 +159,69 @@ index e83af84..c5ca40f 100644
     VPinballLib::VPinballLib::SetupStaticPlugins(m_pluginManager);
  #else
     class SDLModuleLoader final : public MsgPI::MsgModuleLoader
+@@ -583,11 +589,18 @@ Player::Player(PinTable *const table, const PlayMode playMode)
+       }
+ 
+       std::mutex mutex;
++#ifdef __SWITCH__
++      gameclub::TextureUploadQueue<Texture> cachedTextureUploads;
++#endif
+       int nLoadPerformed = 0;
+       int nLoadInProgress = 0;
+       vector<Texture *> failedPreloads;
+       const unsigned int maxTexDim = static_cast<unsigned int>(m_ptable->m_settings.GetPlayer_MaxTexDimension());
+-      auto loadImage = [progressPos = m_progressDialog.GetProgress() + progressPhysicLength, maxTexDim, &mutex, &nLoadInProgress, &nLoadPerformed, preloadCache, this, &failedPreloads](
++      auto loadImage = [progressPos = m_progressDialog.GetProgress() + progressPhysicLength, maxTexDim, &mutex, &nLoadInProgress, &nLoadPerformed, preloadCache, this, &failedPreloads
++#ifdef __SWITCH__
++                          , &cachedTextureUploads
++#endif
++                          ](
+                           Texture *image, bool resizeOnLowMem)
+       {
+          bool readyToLoad = false;
+@@ -633,11 +646,17 @@ Player::Player(PinTable *const table, const PlayMode playMode)
+                         const char *name = node->GetText();
+                         if (name != nullptr && image->m_name == name && node->QueryBoolAttribute("linear", &linearRGB) == tinyxml2::XML_SUCCESS)
+                         {
++                           #ifdef __SWITCH__
++                           // Retain the decoded CPU buffer until the context owner uploads it.
++                           m_renderer->m_renderDevice->m_texMan.AddPendingUpload(image);
++                           cachedTextureUploads.defer(image, linearRGB);
++                           #else
+                            #ifdef ENABLE_OPENGL
+                            // Uploading texture in OpenGL uses the state machine which will be wrong if done concurrently
+                            const std::lock_guard<std::mutex> lock2(mutex);
+                            #endif
+                            m_renderer->m_renderDevice->UploadTexture(image, linearRGB);
++                           #endif
+                            uploaded = true;
+                            break;
+                         }
+@@ -681,7 +700,11 @@ Player::Player(PinTable *const table, const PlayMode playMode)
+       #ifdef ENABLE_BGFX
+       m_renderer->m_renderDevice->m_frameMutex.unlock();
+       #endif
++#ifdef __SWITCH__
++      ThreadPool pool(1); // Bound peak temporary memory while decoding/rescaling.
++#else
+       ThreadPool pool(g_app->GetLogicalNumberOfProcessors());
++#endif
+       for (auto image : m_ptable->m_vimage)
+          pool.enqueue(loadImage, image, false);
+       while (pool.has_work_in_flight())
+@@ -696,6 +719,12 @@ Player::Player(PinTable *const table, const PlayMode playMode)
+       // Due to multithreaded loading and pre-allocation, check if some images could not be loaded, and perform a retry since more memory is available now
+       for (auto image : failedPreloads)
+          loadImage(image, true);
++#ifdef __SWITCH__
++      const auto uploaded = cachedTextureUploads.flush([this](Texture *image, bool linear) {
++         m_renderer->m_renderDevice->UploadTexture(image, linear);
++      });
++      PLOGI << "GameClub: cached textures uploaded on graphics thread: " << uploaded;
++#endif
+    }
+ 
+    //----------------------------------------------------------------------------------
 diff --git a/src/input/InputManager.cpp b/src/input/InputManager.cpp
 index 540b822..cad9eb7 100644
 --- a/src/input/InputManager.cpp

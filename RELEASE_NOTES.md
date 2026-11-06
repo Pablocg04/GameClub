@@ -1,4 +1,21 @@
-# GameClub 0.13.4
+# GameClub 0.13.5
+
+- Corrige el segundo arranque con caché de texturas: el cargador tomaba el mismo
+  mutex dos veces al reutilizar una textura y además intentaba subirla a OpenGL
+  desde un worker sin el contexto gráfico. Ahora los workers preparan/retienen
+  datos CPU y una cola los sube después desde el propietario del contexto.
+- Precarga de texturas con un worker en Switch para limitar memoria temporal.
+- Corrige el mapa de controles y su documentación: + enviaba Escape, que en VPX
+  standalone cierra la mesa. +/Y ahora envían Start (1) y B abre/retrocede en el
+  menú (F12), con la acción Salir. La foto del propietario confirma mesa visible
+  y reporta sonido al introducir monedas; todavía no confirma partida iniciada.
+- Se conservan dos registros anteriores por mesa; un nuevo intento no borra
+  inmediatamente el log previo. Se registran Start, moneda y menú.
+- 18 regresiones nuevas de controles, cola gráfica y rotación de logs: 158
+  comprobaciones totales. Windows, móvil y TV 0.13.5+36; motores anteriores
+  conservados, TV sin VPX y Raspberry sin cambios. Nueva prueba física pendiente.
+
+## Versión anterior · 0.13.4
 
 - Corrige el siguiente fallo confirmado por South Park: `FBShader.glfx` pedía
   GLSL 4.50, pero el compilador gráfico de Switch admite hasta 4.30. El motor

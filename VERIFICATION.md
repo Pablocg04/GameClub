@@ -1,4 +1,30 @@
-# Revisión funcional · GameClub 0.13.4
+# Revisión funcional · GameClub 0.13.5
+
+## Controles y reutilización de texturas · 0.13.5
+
+- El propietario aporta una foto de South Park renderizado en Switch y confirma
+  sonido al introducir monedas. Pulsó +/START y la app salió; el log recibido es
+  del siguiente intento y termina en `Loading Textures... 45%`, con caché previa.
+- Se confirma un error de asignación del port: + estaba mapeado a Escape, cuya
+  acción ExitGame cierra la mesa en standalone. El menú usa F12. Se corrigen
+  controles/documentación: +/Y Start, B menú, X/− moneda, A lanzador.
+- En la precarga con `used_textures.xml`, el worker mantenía `mutex` y volvía a
+  bloquearlo dentro de ENABLE_OPENGL: bloqueo recursivo de un mutex no recursivo.
+  Aunque se eliminara ese segundo lock, la subida OpenGL seguiría ejecutándose
+  en un worker sin el contexto. Horizon ahora encola esas subidas y las ejecuta
+  desde el hilo gráfico después de terminar la preparación CPU.
+- Los bitmaps decodificados se retienen con AddPendingUpload hasta la subida;
+  se respeta el flag lineal. Un worker limita el pico de memoria temporal. La
+  cola valida su hilo propietario y no mantiene su mutex durante las callbacks.
+- 18 regresiones nuevas: +/Y/B y resto del mapa, ausencia de Escape directo,
+  cargas encoladas desde worker, envío solo por propietario, cola vacía, callback
+  que encola más trabajo, rechazo de otro hilo conservando la cola, rotación de
+  los dos logs previos y conservación de NVRAM/directorios ajenos. Total: 158.
+- El primer log no se conserva en 0.13.4 al arrancar otra vez; por eso no permite
+  afirmar si hubo además otro fallo. Desde 0.13.5 se guardan previous/previous2.
+  **La nueva ruta de Start y el segundo arranque requieren otra prueba física.**
+
+## Revisión anterior · 0.13.4
 
 ## Límite de GLSL del driver de Switch · 0.13.4
 

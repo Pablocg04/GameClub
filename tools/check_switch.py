@@ -100,6 +100,9 @@ def main():
         runtime=tests.with_name('gameclub_switch_runtime_test.exe')
         if runtime.is_file():
             subprocess.run([str(runtime),str(data/'runtime')],check=True,timeout=30)
+        menu=tests.with_name('gameclub_switch_menu_preview.exe')
+        if menu.is_file():
+            subprocess.run([str(menu),str(folder)],check=True,timeout=30)
         assert counts['/api/games/nes/download']==1, 'La caché válida no debe volver a descargar'
         shots=[]
         for name,extra in [('library',[]),('favorites',['--tab','1']),('systems',['--tab','2']),

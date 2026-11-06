@@ -1,4 +1,5 @@
 #include "input_bindings.hpp"
+#include "pause_menu.hpp"
 #include "session_logs.hpp"
 #include "texture_upload_queue.hpp"
 #include <atomic>
@@ -26,6 +27,23 @@ int main(int argc, char **argv) {
               gameclub::buttonKeys[7].scan == SDL_SCANCODE_RSHIFT && gameclub::buttonKeys[9].scan == SDL_SCANCODE_RSHIFT, "Flipper controls");
         bool escape = false; for (auto key : gameclub::buttonKeys) escape |= key.scan == SDL_SCANCODE_ESCAPE;
         check(!escape, "No raw button may directly exit VPX");
+        gameclub::PauseMenu menu;
+        using MK = gameclub::MenuKey;
+        using MA = gameclub::MenuAction;
+        check(menu.key(MK::Confirm, true, false, true) == MA::None && !menu.isOpen(), "A launches ball outside menu");
+        check(menu.key(MK::Toggle, true, false, true) == MA::Pause && menu.isOpen() && menu.selection() == 0, "B opens menu and pauses");
+        check(menu.key(MK::Toggle, true, true, false) == MA::None && menu.isOpen(), "Ignore repeated toggle");
+        check(menu.key(MK::Down, false, false, false) == MA::None && menu.selection() == 0, "Release does not select");
+        menu.key(MK::Down, true, false, false);
+        check(menu.selection() == 1 && menu.isOpen(), "Select Salir without exiting yet");
+        check(menu.key(MK::Toggle, true, false, false) == MA::Resume && !menu.isOpen(), "B resumes without exiting");
+        menu.key(MK::Toggle, true, false, true);
+        check(menu.selection() == 0 && menu.key(MK::Confirm, true, false, false) == MA::Resume, "Menu reopens on Continuar");
+        menu.key(MK::Toggle, true, false, true);
+        menu.key(MK::Up, true, false, false);
+        check(menu.key(MK::Confirm, true, false, false) == MA::Exit && !menu.isOpen(), "A on Salir closes normally");
+        check(menu.key(MK::Toggle, true, false, false) == MA::None && menu.isOpen() &&
+              menu.key(MK::Confirm, true, false, false) == MA::None && !menu.isOpen(), "Preserve prior pause state");
         gameclub::TextureUploadQueue<int> uploads;
         int image = 5; std::atomic<int> completed{0}; const auto owner = std::this_thread::get_id();
         std::thread worker([&] { for (int i = 0; i < 100; ++i) uploads.defer(&image, i % 2); });

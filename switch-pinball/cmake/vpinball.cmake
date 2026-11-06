@@ -18,7 +18,7 @@ set(VERSION_REV 1)
 include(make/CMakeLists_sources.txt)
 add_library(glad STATIC third-party/include/glad/src/gl.c)
 target_include_directories(glad PUBLIC third-party/include/glad/include)
-add_executable(vpinball ${VPX_STANDALONE_SOURCES} "${PORT_ROOT}/src/entry.cpp" "${PORT_ROOT}/src/plugins.cpp" "${PORT_ROOT}/src/utc.cpp" "${PORT_ROOT}/src/input.cpp" "${PORT_ROOT}/src/posix.cpp")
+add_executable(vpinball ${VPX_STANDALONE_SOURCES} "${PORT_ROOT}/src/entry.cpp" "${PORT_ROOT}/src/plugins.cpp" "${PORT_ROOT}/src/utc.cpp" "${PORT_ROOT}/src/input.cpp" "${PORT_ROOT}/src/posix.cpp" "${PORT_ROOT}/src/ui.cpp")
 set_target_properties(vpinball PROPERTIES OUTPUT_NAME GameClubPinball SUFFIX .elf)
 target_compile_definitions(vpinball PRIVATE
   __STANDALONE__ __LIBWINEVBS__ __WINESRC__ WINE_UNICODE_NATIVE
@@ -48,13 +48,14 @@ set(BUILD_STATIC ON)
 include(make/CMakeLists_plugin_PinMAME.txt)
 include(make/CMakeLists_plugin_B2S.txt)
 include(make/CMakeLists_plugin_FlexDMD.txt)
-foreach(plugin PinMAMEPlugin B2SPlugin FlexDMDPlugin)
+include(make/CMakeLists_plugin_ScoreView.txt)
+foreach(plugin PinMAMEPlugin B2SPlugin FlexDMDPlugin ScoreViewPlugin)
   target_include_directories(${plugin} PRIVATE "${PREFIX}/include")
   target_compile_options(${plugin} PRIVATE -O2)
 endforeach()
 target_link_directories(vpinball PRIVATE "${PREFIX}/lib")
 target_link_libraries(vpinball PRIVATE -Wl,--start-group
-  PinMAMEPlugin B2SPlugin FlexDMDPlugin
+  PinMAMEPlugin B2SPlugin FlexDMDPlugin ScoreViewPlugin
   "${DEPS_ROOT}/pinmame-vpx-build/libpinmame.a"
   "${DEPS_ROOT}/winevbs-build/libwinevbs.a"
   "${DEPS_ROOT}/freeimage-build/libfreeimage.a"

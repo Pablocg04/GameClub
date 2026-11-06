@@ -1,10 +1,10 @@
-# GameClub para Nintendo Switch · 0.13.5
+# GameClub para Nintendo Switch · 0.13.6
 
 Cliente **homebrew nativo ARM64**, independiente de Flutter, distribuido como
 `GameClub-Switch.nro`. Se conecta al mismo servidor de la Raspberry que PC,
 móvil y TV. Incluye biblioteca retro morada, carátulas, filtros por consola,
 búsqueda, favoritos y ajustes de servidor/token desde el teclado de Switch.
-La versión 0.13.5 añade integración con un motor nativo experimental de Visual
+La versión 0.13.6 añade integración con un motor nativo experimental de Visual
 Pinball/PinMAME. Se instala con el ZIP completo descrito en [SWITCH_PINBALL.md](SWITCH_PINBALL.md).
 
 **Estado experimental:** NRO compilado y comprobado por formato y pruebas de
@@ -23,7 +23,7 @@ escritorio; todavía no ejecutado en una Switch física.
    y sus núcleos. La carpeta predeterminada es `sdmc:/retroarch/cores` y se puede
    cambiar en Ajustes. Se necesita un entorno Homebrew Menu que permita abrir
    otro NRO; RetroArch recomienda ejecutarlo con acceso completo a memoria.
-6. Para las mesas **Visual Pinball**, instala `GameClub-Switch-Pinball-0.13.5.zip`
+6. Para las mesas **Visual Pinball**, instala `GameClub-Switch-Pinball-0.13.6.zip`
    en la raíz de la SD. Incluye GameClub, el motor nativo y sus recursos; estas
    mesas se abren con VPX/PinMAME y no utilizan RetroArch.
 
@@ -131,14 +131,15 @@ Para renderizar sin abrir una ventana:
 switch-client/build-host/Release/gameclub_switch_preview.exe --headless --frames 240 --screenshot dist/switch-preview.png
 ```
 
-**Comprobado:** compilación cruzada y estructura del NRO; 33 comprobaciones
-nativas con API aislada y fixtures propios; seis vistas renderizadas y biblioteca
-real consultada desde la vista de escritorio. Los fixtures no son juegos.
-**Pendiente en hardware:** arranque en Homebrew Menu, red/teclado/Joy-Con reales,
-apertura de los núcleos y persistencia efectiva de cada uno. La validación de
-escritorio y de formato no sustituye esas pruebas en una Switch física.
-Las pruebas nativas actuales incluyen extracción de VPX, CRC, rutas inseguras,
-lanzamiento del motor y NVRAM estable, progreso, cancelación y caché LRU: 51 comprobaciones,
-además de 8 de hilos, 9 de formatos de pantalla, 72 de lectura/adaptación de shaders GLFX
-y 18 de controles, cola de texturas y registros. La ejecución efectiva
-de Visual Pinball/PinMAME en la consola está pendiente de la prueba física.
+**Comprobado:** compilación cruzada y estructura de los NRO; 167 comprobaciones
+nativas con API aislada y fixtures propios; siete vistas del lanzador, tres del
+menú de pinball y navegación después de llenar la caché. Los fixtures no son juegos.
+El propietario confirma navegación fluida desde 0.13.2 y South Park funcionando
+con 0.13.5, aunque con pocos FPS y sin marcador visible.
+
+Las pruebas incluyen 51 comprobaciones de transporte, extracción de VPX, CRC,
+rutas inseguras, progreso, cancelación, NVRAM y caché LRU; 8 de hilos, 9 de formatos,
+72 GLFX y 27 de controles, cola de texturas, logs y menú de pausa.
+**Pendiente en hardware:** marcador superpuesto, rendimiento real del perfil
+0.13.6 y retorno directo a la biblioteca mediante B → Salir. El escritorio no
+sustituye esas pruebas en una Switch física.

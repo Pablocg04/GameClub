@@ -48,6 +48,8 @@ def main():
     symbols = subprocess.check_output([str(SDK/'devkitA64/bin/aarch64-none-elf-nm.exe'),
                                        '-C', str(elf)], text=True)
     assert 'std::thread::detach()' not in symbols, 'El motor todavía usa detach, no implementado por el SDK Horizon'
+    for required in ('ScoreViewPluginLoad', 'GameClubRenderUI(Player*)', 'GameClubHandleMenuEvent(Player*, SDL_Event const&)'):
+        assert required in symbols, 'Falta un componente del marcador/menú: '+required
     env = os.environ.copy()
     env['DEVKITPRO'] = SDK.as_posix()
     env['PATH'] = str(SDK/'devkitA64/bin')+os.pathsep+env['PATH']
@@ -76,6 +78,12 @@ def main():
     source = DEPS/'vpinball'
     tree(source/'src/assets', engine/'assets')
     tree(source/'scripts', engine/'scripts')
+    tree(source/'plugins/scoreview/layouts', engine/'plugins/scoreview/layouts')
+    # The native parser reads binary-safe LF on Newlib, as with the GLFX files.
+    for layout in (engine/'plugins/scoreview/layouts').glob('*.scv'):
+        layout.write_bytes(layout.read_bytes().replace(b'\r\n', b'\n').removeprefix(b'\xef\xbb\xbf'))
+    score_layout = engine/'plugins/scoreview/layouts/lay4x1-dmd128x32.scv'
+    assert b'Size: [128, 32]' in score_layout.read_bytes() and b'\r' not in score_layout.read_bytes()
     tree(source/'src/shaders/hlsl_glsl', engine/'shaders-10.8.1')
     for shader in (engine/'shaders-10.8.1').iterdir():
         if shader.is_file():

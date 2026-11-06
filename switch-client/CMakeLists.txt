@@ -36,6 +36,16 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/../dist/switch-ports/vpinball/third-party/include
   target_include_directories(gameclub_switch_glfx_test PRIVATE ../switch-pinball/include vendor)
   target_compile_options(gameclub_switch_glfx_test PRIVATE /utf-8 /EHsc)
 endif()
+if(EXISTS "${CMAKE_SOURCE_DIR}/../dist/switch-ports/vpinball/third-party/include/imgui/imgui.cpp")
+  set(VPX_INCLUDES "${CMAKE_SOURCE_DIR}/../dist/switch-ports/vpinball/third-party/include")
+  add_executable(gameclub_switch_menu_preview ../switch-pinball/tests/menu_preview.cpp
+    "${VPX_INCLUDES}/imgui/imgui.cpp" "${VPX_INCLUDES}/imgui/imgui_draw.cpp"
+    "${VPX_INCLUDES}/imgui/imgui_tables.cpp" "${VPX_INCLUDES}/imgui/imgui_widgets.cpp")
+  target_include_directories(gameclub_switch_menu_preview PRIVATE ../switch-pinball/tests/host ../switch-pinball/include "${VPX_INCLUDES}")
+  target_compile_definitions(gameclub_switch_menu_preview PRIVATE SDL_MAIN_HANDLED)
+  target_compile_options(gameclub_switch_menu_preview PRIVATE /utf-8 /EHsc)
+  target_link_libraries(gameclub_switch_menu_preview PRIVATE SDL2::SDL2 SDL2_image::SDL2_image)
+endif()
 if(EXISTS "${CMAKE_SOURCE_DIR}/../dist/switch-ports/prefix/include/SDL3/SDL_pixels.h")
   add_executable(gameclub_switch_format_test ../switch-pinball/tests/display_format_test.cpp)
   target_include_directories(gameclub_switch_format_test PRIVATE ../switch-pinball/include ../dist/switch-ports/prefix/include)

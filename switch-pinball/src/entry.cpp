@@ -96,6 +96,11 @@ int main(int argc, char **argv) {
         SDL_Quit();
     }
     std::printf("GameClub: salida del motor, código %d\n", status);
+    if (status == 0 && std::filesystem::is_regular_file("/switch/gameclub/GameClub-Switch.nro", error)) {
+        const auto result = envSetNextLoad("sdmc:/switch/gameclub/GameClub-Switch.nro",
+                                          "sdmc:/switch/gameclub/GameClub-Switch.nro");
+        std::printf("GameClub: volver a la biblioteca, resultado %u\n", result);
+    }
     fsdevCommitDevice("sdmc");
     romfsExit();
     return status;

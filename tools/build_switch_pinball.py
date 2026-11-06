@@ -132,7 +132,7 @@ def main():
             if name == 'vpinball' and args.objects_only:
                 lines = subprocess.check_output([ninja, '-C', str(build), '-t', 'targets', 'all'], env=env, text=True)
                 targets = [l.split(': ')[0] for l in lines.splitlines() if '.obj:' in l and
-                           any('CMakeFiles/'+t+'.dir/' in l for t in ('vpinball', 'PinMAMEPlugin', 'B2SPlugin', 'FlexDMDPlugin'))]
+                           any('CMakeFiles/'+t+'.dir/' in l for t in ('vpinball', 'PinMAMEPlugin', 'B2SPlugin', 'FlexDMDPlugin', 'ScoreViewPlugin'))]
                 subprocess.run([ninja, '-C', str(build), '-j'+str(args.jobs), *targets], env=env, stdout=log, stderr=subprocess.STDOUT, check=True)
             else:
                 command = [cmake, '--build', str(build), '--parallel', str(args.jobs)]

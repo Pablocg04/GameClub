@@ -82,6 +82,41 @@ index 553e5b3..6e42643 100644
  
  LPI_USE_CPP();
  #define LOGD PinMAME::LPI_LOGD_CPP
+diff --git a/plugins/scoreview/common.cpp b/plugins/scoreview/common.cpp
+index 101225f..c0ab11f 100644
+--- a/plugins/scoreview/common.cpp
++++ b/plugins/scoreview/common.cpp
+@@ -117,6 +117,9 @@ static T GetModulePath(HMODULE hModule)
+ 
+ std::filesystem::path GetPluginPath()
+ {
++#ifdef __SWITCH__
++   return "/switch/gameclub/pinball/plugins/scoreview";
++#else
+ #ifdef _WIN32
+    HMODULE hm = nullptr;
+    if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, _T("ScoreViewPluginLoad"), &hm) == 0)
+@@ -139,6 +142,7 @@ std::filesystem::path GetPluginPath()
+ 
+    std::filesystem::path path(pathBuf);
+    return path.empty() ? path : path.parent_path();
++#endif
+ }
+ 
+ }
+diff --git a/plugins/scoreview/common.h b/plugins/scoreview/common.h
+index a174c50..454f3e9 100644
+--- a/plugins/scoreview/common.h
++++ b/plugins/scoreview/common.h
+@@ -19,7 +19,7 @@
+ #include <codecvt>
+ #endif
+ 
+-#ifndef _WIN32
++#if !defined(_WIN32) && !defined(__SWITCH__)
+ #include <dlfcn.h>
+ #include <climits>
+ #include <unistd.h>
 diff --git a/src/core/FileLocator.cpp b/src/core/FileLocator.cpp
 index 0e573c0..8ac1b3f 100644
 --- a/src/core/FileLocator.cpp
@@ -134,20 +169,21 @@ index 066adeb..03f8d1a 100644
  #if defined(ENABLE_BGFX)
   #define GET_PLATFORM_RENDERER_ENUM 2
 diff --git a/src/core/player.cpp b/src/core/player.cpp
-index e83af84..76cb8ae 100644
+index e83af84..3b5b8c6 100644
 --- a/src/core/player.cpp
 +++ b/src/core/player.cpp
-@@ -1,6 +1,9 @@
+@@ -1,6 +1,10 @@
  // license:GPLv3+
  
  #include "core/stdafx.h"
 +#ifdef __SWITCH__
 +#include "texture_upload_queue.hpp"
++#include "switch_ui.hpp"
 +#endif
  
  #include <iomanip>
  #include <ctime>
-@@ -126,7 +129,10 @@ Player::Player(PinTable *const table, const PlayMode playMode)
+@@ -126,7 +130,10 @@ Player::Player(PinTable *const table, const PlayMode playMode)
  
     PLOGI << "Loading player plugins"; // For profiling
     
@@ -159,7 +195,25 @@ index e83af84..76cb8ae 100644
     VPinballLib::VPinballLib::SetupStaticPlugins(m_pluginManager);
  #else
     class SDLModuleLoader final : public MsgPI::MsgModuleLoader
-@@ -583,11 +589,18 @@ Player::Player(PinTable *const table, const PlayMode playMode)
+@@ -380,7 +387,17 @@ Player::Player(PinTable *const table, const PlayMode playMode)
+    }
+ 
+    m_backglassOutput.SetMode(m_ptable->m_settings, static_cast<RenderOutput::OutputMode>(m_ptable->m_settings.GetWindow_Mode(VPXWindowId::VPXWINDOW_Backglass)));
++#ifdef __SWITCH__
++   // One physical screen: show PinMAME scores as an embedded display.
++   m_scoreViewOutput.SetMode(m_ptable->m_settings, RenderOutput::OM_EMBEDDED);
++   const int scoreWidth = m_playfieldWnd->GetWidth() * 3 / 10;
++   m_scoreViewOutput.SetWidth(scoreWidth);
++   m_scoreViewOutput.SetHeight(scoreWidth / 4);
++   m_scoreViewOutput.SetPos(m_playfieldWnd->GetWidth() - scoreWidth - 16, 16);
++   PLOGI << "GameClub: ScoreView embedded " << scoreWidth << 'x' << scoreWidth / 4;
++#else
+    m_scoreViewOutput.SetMode(m_ptable->m_settings, static_cast<RenderOutput::OutputMode>(m_ptable->m_settings.GetWindow_Mode(VPXWindowId::VPXWINDOW_ScoreView)));
++#endif
+    m_topperOutput.SetMode(m_ptable->m_settings, static_cast<RenderOutput::OutputMode>(m_ptable->m_settings.GetWindow_Mode(VPXWindowId::VPXWINDOW_Topper)));
+    #if defined(ENABLE_BGFX)
+    if (m_vrDevice == nullptr) // Ancillary windows are not yet supported while in VR mode
+@@ -583,11 +600,18 @@ Player::Player(PinTable *const table, const PlayMode playMode)
        }
  
        std::mutex mutex;
@@ -179,7 +233,7 @@ index e83af84..76cb8ae 100644
                            Texture *image, bool resizeOnLowMem)
        {
           bool readyToLoad = false;
-@@ -633,11 +646,17 @@ Player::Player(PinTable *const table, const PlayMode playMode)
+@@ -633,11 +657,17 @@ Player::Player(PinTable *const table, const PlayMode playMode)
                          const char *name = node->GetText();
                          if (name != nullptr && image->m_name == name && node->QueryBoolAttribute("linear", &linearRGB) == tinyxml2::XML_SUCCESS)
                          {
@@ -197,7 +251,7 @@ index e83af84..76cb8ae 100644
                             uploaded = true;
                             break;
                          }
-@@ -681,7 +700,11 @@ Player::Player(PinTable *const table, const PlayMode playMode)
+@@ -681,7 +711,11 @@ Player::Player(PinTable *const table, const PlayMode playMode)
        #ifdef ENABLE_BGFX
        m_renderer->m_renderDevice->m_frameMutex.unlock();
        #endif
@@ -209,7 +263,7 @@ index e83af84..76cb8ae 100644
        for (auto image : m_ptable->m_vimage)
           pool.enqueue(loadImage, image, false);
        while (pool.has_work_in_flight())
-@@ -696,6 +719,12 @@ Player::Player(PinTable *const table, const PlayMode playMode)
+@@ -696,6 +730,12 @@ Player::Player(PinTable *const table, const PlayMode playMode)
        // Due to multithreaded loading and pre-allocation, check if some images could not be loaded, and perform a retry since more memory is available now
        for (auto image : failedPreloads)
           loadImage(image, true);
@@ -222,6 +276,40 @@ index e83af84..76cb8ae 100644
     }
  
     //----------------------------------------------------------------------------------
+@@ -1589,6 +1629,11 @@ void Player::ProcessOSMessages(const bool isInitialized)
+       if (!isInitialized)
+          continue;
+ 
++#ifdef __SWITCH__
++      if (GameClubHandleMenuEvent(this, e))
++         continue;
++#endif
++
+       // Forward events to ImGui, including touch/pen events which are forwarded as mouse events
+       if (isPFWnd && m_liveUI)
+          m_liveUI->HandleSDLEvent(e);
+@@ -2196,6 +2241,21 @@ void Player::FinishFrame()
+ 
+    // Update FPS counter
+    m_fps = (float) (1e6 / m_renderProfiler->GetSlidingAvg(FrameProfiler::PROFILE_FRAME));
++#ifdef __SWITCH__
++   static uint64_t lastMetrics = 0;
++   const uint64_t nowMetrics = usec();
++   if (nowMetrics - lastMetrics >= 10000000ull)
++   {
++      lastMetrics = nowMetrics;
++      PLOGI << "GameClub: FPS=" << m_fps << ", frame_ms=" << (m_fps > 0.f ? 1000.f / m_fps : 0.f)
++            << ", physics_ms=" << m_logicProfiler.GetSlidingAvg(FrameProfiler::PROFILE_PHYSICS) / 1000.
++            << ", script_ms=" << m_logicProfiler.GetSlidingAvg(FrameProfiler::PROFILE_SCRIPT) / 1000.
++            << ", prepare_ms=" << m_logicProfiler.GetSlidingAvg(FrameProfiler::PROFILE_PREPARE_FRAME) / 1000.
++            << ", submit_ms=" << m_renderProfiler->GetSlidingAvg(FrameProfiler::PROFILE_RENDER_SUBMIT) / 1000.
++            << ", flip_ms=" << m_renderProfiler->GetSlidingAvg(FrameProfiler::PROFILE_RENDER_FLIP) / 1000.
++            << ", playing=" << IsPlaying();
++   }
++#endif
+ 
+    #ifndef ACCURATETIMERS
+       FireTimers(0);
 diff --git a/src/input/InputManager.cpp b/src/input/InputManager.cpp
 index 540b822..cad9eb7 100644
 --- a/src/input/InputManager.cpp
@@ -357,6 +445,66 @@ index 1fedf4e..bc82889 100644
        lambda();
  }
  
+diff --git a/src/renderer/Renderer.cpp b/src/renderer/Renderer.cpp
+index d43c5df..bfff78c 100644
+--- a/src/renderer/Renderer.cpp
++++ b/src/renderer/Renderer.cpp
+@@ -64,6 +64,18 @@ Renderer::Renderer(PinTable* const table, VPX::Window* wnd, VideoSyncMode& syncM
+    m_bloomOff = m_table->m_settings.GetPlayer_ForceBloomOff();
+    m_motionBlurOff = m_table->m_settings.GetPlayer_ForceMotionBlurOff();
+    m_maxReflectionMode = (RenderProbe::ReflectionMode)m_table->m_settings.GetPlayer_PFReflection();
++#ifdef __SWITCH__
++   // Runtime profile, also for existing installs and table-specific INI overrides.
++   // Keep physics/emulation timing intact; reduce only rendering work.
++   m_dynamicAO = false;
++   m_disableAO = true;
++   m_FXAA = Disabled;
++   m_sharpen = 0;
++   m_ss_refl = false;
++   m_bloomOff = true;
++   m_motionBlurOff = true;
++   m_maxReflectionMode = RenderProbe::REFL_STATIC;
++#endif
+    m_trailForBalls = m_table->m_settings.GetPlayer_BallTrail();
+    m_ballTrailStrength = m_table->m_settings.GetPlayer_BallTrailStrength();
+    m_ballAntiStretch = m_table->m_settings.GetPlayer_BallAntiStretch();
+@@ -84,6 +96,9 @@ Renderer::Renderer(PinTable* const table, VPX::Window* wnd, VideoSyncMode& syncM
+    #elif defined(ENABLE_OPENGL)
+    constexpr int MSAASamples[] = { 1, 4, 6, 8, 16 };
+    int nMSAASamples = MSAASamples[m_table->m_settings.GetPlayer_MSAASamples()];
++#ifdef __SWITCH__
++   nMSAASamples = 1;
++#endif
+    #elif defined(ENABLE_DX9)
+    // Sadly DX9 does not support resolving an MSAA depth buffer, making MSAA implementation complex for it. So just disable
+    constexpr int nMSAASamples = 1;
+@@ -132,7 +147,12 @@ Renderer::Renderer(PinTable* const table, VPX::Window* wnd, VideoSyncMode& syncM
+       m_renderWidth = wnd->GetPixelWidth();
+       m_renderHeight = wnd->GetPixelHeight();
+    }
++#ifdef __SWITCH__
++   const float AAfactor = 2.f / 3.f;
++   PLOGI << "GameClub: graphics profile 480p, static reflections, AO/SSR/bloom/MSAA off; GPU=" << glGetString(GL_RENDERER);
++#else
+    const float AAfactor = m_table->m_settings.GetPlayer_AAFactor();
++#endif
+    const int renderWidthAA = (int)((float)m_renderWidth * AAfactor);
+    const int renderHeightAA = (int)((float)m_renderHeight * AAfactor);
+ 
+@@ -3223,8 +3243,13 @@ RenderTarget* Renderer::SetupAncillaryRenderTarget(
+       outputRT = embedRT;
+       VPX::Window* containerWnd = m_renderDevice->m_outputWnd[0];
+ 
++#ifdef __SWITCH__
++      const float displayScaleX = static_cast<float>(embedRT->GetWidth()) / static_cast<float>(containerWnd->GetWidth());
++      const float displayScaleY = static_cast<float>(embedRT->GetHeight()) / static_cast<float>(containerWnd->GetHeight());
++#else
+       const float displayScaleX = static_cast<float>(containerWnd->GetPixelWidth()) / static_cast<float>(containerWnd->GetWidth());
+       const float displayScaleY = static_cast<float>(containerWnd->GetPixelHeight()) / static_cast<float>(containerWnd->GetHeight());
++#endif
+ 
+       const int wndW = output.GetEmbeddedWindow()->GetWidth();
+       const int wndH = output.GetEmbeddedWindow()->GetHeight();
 diff --git a/src/renderer/Shader.cpp b/src/renderer/Shader.cpp
 index 9b17367..dbc3878 100644
 --- a/src/renderer/Shader.cpp
@@ -464,6 +612,31 @@ index bb6d25d..2c60e36 100644
              ppb = new PinBinary();
              ppb->m_buffer.resize(FreeImage_TellMemory(memStream));
              ppb->m_name = name;
+diff --git a/src/ui/live/LiveUI.cpp b/src/ui/live/LiveUI.cpp
+index 01d17a9..0808e7b 100644
+--- a/src/ui/live/LiveUI.cpp
++++ b/src/ui/live/LiveUI.cpp
+@@ -2,6 +2,9 @@
+ 
+ #include "core/stdafx.h"
+ #include "LiveUI.h"
++#ifdef __SWITCH__
++#include "switch_ui.hpp"
++#endif
+ 
+ #include "core/VPApp.h"
+ #include "core/VPXPluginAPIImpl.h"
+@@ -352,6 +355,10 @@ void LiveUI::RenderUI()
+ 
+    ImGui::PushFont(m_baseFont, m_baseFont->LegacySize);
+ 
++#ifdef __SWITCH__
++   GameClubRenderUI(m_player);
++#endif
++
+    // Tweak UI (aligned to playfield view, using custom flipper controls)
+    m_inGameUI.Update();
+ 
 diff --git a/src/ui/live/ingameui/HomePage.cpp b/src/ui/live/ingameui/HomePage.cpp
 index a29f15e..5300a70 100644
 --- a/src/ui/live/ingameui/HomePage.cpp

@@ -1,4 +1,28 @@
-# Revisión funcional · GameClub 0.13.5
+# Revisión funcional · GameClub 0.13.6
+
+- El propietario confirma South Park funcionando con 0.13.5. El registro llega
+  a Startup done, recibe Start y no muestra un cierre; B pausa/reanuda. Reporta
+  pocos FPS, marcador ausente y dificultad para salir/cambiar de mesa.
+- Se integra ScoreView estático con diseños DMD/alfanuméricos y recursos LF.
+  Marcador embebido arriba a la derecha; no abre una segunda ventana ni B2S completo.
+  El overlay se ajusta al render interno reducido para conservar su posición.
+- B abre un menú propio morado con Continuar/Salir, cruceta y A. Consume las
+  pulsaciones del menú y deja pasar las liberaciones para evitar botones atascados.
+  Salir cierra la emulación normalmente y después solicita volver al NRO de GameClub;
+  conserva NVRAM/configuración, sin guardar ni restaurar una partida.
+- Perfil gráfico en tiempo de ejecución también para instalaciones existentes:
+  853×480 internos con salida 1280×720, reflejos estáticos, sin AO/SSR/bloom/MSAA/FXAA.
+  No modifica física, velocidad de PinMAME ni frecuencias de reloj. Reduce trabajo
+  gráfico; no se afirma una ganancia de FPS hasta medirla en la consola.
+- FPS visibles y registro cada diez segundos de tiempos de física, script,
+  preparación, envío y presentación, además del nombre del renderizador OpenGL.
+- Nueve regresiones nuevas de pausa, navegación, confirmación y salida: 27 de
+  runtime, 167 comprobaciones totales. Tres vistas del mismo menú ImGui verificadas
+  en escritorio, siete del lanzador y recorrido de carátulas con caché llena.
+- Windows, móvil y TV compilados en 0.13.6+37. TV sin Visual Pinball; Raspberry sin
+  cambios. Marcador, mejora de FPS y retorno efectivo requieren nueva prueba física.
+
+## Versión anterior · 0.13.5
 
 ## Controles y reutilización de texturas · 0.13.5
 

@@ -1,16 +1,16 @@
-# Visual Pinball + PinMAME para Switch · GameClub 0.13.5
+# Visual Pinball + PinMAME para Switch · GameClub 0.13.6
 
 Port nativo experimental para Horizon/libnx. Incluye el reproductor de Visual
 Pinball X, la biblioteca de emulación PinMAME y los complementos estáticos
 PinMAME, B2S y FlexDMD. No es un core de RetroArch ni necesita Android en Switch.
 
-La compilación y las comprobaciones de formato no certifican el funcionamiento
-en hardware. El primer arranque, vídeo, audio, mandos y rendimiento de las mesas
-se deben comprobar en una Switch física. No se incluyen mesas, ROMs ni BIOS.
+El propietario confirma que South Park funciona con 0.13.5, con pocos FPS y
+sin marcador visible. 0.13.6 añade marcador, menú y un perfil gráfico más ligero;
+estas mejoras deben comprobarse en una Switch física. No se incluyen mesas, ROMs ni BIOS.
 
 ## Instalación y primera prueba
 
-1. Extrae `GameClub-Switch-Pinball-0.13.5.zip` en la raíz de la SD. Quedarán
+1. Extrae `GameClub-Switch-Pinball-0.13.6.zip` en la raíz de la SD. Quedarán
    `switch/gameclub/GameClub-Switch.nro` y
    `switch/gameclub/pinball/GameClubPinball.nro`, junto a los recursos del motor.
 2. Conserva todos los archivos de `switch/gameclub/pinball/`. Copiar solo el NRO
@@ -39,14 +39,16 @@ mesas; no es necesario reinstalar el servidor para esta ruta de reproducción.
 | A | Lanzar bola; confirmar en menús |
 | X / − | Insertar moneda |
 | Y / + | Iniciar partida |
-| B | Abrir menú; volver dentro del menú |
+| B | Abrir el menú de GameClub; continuar si ya está abierto |
 | Cruceta | Desplazarse por el menú |
 | Pulsar stick izquierdo / derecho | Teclas de servicio 7 / 8 |
 
-El menú incluye **Salir**. Cada apertura arranca una emulación nueva y carga la
+El menú contiene **Continuar** y **Salir**. Selecciona con la cruceta y confirma
+con A. B vuelve a la mesa sin cerrarla. Cada apertura arranca una emulación nueva y carga la
 mesa desde el principio. No se crean ni restauran instantáneas de partida.
 Se conserva NVRAM, configuración de la máquina y ajustes del reproductor por mesa.
-Al cerrar el motor se vuelve al entorno homebrew; abre GameClub de nuevo.
+Al cerrar normalmente el motor se solicita abrir GameClub otra vez para elegir
+otra mesa. Si el lanzador falta o la carga falla, se vuelve al entorno homebrew.
 
 ## Registros para la prueba física
 
@@ -80,9 +82,15 @@ registro. Los paquetes originales de la Raspberry no se modifican.
 
 ## Alcance y límites
 
-- Se solicitan OpenGL 4.3 y una imagen de 1280×720. La configuración inicial
-  limita las texturas a 1024 y desactiva MSAA/FXAA para reducir el consumo.
-- Se integra una sola pantalla. No se abren ventanas externas de backglass.
+- Salida 1280×720, render interno al 66,7 % por eje (853×480), texturas a 1024,
+  reflejos estáticos y AO/SSR/bloom/MSAA/FXAA desactivados. No se altera la
+  velocidad de la física ni de la emulación, ni se cambian frecuencias de reloj.
+- ScoreView está enlazado estáticamente con diseños DMD/alfanuméricos incluidos;
+  el marcador se superpone arriba a la derecha en la misma pantalla. No incluye
+  el backglass B2S completo en una ventana externa.
+- La esquina superior izquierda indica B: MENU y FPS. El registro mide cada
+  diez segundos FPS y tiempos de física, script, preparación, envío y presentación.
+  Estos tiempos no son una medición aislada de GPU.
 - PinMAME se compila sin Pinball 2000, Spike ni recompilador JIT. Las máquinas
   clásicas del núcleo permanecen disponibles; una mesa puede requerir funciones,
   scripts u otros complementos que esta primera integración no proporcione.
@@ -116,7 +124,11 @@ registro. Los paquetes originales de la Raspberry no se modifican.
   4.30, además del enlace en GPU de escritorio. Falta comprobar esta revisión en Switch.
 - 0.13.4 llega a mostrar South Park y el propietario reporta sonido de monedas.
   0.13.5 corrige + (antes salía de la mesa), el menú B/F12 y el bloqueo de caché
-  de texturas del segundo arranque. Falta confirmar una partida y reapertura estables.
+  de texturas del segundo arranque. El propietario confirma después que funciona,
+  pero sin marcador, con pocos FPS y sin una salida clara para cambiar de mesa.
+- 0.13.6 integra ScoreView, menú de pausa GameClub y retorno al lanzador al salir,
+  además del perfil de rendimiento descrito arriba. La mejora de FPS, marcador y
+  retorno efectivo a biblioteca necesitan nueva prueba física.
 
 ## Reproducir la compilación
 
@@ -139,7 +151,7 @@ compilar los targets de `switch-client`. Para repetir además la prueba de
 compilación/enlace en la GPU de un PC Windows con OpenGL 4.3 y SDL3:
 
 ```powershell
-.\.venv\Scripts\python.exe tools/check_switch_shaders.py --dll dist/windows-0.13.5/SDL3.dll --sections dist/switch-checks/glfx/sections --output dist/switch-shader-gpu-0.13.5 --strict-compiler "$env:LOCALAPPDATA/Android/sdk/ndk/28.2.13676358/shader-tools/windows-x86_64/glslc.exe"
+.\.venv\Scripts\python.exe tools/check_switch_shaders.py --dll dist/windows-0.13.6/SDL3.dll --sections dist/switch-checks/glfx/sections --output dist/switch-shader-gpu-0.13.6 --strict-compiler "$env:LOCALAPPDATA/Android/sdk/ndk/28.2.13676358/shader-tools/windows-x86_64/glslc.exe"
 ```
 
 Esta prueba local comprueba shaders; no sustituye el arranque en Switch.

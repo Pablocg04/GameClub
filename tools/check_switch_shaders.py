@@ -7,6 +7,8 @@ import argparse
 import ctypes as c
 import json
 import os
+import re
+import subprocess
 from pathlib import Path
 import sys
 
@@ -27,6 +29,7 @@ def preprocess(code):
     header, extensions, body = [], [], []
     for line in code.splitlines():
         if line.startswith('#version '):
+            if int(line.split()[1]) > 430: line = '#version 430 core'
             header.extend((line, '#define SHADER_STANDALONE'))
         elif line.startswith('#extension '):
             extensions.append(line)
@@ -41,6 +44,7 @@ def main():
     parser.add_argument('--dll', required=True, type=Path)
     parser.add_argument('--sections', required=True, type=Path)
     parser.add_argument('--output', required=True, type=Path)
+    parser.add_argument('--strict-compiler', required=True, type=Path, help='glslc, e.g. from the Android NDK')
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     directory = os.add_dll_directory(str(args.dll.resolve().parent))
@@ -95,6 +99,11 @@ def main():
                         source = preprocess(values.get('GLOBAL', '')+values.get(section, '')+'\n'+expand(function, values))
                         output = args.output/(name+'-'+parts[0]+'.'+extension)
                         output.write_text(source, encoding='utf-8')
+                        versions = [int(v) for v in re.findall(r'^#version\s+(\d+)', source, re.M)]
+                        assert versions and max(versions) <= 430, output
+                        subprocess.run([str(args.strict_compiler), '--target-env=opengl', '-std=430core',
+                                        '-fauto-bind-uniforms', '-fauto-map-locations', '-c', str(output),
+                                        '-o', str(output.with_suffix('.'+extension+'.spv'))], check=True)
                         shader = create_shader(kind); shaders.append(shader)
                         raw = c.c_char_p(source.encode()); size = c.c_int(len(raw.value))
                         shader_source(shader, 1, c.byref(raw), c.byref(size)); compile_shader(shader)
@@ -112,7 +121,8 @@ def main():
                     delete_program(program)
                     for shader in shaders: delete_shader(shader)
         report = {'renderer': renderer, 'opengl': version, 'compiled_linked_programs':len(completed),
-                  'techniques':completed, 'switch_hardware_tested':False}
+                  'techniques':completed, 'maximum_glsl':430, 'strict_compiler':str(args.strict_compiler),
+                  'switch_hardware_tested':False}
         (args.output/'report.json').write_text(json.dumps(report,indent=2), encoding='utf-8')
         print(f'{len(completed)} programas GLSL compilados/enlazados; {renderer}, OpenGL {version}. Sin prueba en Switch.')
     finally:

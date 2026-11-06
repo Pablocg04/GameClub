@@ -285,7 +285,7 @@ index 1fedf4e..bc82889 100644
  }
  
 diff --git a/src/renderer/Shader.cpp b/src/renderer/Shader.cpp
-index 9b17367..e5a7851 100644
+index 9b17367..dbc3878 100644
 --- a/src/renderer/Shader.cpp
 +++ b/src/renderer/Shader.cpp
 @@ -1,6 +1,9 @@
@@ -321,7 +321,25 @@ index 9b17367..e5a7851 100644
  }
  
  //compile and link shader. Also write the created shader files
-@@ -2225,6 +2237,12 @@ void Shader::Load(const std::string& name)
+@@ -2161,6 +2173,9 @@ string Shader::analyzeFunction(const string& shaderCodeName, const string& _tech
+ }
+ 
+ string Shader::PreprocessGLShader(const string& shaderCode) {
++#ifdef __SWITCH__
++   return gameclub::preprocessGlfx430(shaderCode);
++#else
+    std::istringstream iss(shaderCode);
+    string header;
+    string extensions;
+@@ -2189,6 +2204,7 @@ string Shader::PreprocessGLShader(const string& shaderCode) {
+    }
+ 
+    return header + extensions + code;
++#endif
+ }
+ 
+ void Shader::Load()
+@@ -2225,6 +2241,12 @@ void Shader::Load(const std::string& name)
        ReportError(e, -1, __FILE__, __LINE__);
        return;
     }

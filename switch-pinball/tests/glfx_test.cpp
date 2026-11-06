@@ -81,6 +81,13 @@ int main(int argc, char **argv) {
         write(lf / "bad.glfx", "#include invalid\n");
         check(!gameclub::parseGlfx(lf, "bad.glfx", 0, invalid, "GLOBAL", defines, error), "Malformed include accepted");
         check(gameclub::glfxTechniqueCount(Sections{{"GLOBAL", "void main() {}"}}) == 0, "Missing technique not detected");
+        const auto adapted = gameclub::preprocessGlfx430("#version 450 core\nvoid main() {}\n");
+        check(adapted.starts_with("#version 430 core\n"), "GLSL 450 not adapted to 430");
+        check(adapted.find("#version 450") == std::string::npos, "GLSL 450 leaked to driver");
+        check(adapted.find("#define SHADER_STANDALONE") != std::string::npos, "Standalone define lost");
+        check(gameclub::preprocessGlfx430("#version 400\n").starts_with("#version 400\n"), "GLSL 400 changed");
+        check(gameclub::preprocessGlfx430("#version 430\n").starts_with("#version 430\n"), "GLSL 430 changed");
+        check(gameclub::preprocessGlfx430("#version 450 core\r\nvoid main() {}\r\n") == adapted, "CRLF GLSL adaptation changed");
         std::cout << checks << " comprobaciones GLFX superadas: " << names.size() << " archivos, " << totalTechniques
                   << " técnicas; LF/CRLF/BOM e includes. Sin compilar GPU en esta prueba.\n";
         return 0;

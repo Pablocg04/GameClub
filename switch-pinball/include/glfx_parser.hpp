@@ -6,6 +6,24 @@
 #include <string>
 
 namespace gameclub {
+// The Switch driver reports a maximum of GLSL 4.30. The current postprocess
+// source declares 4.50 but its mono techniques are validated against 4.30.
+inline std::string preprocessGlfx430(const std::string &source) {
+    std::istringstream input(source);
+    std::string header, extensions, body;
+    for (std::string line; std::getline(input, line);) {
+        if (!line.empty() && line.back() == '\r') line.pop_back();
+        if (line.starts_with("#version ")) {
+            std::istringstream version(line.substr(9));
+            int number = 0; version >> number;
+            header += (number > 430 ? "#version 430 core" : line) + '\n';
+            header += "#define SHADER_STANDALONE\n";
+        } else if (line.starts_with("#extension ")) extensions += line + '\n';
+        else body += line + '\n';
+    }
+    return header + extensions + body;
+}
+
 // Read in binary mode so behavior is identical on Windows and Horizon.
 // Section names and entry points must never retain a CR from a CRLF file.
 template<class Sections>

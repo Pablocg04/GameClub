@@ -1,4 +1,27 @@
-# Revisión funcional · GameClub 0.13.3
+# Revisión funcional · GameClub 0.13.4
+
+## Límite de GLSL del driver de Switch · 0.13.4
+
+- El log nuevo de South Park es de 0.13.3. UI, Basic, Ball, DMD, Flasher y Light
+  compilan en la consola; SMAA también termina compilando. El fallo de FBShader/AO
+  indica literalmente que GLSL 4.50 no está soportado y enumera 4.30 como máximo.
+- El shader de posprocesado de upstream declaraba `#version 450 core`. La
+  comprobación anterior creó un contexto OpenGL 4.3 en NVIDIA, pero ese driver
+  aceptó la versión de lenguaje superior; por tanto no reproducía ese límite.
+- Preprocesado de Horizon compartido/probado para adaptar 450 a 430 core,
+  conservar versiones inferiores y defines standalone. El empaquetado aplica
+  el mismo límite y rechaza recursos que aún declaren una versión mayor.
+- 72 regresiones GLFX, seis más de versión, sumadas a las otras 68: 140.
+  Recorrido de carátulas y siete vistas del lanzador conservados.
+- Validación estricta adicional con glslc del Android NDK, `-std=430core` y
+  semántica OpenGL, sobre las 166 etapas de los 83 programas mono; compilación
+  y enlace posterior en la GPU del PC. Cabeceras generadas verificadas <=430.
+  Informe: `dist/switch-shader-gpu-0.13.4/report.json`. Esto comprueba el código
+  GLSL y su límite de lenguaje, no el driver de Switch ni una mesa jugable.
+- **Otra prueba física pendiente.** No se modifican los motores de PC/móvil/TV,
+  salvo numeración 0.13.4+35, ni el servidor Raspberry.
+
+## Revisión anterior · 0.13.3
 
 ## Lectura de shaders y sincronización · 0.13.3
 

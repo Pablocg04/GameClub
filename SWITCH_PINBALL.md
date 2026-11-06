@@ -1,4 +1,4 @@
-# Visual Pinball + PinMAME para Switch · GameClub 0.13.3
+# Visual Pinball + PinMAME para Switch · GameClub 0.13.4
 
 Port nativo experimental para Horizon/libnx. Incluye el reproductor de Visual
 Pinball X, la biblioteca de emulación PinMAME y los complementos estáticos
@@ -10,7 +10,7 @@ se deben comprobar en una Switch física. No se incluyen mesas, ROMs ni BIOS.
 
 ## Instalación y primera prueba
 
-1. Extrae `GameClub-Switch-Pinball-0.13.3.zip` en la raíz de la SD. Quedarán
+1. Extrae `GameClub-Switch-Pinball-0.13.4.zip` en la raíz de la SD. Quedarán
    `switch/gameclub/GameClub-Switch.nro` y
    `switch/gameclub/pinball/GameClubPinball.nro`, junto a los recursos del motor.
 2. Conserva todos los archivos de `switch/gameclub/pinball/`. Copiar solo el NRO
@@ -107,6 +107,10 @@ registro. Los paquetes originales de la Raspberry no se modifican.
   sin técnicas. Se han validado 10 GLFX/94 técnicas y compilado/enlazado los 83
   programas mono en OpenGL 4.3 de escritorio. La consola usa ahora VSync para
   evitar el aviso del modo de frame pacing de escritorio. Prueba física pendiente.
+- La prueba física de 0.13.3 compila los primeros shaders, pero FBShader pide
+  GLSL 4.50 y el driver informa de un máximo de 4.30. 0.13.4 adapta ese requisito
+  y comprueba las 166 etapas de 83 programas con el compilador glslc bajo el límite
+  4.30, además del enlace en GPU de escritorio. Falta comprobar esta revisión en Switch.
 
 ## Reproducir la compilación
 
@@ -129,7 +133,7 @@ compilar los targets de `switch-client`. Para repetir además la prueba de
 compilación/enlace en la GPU de un PC Windows con OpenGL 4.3 y SDL3:
 
 ```powershell
-.\.venv\Scripts\python.exe tools/check_switch_shaders.py --dll dist/windows-0.13.3/SDL3.dll --sections dist/switch-checks/glfx/sections --output dist/switch-shader-gpu-0.13.3
+.\.venv\Scripts\python.exe tools/check_switch_shaders.py --dll dist/windows-0.13.4/SDL3.dll --sections dist/switch-checks/glfx/sections --output dist/switch-shader-gpu-0.13.4 --strict-compiler "$env:LOCALAPPDATA/Android/sdk/ndk/28.2.13676358/shader-tools/windows-x86_64/glslc.exe"
 ```
 
 Esta prueba local comprueba shaders; no sustituye el arranque en Switch.

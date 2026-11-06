@@ -1,10 +1,10 @@
-# GameClub para Nintendo Switch · 0.13.3
+# GameClub para Nintendo Switch · 0.13.4
 
 Cliente **homebrew nativo ARM64**, independiente de Flutter, distribuido como
 `GameClub-Switch.nro`. Se conecta al mismo servidor de la Raspberry que PC,
 móvil y TV. Incluye biblioteca retro morada, carátulas, filtros por consola,
 búsqueda, favoritos y ajustes de servidor/token desde el teclado de Switch.
-La versión 0.13.3 añade integración con un motor nativo experimental de Visual
+La versión 0.13.4 añade integración con un motor nativo experimental de Visual
 Pinball/PinMAME. Se instala con el ZIP completo descrito en [SWITCH_PINBALL.md](SWITCH_PINBALL.md).
 
 **Estado experimental:** NRO compilado y comprobado por formato y pruebas de
@@ -23,7 +23,7 @@ escritorio; todavía no ejecutado en una Switch física.
    y sus núcleos. La carpeta predeterminada es `sdmc:/retroarch/cores` y se puede
    cambiar en Ajustes. Se necesita un entorno Homebrew Menu que permita abrir
    otro NRO; RetroArch recomienda ejecutarlo con acceso completo a memoria.
-6. Para las mesas **Visual Pinball**, instala `GameClub-Switch-Pinball-0.13.3.zip`
+6. Para las mesas **Visual Pinball**, instala `GameClub-Switch-Pinball-0.13.4.zip`
    en la raíz de la SD. Incluye GameClub, el motor nativo y sus recursos; estas
    mesas se abren con VPX/PinMAME y no utilizan RetroArch.
 
@@ -139,5 +139,5 @@ apertura de los núcleos y persistencia efectiva de cada uno. La validación de
 escritorio y de formato no sustituye esas pruebas en una Switch física.
 Las pruebas nativas actuales incluyen extracción de VPX, CRC, rutas inseguras,
 lanzamiento del motor y NVRAM estable, progreso, cancelación y caché LRU: 51 comprobaciones,
-además de 8 de hilos, 9 de formatos de pantalla y 66 de lectura de shaders GLFX. La ejecución efectiva
+además de 8 de hilos, 9 de formatos de pantalla y 72 de lectura/adaptación de shaders GLFX. La ejecución efectiva
 de Visual Pinball/PinMAME en la consola está pendiente de la prueba física.

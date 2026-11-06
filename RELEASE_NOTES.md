@@ -1,4 +1,18 @@
-# GameClub 0.13.3
+# GameClub 0.13.4
+
+- Corrige el siguiente fallo confirmado por South Park: `FBShader.glfx` pedía
+  GLSL 4.50, pero el compilador gráfico de Switch admite hasta 4.30. El motor
+  adapta la cabecera a 4.30 y el paquete ya distribuye los recursos con ese límite.
+- La validación gráfica ahora exige GLSL 4.30 con glslc del NDK, además de compilar
+  y enlazar los 83 programas mono en la GPU de escritorio. Se verifica también
+  que ninguna fuente generada supere 4.30. La validación anterior en NVIDIA no
+  detectó el requisito 4.50 porque su driver lo aceptaba con un contexto 4.3.
+- 140 comprobaciones: 51 del cliente, 8 de hilos, 9 de formatos y 72 GLFX,
+  incluyendo seis regresiones nuevas de adaptación/preservación de versiones.
+- Se conservan las correcciones de navegación, CRLF y VSync. Windows, móvil y
+  TV 0.13.4+35; TV sin VPX y Raspberry sin cambios. Nueva prueba física pendiente.
+
+## Versión anterior · 0.13.3
 
 - Corrige la lectura de los shaders GLFX en Horizon: los finales CRLF dejaban
   `TECHNIQUES\r` y otras secciones con nombres distintos, por lo que se compilaban

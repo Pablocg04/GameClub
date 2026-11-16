@@ -30,6 +30,21 @@ SDL_Color accent(const std::string &s) {
         return mint;
     return {197, 161, 255, 255};
 }
+std::string systemTitle(const std::string &id) {
+    static const std::map<std::string, const char *> names{
+        {"atari2600", "Atari 2600"}, {"gb", "Game Boy"}, {"gba", "Game Boy Advance"},
+        {"gbc", "Game Boy Color"}, {"gc", "GameCube"}, {"mame", "Arcade / MAME"},
+        {"n3ds", "Nintendo 3DS"}, {"n64", "Nintendo 64"}, {"nds", "Nintendo DS"},
+        {"nes", "NES"}, {"ps2", "PlayStation 2"}, {"psp", "PSP"}, {"psvita", "PlayStation Vita"},
+        {"psx", "PlayStation"}, {"snes", "Super Nintendo"}, {"switch", "Nintendo Switch"},
+        {"vpinball", "Visual Pinball"}, {"wii", "Nintendo Wii"}, {"wiiu", "Nintendo Wii U"}
+    };
+    const auto name = names.find(id);
+    return name == names.end() ? id : name->second;
+}
+std::string gameCount(size_t count) {
+    return std::to_string(count) + (count == 1 ? " juego" : " juegos");
+}
 uint32_t nextChar(const std::string &s, size_t &i) {
     unsigned char c = s[i++];
     if (c < 128)
@@ -183,6 +198,11 @@ struct Worker {
         jobs.erase(std::remove_if(jobs.begin(), jobs.end(), [](const Task &task) { return task.quiet; }), jobs.end());
     }
 };
+enum Section { Library, Favorites, Settings, SectionCount };
+constexpr int tabX = 492, tabY = 10, tabWidth = 232, tabStep = 250;
+constexpr int cardX = 32, cardY = 165, cardWidth = 224, cardHeight = 224, cardStepX = 248, cardStepY = 240;
+constexpr int listX = 32, listWidth = 1210, consoleY = 145, consoleStep = 58, consolesPerPage = 8;
+
 enum Input { Up, Down, Left, Right, Accept, Back, Search, Favorite, Prev, Next, Refresh, Exit, PageBack, PageForward };
 class App {
     SDL_Renderer *renderer;
@@ -193,13 +213,14 @@ class App {
     std::vector<Game> games;
     std::vector<size_t> visible;
     std::vector<std::string> systems;
+    std::map<std::string, size_t> systemCounts;
     LruCache<std::shared_ptr<SDL_Texture>> textures{32};
     std::set<std::string> requested, unavailable;
     std::map<std::string, fs::path> corePaths;
     uint64_t coverJobs = 0, coverLoads = 0;
     std::string query, system, notice = "Conectando con tu biblioteca...", message, editText;
-    bool side = false, busy = false, details = false, editing = false, launching = false;
-    int tab = 0, selected = 0, field = 0, systemIndex = 0, generation = 1, editField = 0;
+    bool navFocused = false, choosingConsole = true, busy = false, details = false, editing = false, launching = false;
+    int tab = Library, selected = 0, field = 0, systemIndex = 0, generation = 1, editField = 0;
     std::string pickId;
     uint64_t inputTime = 0;
     void rect(int x, int y, int w, int h, SDL_Color c) {
@@ -234,15 +255,20 @@ class App {
             }
     }
     Game *current() { return selected >= 0 && selected < int(visible.size()) ? &games[visible[selected]] : nullptr; }
+    bool consoleList() const { return tab == Library && choosingConsole; }
     void filter() {
-        visible = filterGames(games, system, query, tab == 1);
+        visible = filterGames(games, tab == Favorites ? "" : system, query, tab == Favorites);
         selected = std::clamp(selected, 0, std::max(0, int(visible.size()) - 1));
     }
     void updateSystems() {
-        std::set<std::string> unique;
-        for (auto &g : games)
-            unique.insert(g.system);
-        systems.assign(unique.begin(), unique.end());
+        systemCounts.clear();
+        for (const auto &game : games)
+            ++systemCounts[game.system];
+        systems.clear();
+        for (const auto &[id, count] : systemCounts)
+            systems.push_back(id);
+        if (!systemCounts.count(system)) system.clear();
+        systemIndex = system.empty() ? 0 : int(std::lower_bound(systems.begin(), systems.end(), system) - systems.begin()) + 1;
     }
     void loadCached() {
         try {
@@ -333,12 +359,29 @@ class App {
             controller(x + (w - 16 * scale) / 2, y + (h - 9 * scale) / 2, scale, accent(game.system));
         }
     }
-    void setTab(int value) {
-        tab = (value + 4) % 4;
+    void resetSelection() {
         selected = 0;
         details = false;
+        worker.clearCovers();
+        requested.clear();
         filter();
-        side = false;
+    }
+    void setTab(int value) {
+        tab = (value + SectionCount) % SectionCount;
+        if (tab == Library) choosingConsole = true;
+        resetSelection();
+        navFocused = false;
+    }
+    void chooseConsole() {
+        system = systemIndex == 0 ? "" : systems[systemIndex - 1];
+        choosingConsole = false;
+        navFocused = false;
+        resetSelection();
+    }
+    void openConsoles() {
+        choosingConsole = true;
+        navFocused = false;
+        resetSelection();
     }
     void edit(int target) {
         editField = target;
@@ -477,8 +520,9 @@ class App {
                  {"version", GAMECLUB_SWITCH_VERSION} };
     }
     std::string startupDetail;
-    App(SDL_Renderer *r, fs::path data, fs::path resources, std::string q, int initialTab, std::string detail)
-        : renderer(r), root(std::move(data)), assets(std::move(resources)), query(std::move(q)), tab(initialTab),
+    App(SDL_Renderer *r, fs::path data, fs::path resources, std::string q, int initialTab, std::string detail, bool showAll)
+        : renderer(r), root(std::move(data)), assets(std::move(resources)), query(std::move(q)),
+          choosingConsole(!showAll && query.empty() && detail.empty()), tab(std::clamp(initialTab, int(Library), int(Settings))),
           pickId(std::move(detail)) {
         title.load(r, assets, "pixel");
         body.load(r, assets, "body");
@@ -488,7 +532,7 @@ class App {
             config = loadConfig(root);
         } catch (const std::exception &e) {
             message = std::string(e.what()) + ". Revisa config.json o Ajustes.";
-            tab = 3;
+            tab = Settings;
         }
         loadCached();
         reload();
@@ -623,32 +667,39 @@ class App {
                 favorite();
             return;
         }
+        if (navFocused) {
+            if (key == Left || key == Right) {
+                setTab(tab + (key == Left ? -1 : 1));
+                navFocused = true;
+            } else if (key == Accept || key == Down || key == Back) {
+                navFocused = false;
+            }
+            return;
+        }
         if (key == Search) {
-            if (tab < 2)
+            if (tab != Settings) {
+                if (consoleList()) {
+                    systemIndex = 0;
+                    chooseConsole();
+                }
                 edit(0);
+            }
             return;
         }
         if (key == Back) {
-            side = true;
+            if (tab == Library && !consoleList())
+                openConsoles();
+            else
+                navFocused = true;
             return;
         }
-        if (side) {
-            if (key == Up)
-                tab = (tab + 3) % 4;
+        if (tab == Settings) {
+            if (key == Up && field == 0)
+                navFocused = true;
+            else if (key == Up)
+                --field;
             else if (key == Down)
-                tab = (tab + 1) % 4;
-            else if (key == Accept || key == Right)
-                setTab(tab);
-            filter();
-            return;
-        }
-        if (tab == 3) {
-            if (key == Up)
-                field = (field + 3) % 4;
-            else if (key == Down)
-                field = (field + 1) % 4;
-            else if (key == Left)
-                side = true;
+                field = std::min(3, field + 1);
             else if (key == Accept) {
                 if (field == 3)
                     connect();
@@ -657,17 +708,19 @@ class App {
             }
             return;
         }
-        if (tab == 2) {
-            if (key == Up)
-                systemIndex = std::max(0, systemIndex - 1);
+        if (consoleList()) {
+            if (key == Up && systemIndex == 0)
+                navFocused = true;
+            else if (key == Up)
+                --systemIndex;
             else if (key == Down)
                 systemIndex = std::min(int(systems.size()), systemIndex + 1);
-            else if (key == Left)
-                side = true;
-            else if (key == Accept) {
-                system = systemIndex == 0 ? "" : systems[systemIndex - 1];
-                setTab(0);
-            }
+            else if (key == PageBack)
+                systemIndex = std::max(0, systemIndex - consolesPerPage);
+            else if (key == PageForward)
+                systemIndex = std::min(int(systems.size()), systemIndex + consolesPerPage);
+            else if (key == Accept)
+                chooseConsole();
             return;
         }
         if (key == Favorite) {
@@ -684,16 +737,15 @@ class App {
             selected = std::max(0, selected - 10);
         else if (key == PageForward)
             selected = std::min(std::max(0, int(visible.size()) - 1), selected + 10);
+        else if (key == Up && selected < 5)
+            navFocused = true;
         else if (key == Up)
-            selected = std::max(0, selected - 5);
+            selected -= 5;
         else if (key == Down)
             selected = std::min(std::max(0, int(visible.size()) - 1), selected + 5);
-        else if (key == Left) {
-            if (selected % 5 == 0)
-                side = true;
-            else
-                --selected;
-        } else if (key == Right)
+        else if (key == Left && selected % 5 != 0)
+            --selected;
+        else if (key == Right)
             selected = std::min(std::max(0, int(visible.size()) - 1), selected + 1);
         if (previousPage != selected / 10) {
             worker.clearCovers();
@@ -717,140 +769,177 @@ class App {
             key(Accept);
             return;
         }
-        if (x < 210 && y >= 130 && y < 414) {
-            setTab((y - 130) / 71);
+        if (busy) return;
+        if (y >= tabY && y < tabY + 48 && x >= tabX) {
+            const int index = (x - tabX) / tabStep;
+            if (index < SectionCount && (x - tabX) % tabStep < tabWidth)
+                setTab(index);
             return;
         }
         if (details) {
-            if (y > 550 && x > 850)
+            if (y >= 548 && y < 606 && x >= 746 && x < 1098)
                 key(Accept);
-            else if (x < 250 || y < 85)
+            else if (y >= 548 && y < 606 && x >= 471 && x < 706)
+                key(Favorite);
+            else if (x < 132 || x >= 1136 || y < 91 || y >= 646)
                 key(Back);
             return;
         }
-        if (tab < 2) {
-            if (y < 145 && x > 230) {
-                key(Search);
+        navFocused = false;
+        if (consoleList()) {
+            if (x >= listX && x < listX + listWidth && y >= consoleY &&
+                y < consoleY + consolesPerPage * consoleStep && (y - consoleY) % consoleStep < 48) {
+                const int index = (systemIndex / consolesPerPage) * consolesPerPage + (y - consoleY) / consoleStep;
+                if (index <= int(systems.size())) {
+                    systemIndex = index;
+                    chooseConsole();
+                }
+            }
+        } else if (tab != Settings) {
+            if (y >= 120 && y < 154) {
+                if (tab == Library && x >= listX && x < 300)
+                    openConsoles();
+                else if (x >= (tab == Library ? 314 : listX) && x < listX + listWidth)
+                    key(Search);
                 return;
             }
-            int col = (x - 238) / 196, row = (y - 165) / 240;
-            if (x >= 238 && col >= 0 && col < 5 && row >= 0 && row < 2 && y >= 165) {
-                int n = (selected / 10) * 10 + row * 5 + col;
-                if (n < int(visible.size())) {
+            if (x >= cardX && y >= cardY) {
+                const int col = (x - cardX) / cardStepX, row = (y - cardY) / cardStepY;
+                const int n = (selected / 10) * 10 + row * 5 + col;
+                if (col < 5 && row < 2 && (x - cardX) % cardStepX < cardWidth &&
+                    (y - cardY) % cardStepY < cardHeight && n < int(visible.size())) {
                     selected = n;
                     details = true;
                 }
             }
-        } else if (tab == 3 && x > 245 && y > 155 && y < 475) {
+        } else if (x >= listX && x < listX + listWidth && y >= 155 && y < 475 && (y - 155) % 80 < 65) {
             field = (y - 155) / 80;
             key(Accept);
-        } else if (tab == 2 && x > 245 && y > 145 && y < 625) {
-            systemIndex = (systemIndex / 8) * 8 + (y - 145) / 58;
-            if (systemIndex <= int(systems.size()))
-                key(Accept);
         }
     }
+#ifndef __SWITCH__
+    void checkLibraryNavigation() {
+        // The preview fixture has a GBA catalog and one favorite, on NES.
+        setTab(Library);
+        const auto gba = std::find(systems.begin(), systems.end(), "gba");
+        if (gba == systems.end()) throw std::runtime_error("Falta la consola de prueba");
+        systemIndex = 0;
+        for (auto i = systems.begin(); i <= gba; ++i)
+            key(Down);
+        key(Accept);
+        if (consoleList() || visible.size() != 1 || !current() || current()->system != "gba")
+            throw std::runtime_error("La biblioteca no filtró por consola");
+        key(Back);
+        if (!consoleList()) throw std::runtime_error("B no volvió a las consolas");
+        key(Next);
+        if (tab != Favorites || visible.size() != 1 || !current() || current()->system != "nes")
+            throw std::runtime_error("Favoritos heredó el filtro de consola");
+        click(tabX + tabStep * Settings + 20, tabY + 20);
+        if (tab != Settings) throw std::runtime_error("Ajustes no se puede abrir en la barra superior");
+        key(Next);
+        click(listX + 20, consoleY + 20);
+        if (tab != Library || consoleList() || visible.size() != games.size())
+            throw std::runtime_error("No se pudo volver a todos los juegos");
+    }
+#endif
     void draw() {
         rect(0, 0, 1280, 720, background);
-        for (int x = 220; x < 1280; x += 28)
+        for (int x = 4; x < 1280; x += 28)
             for (int y = 78; y < 720; y += 28)
                 rect(x, y, 2, 2, panel);
         rect(0, 0, 1280, 68, ink);
         controller(20, 20, 3, mint);
         title.text(renderer, "GAMECLUB", 82, 22, cream);
         small.text(renderer, "SWITCH / " GAMECLUB_SWITCH_VERSION, 290, 25, muted);
-        rect(0, 68, 210, 652, ink);
-        small.text(renderer, "TU COLECCIÓN", 20, 92, muted);
-        const char *labels[] = {"Biblioteca", "Favoritos", "Consolas", "Ajustes"};
-        for (int i = 0; i < 4; i++) {
-            pixel(15, 130 + i * 71, 179, 57, tab == i ? purple : ink, side && tab == i);
-            body.text(renderer, labels[i], 34, 145 + i * 71, cream, 150);
+        const char *labels[] = {"Biblioteca", "Favoritos", "Ajustes"};
+        for (int i = 0; i < SectionCount; i++) {
+            const int x = tabX + i * tabStep;
+            pixel(x, tabY, tabWidth, 48, tab == i ? purple : panel, navFocused && tab == i);
+            body.text(renderer, labels[i], x + 20, tabY + 11, cream, tabWidth - 40);
         }
-        controller(43, 520, 7, {197, 161, 255, 255});
-        small.text(renderer, "DALE AL PLAY", 36, 605, yellow, 170);
-        title.text(renderer,
-                   tab == 0   ? "LA BIBLIOTECA"
-                   : tab == 1 ? "TUS FAVORITOS"
-                   : tab == 2 ? "ELIGE CONSOLA"
-                              : "AJUSTES",
-                   240, 88, cream, 960);
-        small.text(renderer, tab < 2 ? std::to_string(visible.size()) + " juegos" : "GAMECLUB", 1100, 90, muted, 160);
-        if (tab < 2) {
-            pixel(238, 120, 1002, 34, ink);
-            small.text(renderer, query.empty() ? "Y  Buscar en tu biblioteca" : query, 253, 126,
-                       query.empty() ? muted : cream, 800);
-            if (!system.empty())
-                small.text(renderer, system, 1100, 126, mint, 130);
+        const std::string heading = tab == Settings ? "AJUSTES" : tab == Favorites ? "TUS FAVORITOS"
+            : consoleList() ? "BIBLIOTECA / CONSOLAS" : system.empty() ? "TODOS LOS JUEGOS" : systemTitle(system);
+        title.text(renderer, heading, listX, 86, cream, 1010);
+        if (tab != Settings && !consoleList()) {
+            small.text(renderer, gameCount(visible.size()), 1090, 90, muted, 155);
+            int searchX = listX;
+            if (tab == Library) {
+                pixel(listX, 120, 268, 34, purple);
+                small.text(renderer, "B  Volver a consolas", listX + 14, 126, cream, 236);
+                searchX = 314;
+            }
+            pixel(searchX, 120, listX + listWidth - searchX, 34, ink);
+            small.text(renderer, query.empty() ? "Y  Buscar juegos" : query, searchX + 15, 126,
+                       query.empty() ? muted : cream, listX + listWidth - searchX - 30);
             int page = selected / 10;
             for (int n = page * 10; n < std::min(int(visible.size()), page * 10 + 10); n++) {
                 auto &g = games[visible[n]];
-                int slot = n - page * 10, x = 238 + (slot % 5) * 196, y = 165 + (slot / 5) * 240;
-                pixel(x, y, 182, 224, panel, !side && selected == n);
-                cover(g, x + 5, y + 9, 172, 153);
-                rect(x + 5, y + 162, 172, 4, accent(g.system));
-                small.text(renderer, g.system, x + 12, y + 173, accent(g.system), 150);
-                small.text(renderer, g.title, x + 12, y + 194, cream, 156, 1);
+                int slot = n - page * 10, x = cardX + (slot % 5) * cardStepX, y = cardY + (slot / 5) * cardStepY;
+                pixel(x, y, cardWidth, cardHeight, panel, !navFocused && selected == n);
+                cover(g, x + 5, y + 9, cardWidth - 10, 153);
+                rect(x + 5, y + 162, cardWidth - 10, 4, accent(g.system));
+                small.text(renderer, systemTitle(g.system), x + 12, y + 173, accent(g.system), cardWidth - 24);
+                small.text(renderer, g.title, x + 12, y + 194, cream, cardWidth - 24, 1);
                 if (g.favorite) {
-                    rect(x + 151, y + 12, 22, 25, ink);
-                    body.text(renderer, "*", x + 156, y + 11, yellow, 20);
+                    rect(x + cardWidth - 31, y + 12, 22, 25, ink);
+                    body.text(renderer, "*", x + cardWidth - 26, y + 11, yellow, 20);
                 }
             }
             if (visible.empty()) {
-                controller(610, 250, 12, mint);
+                controller(544, 250, 12, mint);
                 body.text(renderer,
                           games.empty() ? "Tu biblioteca está lista para la primera partida."
                                         : "No hay juegos en esta vista.",
-                          400, 400, cream, 780);
-                small.text(renderer, "Y: buscar   |   L/R: cambiar vista   |   -: actualizar", 390, 444, muted, 800);
+                          366, 400, cream, 840);
+                small.text(renderer, "Y: buscar   |   L/R: cambiar vista   |   -: actualizar", 366, 444, muted, 800);
             }
             if (!visible.empty())
                 small.text(renderer,
                            "Página " + std::to_string(page + 1) + " / " + std::to_string((visible.size() + 9) / 10),
                            1060, 651, muted, 190);
-        } else if (tab == 2) {
-            int first = (systemIndex / 8) * 8;
-            for (int i = first; i <= std::min(int(systems.size()), first + 7); i++) {
-                std::string label = i == 0 ? "Todas las consolas" : systems[i - 1];
-                int count = 0;
-                for (auto &g : games)
-                    if (i == 0 || g.system == label)
-                        count++;
-                pixel(240, 145 + (i - first) * 58, 995, 48, systemIndex == i ? purple : panel,
-                      !side && systemIndex == i);
-                body.text(renderer, label, 265, 156 + (i - first) * 58, cream, 700);
-                small.text(renderer, std::to_string(count) + " juegos", 1070, 158 + (i - first) * 58, muted, 150);
+        } else if (consoleList()) {
+            const int first = (systemIndex / consolesPerPage) * consolesPerPage;
+            for (int i = first; i <= std::min(int(systems.size()), first + consolesPerPage - 1); i++) {
+                const std::string id = i == 0 ? "" : systems[i - 1];
+                const std::string label = i == 0 ? "Todos los juegos" : systemTitle(id);
+                const size_t count = i == 0 ? games.size() : systemCounts.at(id);
+                const int y = consoleY + (i - first) * consoleStep;
+                pixel(listX, y, listWidth, 48, systemIndex == i ? purple : panel, !navFocused && systemIndex == i);
+                rect(listX + 12, y + 10, 5, 28, i == 0 ? mint : accent(id));
+                body.text(renderer, label, listX + 31, y + 11, cream, 990);
+                small.text(renderer, gameCount(count), 1068, y + 13, cream, 155);
             }
         } else {
             const std::string fields[] = {"Servidor: " + config.server,
                                           "Token: " + std::string(config.token.empty() ? "sin token" : "********"),
                                           "Núcleos: " + config.cores, "Guardar y conectar"};
             for (int i = 0; i < 4; i++) {
-                pixel(240, 155 + i * 80, 995, 65, i == 3 ? purple : panel, !side && field == i);
-                body.text(renderer, fields[i], 263, 174 + i * 80, cream, 940);
+                pixel(listX, 155 + i * 80, listWidth, 65, i == 3 ? purple : panel, !navFocused && field == i);
+                body.text(renderer, fields[i], listX + 23, 174 + i * 80, cream, listWidth - 46);
             }
-            small.text(renderer, "Instala RetroArch para Switch y sus núcleos NRO en la SD.", 255, 510, muted, 960);
-            small.text(renderer, "MAME, NES y Atari: partida nueva. Otras consolas: batería local.", 255, 544, muted,
-                       970);
-            small.text(renderer, "Los juegos y las BIOS no están incluidos.", 255, 578, muted, 970);
+            small.text(renderer, "Instala RetroArch para Switch y sus núcleos NRO en la SD.", listX + 15, 510, muted, 960);
+            small.text(renderer, "MAME, NES y Atari: partida nueva. Otras consolas: batería local.", listX + 15, 544, muted, 970);
+            small.text(renderer, "Los juegos y las BIOS no están incluidos.", listX + 15, 578, muted, 970);
         }
-        rect(210, 681, 1070, 39, ink);
-        small.text(renderer,
-                   "A Abrir   B Volver   X Favorito   Y Buscar   L/R Vistas   ZL/ZR Página   - Recargar   + Salir", 236,
-                   691, cream, 1030);
-        small.text(renderer, notice, 241, 650, muted, 805);
+        rect(0, 681, 1280, 39, ink);
+        const char *controls = consoleList() ? "A Elegir consola   Y Buscar   L/R Secciones   ZL/ZR Página   - Recargar   + Salir"
+            : tab == Settings ? "A Editar / conectar   L/R Secciones   - Recargar   + Salir"
+            : "A Abrir   B Volver   X Favorito   Y Buscar   L/R Secciones   ZL/ZR Página   - Recargar   + Salir";
+        small.text(renderer, controls, listX, 691, cream, listWidth);
+        small.text(renderer, notice, listX, 650, muted, 805);
         if (details && current()) {
             auto &g = *current();
-            rect(210, 68, 1070, 613, background);
-            pixel(236, 91, 1004, 555, panel);
-            cover(g, 262, 126, 280, 385);
-            title.text(renderer, g.system, 575, 125, accent(g.system), 620);
-            body.text(renderer, g.title, 575, 174, cream, 620, 3);
+            rect(0, 68, 1280, 613, background);
+            pixel(132, 91, 1004, 555, panel);
+            cover(g, 158, 126, 280, 385);
+            title.text(renderer, systemTitle(g.system), 471, 125, accent(g.system), 620);
+            body.text(renderer, g.title, 471, 174, cream, 620, 3);
             small.text(renderer, g.system == "vpinball" ? "Motor nativo Visual Pinball + PinMAME."
-                                                       : "Se abre con RetroArch para Switch.", 575, 292, muted, 610, 2);
+                                                       : "Se abre con RetroArch para Switch.", 471, 292, muted, 610, 2);
             small.text(renderer,
                        persists(g.system) ? "Conserva la batería de este juego en la SD."
                                           : "Cada apertura empieza de cero, sin restaurar partida.",
-                       575, 348, mint, 610, 3);
+                       471, 348, mint, 610, 3);
             auto found = corePaths.find(g.system);
             if (found == corePaths.end()) {
                 auto path = g.system == "vpinball" ? root / "pinball/GameClubPinball.nro" : findCore(config, g.system);
@@ -859,12 +948,12 @@ class App {
             }
             const auto &core = found->second;
             small.text(renderer, core.empty() ? (g.system == "vpinball" ? "Falta el motor. Instala el ZIP de pinball."
-                                                                     : "Falta el núcleo. Revisa Ajustes.") : core.filename().string(), 575, 427,
+                                                                     : "Falta el núcleo. Revisa Ajustes.") : core.filename().string(), 471, 427,
                        core.empty() ? pink : muted, 610, 2);
-            pixel(575, 548, 235, 58, ink);
-            body.text(renderer, g.favorite ? "X Quitar favorito" : "X Favorito", 593, 566, cream, 210);
-            pixel(850, 548, 352, 58, yellow);
-            body.text(renderer, g.system == "vpinball" ? "A Jugar pinball" : "A Jugar con RetroArch", 870, 566, ink, 320);
+            pixel(471, 548, 235, 58, ink);
+            body.text(renderer, g.favorite ? "X Quitar favorito" : "X Favorito", 489, 566, cream, 210);
+            pixel(746, 548, 352, 58, yellow);
+            body.text(renderer, g.system == "vpinball" ? "A Jugar pinball" : "A Jugar con RetroArch", 766, 566, ink, 320);
         }
         if (busy && launching) {
             pixel(430, 280, 650, 185, panel);
@@ -899,7 +988,7 @@ int main(int argc, char **argv) {
     fs::path assets, root;
     std::string screenshot, query, detail;
     int frames = 0, tab = 0;
-    bool headless = false, exerciseCovers = false;
+    bool headless = false, exerciseCovers = false, showAll = false;
 #ifdef __SWITCH__
     romfsInit();
     auto socketResult = socketInitializeDefault();
@@ -916,6 +1005,8 @@ int main(int argc, char **argv) {
         std::string arg = argv[i];
         if (arg == "--headless")
             headless = true;
+        else if (arg == "--all")
+            showAll = true;
         else if (arg == "--exercise-covers")
             exerciseCovers = true;
         else if (i + 1 < argc) {
@@ -968,7 +1059,7 @@ int main(int argc, char **argv) {
             throw std::runtime_error(SDL_GetError());
         SDL_RenderSetLogicalSize(renderer, 1280, 720);
         {
-            App app(renderer, root, assets, query, tab, detail);
+            App app(renderer, root, assets, query, tab, detail, showAll || exerciseCovers);
             uint64_t lastMove = 0;
             const auto began = SDL_GetTicks64();
             uint64_t drawnFrames = 0;
@@ -1044,6 +1135,8 @@ int main(int argc, char **argv) {
                         app.click(event.button.x, event.button.y);
                 }
 #ifndef __SWITCH__
+                if (exerciseCovers && count == 60)
+                    app.checkLibraryNavigation();
                 if (exerciseCovers && count > 0 && count <= 420 && count % 60 == 0) {
                     const Input moves[] = {PageForward, PageForward, PageForward, PageBack, PageForward, PageBack, PageForward};
                     app.key(moves[count / 60 - 1]);

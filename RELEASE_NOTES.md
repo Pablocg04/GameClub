@@ -1,4 +1,10 @@
-# GameClub 0.13.6
+# GameClub 0.13.7
+
+- Switch tiene una barra superior con Biblioteca, Favoritos y Ajustes.
+- Biblioteca abre un selector por consola con recuentos y la opción Todos los juegos. B vuelve al selector.
+- Favoritos reúne juegos marcados de todas las consolas. L y R cambian de sección.
+
+## Versión anterior · 0.13.6
 
 - El propietario confirma South Park funcionando con 0.13.5. El registro llega
   a Startup done, recibe Start y no muestra un cierre; B pausa/reanuda. Reporta

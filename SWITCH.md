@@ -1,14 +1,15 @@
-# GameClub para Nintendo Switch · 0.13.6
+# GameClub para Nintendo Switch · 0.13.7
 
 Cliente **homebrew nativo ARM64**, independiente de Flutter, distribuido como
 `GameClub-Switch.nro`. Se conecta al mismo servidor de la Raspberry que PC,
 móvil y TV. Incluye biblioteca retro morada, carátulas, filtros por consola,
 búsqueda, favoritos y ajustes de servidor/token desde el teclado de Switch.
-La versión 0.13.6 añade integración con un motor nativo experimental de Visual
-Pinball/PinMAME. Se instala con el ZIP completo descrito en [SWITCH_PINBALL.md](SWITCH_PINBALL.md).
+Biblioteca, Favoritos y Ajustes están en la barra superior. Dentro de Biblioteca
+puedes entrar por consola o ver Todos los juegos. El motor experimental de
+Visual Pinball/PinMAME sigue disponible. Se instala con el ZIP completo descrito en [SWITCH_PINBALL.md](SWITCH_PINBALL.md).
 
-**Estado experimental:** NRO compilado y comprobado por formato y pruebas de
-escritorio; todavía no ejecutado en una Switch física.
+**Estado experimental:** la biblioteca de 0.13.6 abrió desde Homebrew Menu en una
+Switch física. La interfaz de 0.13.7 se ha comprobado en escritorio.
 
 ## Copiar y abrir
 
@@ -23,7 +24,7 @@ escritorio; todavía no ejecutado en una Switch física.
    y sus núcleos. La carpeta predeterminada es `sdmc:/retroarch/cores` y se puede
    cambiar en Ajustes. Se necesita un entorno Homebrew Menu que permita abrir
    otro NRO; RetroArch recomienda ejecutarlo con acceso completo a memoria.
-6. Para las mesas **Visual Pinball**, instala `GameClub-Switch-Pinball-0.13.6.zip`
+6. Para las mesas **Visual Pinball**, instala `GameClub-Switch-Pinball-0.13.7.zip`
    en la raíz de la SD. Incluye GameClub, el motor nativo y sus recursos; estas
    mesas se abren con VPX/PinMAME y no utilizan RetroArch.
 
@@ -35,11 +36,11 @@ assets. No incluye ROMs, BIOS ni núcleos de emulación. Guía del proyecto Retr
 
 - Cruceta/stick izquierdo: desplazarse por juegos, menús y ajustes.
 - **A:** abrir ficha, confirmar o jugar con RetroArch desde la ficha.
-- **B:** cerrar ficha/mensaje o enfocar el menú lateral.
+- **B:** cerrar ficha/mensaje o volver a las consolas o enfocar la barra superior.
 - **X:** marcar o quitar favorito en el servidor compartido.
 - **Y:** buscar con el teclado de Switch.
-- **L/R:** Biblioteca, Favoritos, Consolas y Ajustes.
-- **ZL/ZR:** página anterior/siguiente de juegos.
+- **L/R:** cambiar entre Biblioteca, Favoritos y Ajustes.
+- **ZL/ZR:** página anterior/siguiente de juegos o consolas.
 - **−:** recargar la biblioteca. **+:** salir de GameClub.
 - Pantalla táctil: seleccionar botones/fichas y abrir búsqueda/ajustes.
 
@@ -133,7 +134,7 @@ switch-client/build-host/Release/gameclub_switch_preview.exe --headless --frames
 
 **Comprobado:** compilación cruzada y estructura de los NRO; 167 comprobaciones
 nativas con API aislada y fixtures propios; siete vistas del lanzador, tres del
-menú de pinball y navegación después de llenar la caché. Los fixtures no son juegos.
+menú de pinball, navegación por secciones y recorrido después de llenar la caché. Los fixtures no son juegos.
 El propietario confirma navegación fluida desde 0.13.2 y South Park funcionando
 con 0.13.5, aunque con pocos FPS y sin marcador visible.
 

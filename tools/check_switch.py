@@ -105,8 +105,8 @@ def main():
             subprocess.run([str(menu),str(folder)],check=True,timeout=30)
         assert counts['/api/games/nes/download']==1, 'La caché válida no debe volver a descargar'
         shots=[]
-        for name,extra in [('library',[]),('favorites',['--tab','1']),('systems',['--tab','2']),
-                           ('settings',['--tab','3']),('detail',['--detail','nes']),('search',['--query','clásico']),
+        for name,extra in [('library',['--all']),('favorites',['--tab','1']),('systems',[]),
+                           ('settings',['--tab','2']),('detail',['--detail','nes']),('search',['--query','clásico']),
                            ('pinball-detail',['--detail','pinball'])]:
             destination=folder/(name+'.png')
             subprocess.run([str(preview),'--headless','--frames','90','--assets',str(root/'switch-client/build/romfs'),

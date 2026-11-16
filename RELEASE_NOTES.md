@@ -1,4 +1,12 @@
-# GameClub 0.13.7
+# GameClub 0.13.8
+
+- Switch lee una sola vez el índice del VPX y agrupa las lecturas de la microSD. En PC, la lectura de las tres mesas reales estudiadas pasó de 2,5–6,4 s a 0,37–0,62 s, con el mismo contenido. Falta medir el arranque completo en Switch.
+- El lanzador reutiliza la mesa extraída aunque falte el ZIP original. Usa la NVRAM inicial del paquete si la mesa todavía no tiene una propia.
+- Añade la técnica OpenGL del marcador alfanumérico que faltaba en Regreso al futuro.
+- X y − insertan por la ranura 1, Y prueba la ranura 2 y + inicia.
+- Al terminar con un error controlado, el motor solicita regresar a la biblioteca con un aviso. Los registros incluyen tiempos de preparación y pasos de cierre.
+
+## Versión anterior · 0.13.7
 
 - Switch tiene una barra superior con Biblioteca, Favoritos y Ajustes.
 - Biblioteca abre un selector por consola con recuentos y la opción Todos los juegos. B vuelve al selector.

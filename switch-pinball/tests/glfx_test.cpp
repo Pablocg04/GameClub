@@ -48,6 +48,9 @@ int main(int argc, char **argv) {
             check(unixSource == windowsSource, "Different shader sections with CRLF");
             const auto count = gameclub::glfxTechniqueCount(windowsSource);
             check(count > 0, "Shader has no techniques");
+            if (name == "DMDShader.glfx")
+                check(windowsSource.at("TECHNIQUES").find("display_Seg_world:") != std::string::npos,
+                      "OpenGL must expose segmented scoring");
             check(windowsSource.at("GLOBAL").find("#define GLSL") != std::string::npos, "Missing shader defines");
             std::istringstream lines(windowsSource.at("TECHNIQUES"));
             bool functionsFound = true;

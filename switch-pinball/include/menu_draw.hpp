@@ -30,7 +30,8 @@ inline void drawPauseMenu(const PauseMenu &menu, float fps) {
         draw->AddRectFilled(point(x+30, y+6), point(x+530, y+62), selected ? IM_COL32(178, 95, 246, 255) : IM_COL32(40, 17, 65, 255));
         text(x+48, y+16, 28, IM_COL32(255, 255, 255, 255), items[i]);
     }
-    text(x+32, 474, 22, IM_COL32(235, 221, 255, 255), "Cruceta: elegir   A: aceptar   B: volver");
+    text(x+32, 466, 22, IM_COL32(235, 221, 255, 255), "Cruceta: elegir   A: aceptar   B: volver");
+    text(x+32, 496, 22, IM_COL32(235, 221, 255, 255), "X / -: moneda   Y: moneda 2   +: iniciar");
 }
 
 }

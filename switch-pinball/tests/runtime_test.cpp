@@ -1,6 +1,7 @@
 #include "input_bindings.hpp"
 #include "pause_menu.hpp"
 #include "session_logs.hpp"
+#include "table_read_cache.hpp"
 #include "texture_upload_queue.hpp"
 #include <atomic>
 #include <fstream>
@@ -19,7 +20,7 @@ int main(int argc, char **argv) {
         if (argc != 2) throw std::runtime_error("Expected fixture directory");
         const fs::path root = argv[1]; fs::create_directories(root);
         check(gameclub::buttonKeys[10].scan == SDL_SCANCODE_1, "Plus must start, never exit");
-        check(gameclub::buttonKeys[3].scan == SDL_SCANCODE_1, "Y must start");
+        check(gameclub::buttonKeys[3].scan == SDL_SCANCODE_4, "Y uses the alternate coin slot");
         check(gameclub::buttonKeys[1].scan == SDL_SCANCODE_F12, "B must open VPX menu");
         check(gameclub::buttonKeys[2].scan == SDL_SCANCODE_5 && gameclub::buttonKeys[11].scan == SDL_SCANCODE_5, "Coin controls");
         check(gameclub::buttonKeys[0].scan == SDL_SCANCODE_RETURN, "Plunger control");
@@ -72,6 +73,35 @@ int main(int argc, char **argv) {
         check(gameclub::rotateSessionLogs(logs) && read(logs / "switch-player.previous.log") == "second attempt" &&
               read(logs / "switch-player.previous2.log") == "first attempt", "Preserve two attempts");
         check(read(logs / "nvram/machine.nv") == "machine configuration", "Rotation preserves NVRAM");
+        gameclub::TableReadCache table;
+        constexpr size_t window = 256 * 1024;
+        const uint64_t fileSize = 5 * window + 3;
+        const auto byteAt = [](uint64_t offset) { return static_cast<unsigned char>((offset ^ (offset >> 8)) & 0xff); };
+        const auto readAt = [&](uint64_t offset, unsigned char *output, size_t length) {
+            for (size_t i = 0; i < length; ++i) output[i] = byteAt(offset + i);
+            return length;
+        };
+        std::array<unsigned char, 512> sector{};
+        for (size_t i = 0; i < window; i += sector.size())
+            table.read(i, sector.data(), sector.size(), fileSize, readAt);
+        check(table.reads() == 1, "512 sequential sectors use one physical read window");
+        check(table.read(window - 20, sector.data(), sector.size(), fileSize, readAt) == sector.size() &&
+              table.reads() == 2 && sector.front() == byteAt(window - 20) &&
+              sector.back() == byteAt(window - 20 + sector.size() - 1), "Read across cache windows");
+        check(table.read(fileSize - 3, sector.data(), sector.size(), fileSize, readAt) == 3 &&
+              table.read(fileSize, sector.data(), sector.size(), fileSize, readAt) == 0, "Cache respects end of file");
+        for (size_t i = 2; i < 5; ++i)
+            table.read(i * window, sector.data(), sector.size(), fileSize, readAt);
+        const auto before = table.reads();
+        check(table.read(0, sector.data(), sector.size(), fileSize, readAt) == sector.size() &&
+              table.reads() == before + 1, "Old windows are evicted when the bounded cache fills");
+        table.reset();
+        const auto shortRead = [](uint64_t, unsigned char *output, size_t) {
+            std::memset(output, 7, 10);
+            return size_t(10);
+        };
+        check(table.read(0, sector.data(), sector.size(), fileSize, shortRead) == 10 &&
+              sector[9] == 7, "Short physical reads never expose stale bytes");
         const auto collision = root / "collision"; fs::create_directories(collision / "switch-player.previous.log");
         write(collision / "switch-player.log", "preserve current");
         check(!gameclub::rotateSessionLogs(collision) && read(collision / "switch-player.log") == "preserve current", "Do not overwrite unrelated directories");

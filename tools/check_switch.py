@@ -36,12 +36,14 @@ def main():
     with zipfile.ZipFile(pinball_buffer,'w',zipfile.ZIP_DEFLATED) as z:
         z.writestr('Folder/Fixture.vpx',bytes.fromhex('d0cf11e0a1b11ae1')+b'GameClub fixture' * 300000)
         z.writestr('Folder/fixture.zip',b'GameClub transport fixture, not a ROM')
+        z.writestr('Folder/fixture.nv',b'factory configuration')
     pinball=pinball_buffer.getvalue()
     games.append({'id':'pinball','title':'Mesa de prueba','system_id':'vpinball','filename':'Fixture.zip',
                   'size':len(pinball),'revision':'1','favorite':False,'cover_url':'/api/games/pinball/cover'})
     with zipfile.ZipFile(io.BytesIO(pinball)) as z:
         pinball_manifest={'table':'Fixture.vpx','signature':'fixture123','revision':'1','size':len(pinball),
-            'raw_table':False,'files':[{'member':i.filename,'destination':'Fixture.vpx' if i.filename.endswith('.vpx') else 'pinmame/roms/fixture.zip',
+            'raw_table':False,'files':[{'member':i.filename,'destination':{
+                '.vpx':'Fixture.vpx','.zip':'pinmame/roms/fixture.zip','.nv':'nvram/fixture.nv'}[Path(i.filename).suffix],
                                       'size':i.file_size,'crc':f'{i.CRC:08x}'} for i in z.infolist()]}
 
     class Handler(BaseHTTPRequestHandler):
@@ -104,6 +106,7 @@ def main():
         if menu.is_file():
             subprocess.run([str(menu),str(folder)],check=True,timeout=30)
         assert counts['/api/games/nes/download']==1, 'La caché válida no debe volver a descargar'
+        assert counts['/api/games/pinball/download']==1, 'El VPX extraído no debe volver a descargar el ZIP'
         shots=[]
         for name,extra in [('library',['--all']),('favorites',['--tab','1']),('systems',[]),
                            ('settings',['--tab','2']),('detail',['--detail','nes']),('search',['--query','clásico']),

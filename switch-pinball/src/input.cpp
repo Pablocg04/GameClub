@@ -45,8 +45,17 @@ bool SDLCALL filter(void *, SDL_Event *event) {
         generated.key.scancode = key.scan;
         generated.key.key = key.code;
         generated.key.down = held[key.scan];
-        if (held[key.scan] && (key.scan == SDL_SCANCODE_1 || key.scan == SDL_SCANCODE_5 || key.scan == SDL_SCANCODE_F12))
-            std::printf("GameClub: control %s\n", key.scan == SDL_SCANCODE_1 ? "START" : key.scan == SDL_SCANCODE_5 ? "COIN" : "MENU");
+        if (held[key.scan]) {
+            const char *action = nullptr;
+            switch (key.scan) {
+                case SDL_SCANCODE_1: action = "START"; break;
+                case SDL_SCANCODE_5: action = "COIN 1"; break;
+                case SDL_SCANCODE_4: action = "COIN 2"; break;
+                case SDL_SCANCODE_F12: action = "MENU"; break;
+                default: break;
+            }
+            if (action) std::printf("GameClub: control %s\n", action);
+        }
         SDL_PushEvent(&generated);
     }
     return removed;

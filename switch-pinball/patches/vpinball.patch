@@ -169,7 +169,7 @@ index 066adeb..03f8d1a 100644
  #if defined(ENABLE_BGFX)
   #define GET_PLATFORM_RENDERER_ENUM 2
 diff --git a/src/core/player.cpp b/src/core/player.cpp
-index e83af84..3b5b8c6 100644
+index e83af84..8e0d716 100644
 --- a/src/core/player.cpp
 +++ b/src/core/player.cpp
 @@ -1,6 +1,10 @@
@@ -276,7 +276,25 @@ index e83af84..3b5b8c6 100644
     }
  
     //----------------------------------------------------------------------------------
-@@ -1589,6 +1629,11 @@ void Player::ProcessOSMessages(const bool isInitialized)
+@@ -866,11 +906,17 @@ Player::~Player()
+ 
+    // Signal plugins early since most fields will become invalid
+    m_pluginAPI.OnGameEnd();
++#ifdef __SWITCH__
++   PLOGI << "GameClub: player plugins notified of end";
++#endif
+ 
+    // signal the script that the game is now exited to allow any cleanup
+    if (!IsEditorMode())
+    {
+       m_ptable->FireVoidEvent(DISPID_GameEvents_Exit);
++#ifdef __SWITCH__
++      PLOGI << "GameClub: table exit script finished";
++#endif
+       if (m_detectScriptHang && g_pvp)
+          g_pvp->PostWorkToWorkerThread(HANG_SNOOP_STOP, NULL);
+    }
+@@ -1589,6 +1635,11 @@ void Player::ProcessOSMessages(const bool isInitialized)
        if (!isInitialized)
           continue;
  
@@ -288,10 +306,13 @@ index e83af84..3b5b8c6 100644
        // Forward events to ImGui, including touch/pen events which are forwarded as mouse events
        if (isPFWnd && m_liveUI)
           m_liveUI->HandleSDLEvent(e);
-@@ -2196,6 +2241,21 @@ void Player::FinishFrame()
+@@ -2195,7 +2246,23 @@ void Player::FinishFrame()
+       m_renderer->m_gpu_profiler.EndFrame();
  
     // Update FPS counter
-    m_fps = (float) (1e6 / m_renderProfiler->GetSlidingAvg(FrameProfiler::PROFILE_FRAME));
+-   m_fps = (float) (1e6 / m_renderProfiler->GetSlidingAvg(FrameProfiler::PROFILE_FRAME));
++   const double averageFrameTime = m_renderProfiler->GetSlidingAvg(FrameProfiler::PROFILE_FRAME);
++   m_fps = averageFrameTime > 0. ? static_cast<float>(1e6 / averageFrameTime) : 0.f;
 +#ifdef __SWITCH__
 +   static uint64_t lastMetrics = 0;
 +   const uint64_t nowMetrics = usec();
@@ -337,10 +358,48 @@ index b8082b0..7dca7f6 100644
  #include "input/OpenPinDevHandler.h"
  
 diff --git a/src/parts/pintable.cpp b/src/parts/pintable.cpp
-index 1e67e32..f7c4946 100644
+index 1e67e32..8e5f395 100644
 --- a/src/parts/pintable.cpp
 +++ b/src/parts/pintable.cpp
-@@ -1945,7 +1945,13 @@ HRESULT PinTable::LoadGameFromFilename(const std::filesystem::path &filename, VP
+@@ -1569,7 +1569,13 @@ HRESULT PinTable::LoadGameFromFilename(const std::filesystem::path &filename, VP
+             ThreadPool pool(g_app->GetLogicalNumberOfProcessors());
+             vector<IEditable *> parts;
+             parts.resize(csubobj);
++#ifdef __SWITCH__
++            PLOGI << "GameClub: loading VPX storage: " << csubobj << " parts, "
++                  << csounds << " sounds, " << ctextures << " images";
++            std::atomic<int> nLoadedParts{0};
++#else
+             int nLoadedParts = 0;
++#endif
+             for (int i = 0; i < csubobj; i++)
+             {
+                pool.enqueue(
+@@ -1606,7 +1612,11 @@ HRESULT PinTable::LoadGameFromFilename(const std::filesystem::path &filename, VP
+ 
+             assert(m_vsound.empty());
+             m_vsound.resize(csounds);
++#ifdef __SWITCH__
++            std::atomic<int> nLoadedSounds{0};
++#else
+             int nLoadedSounds = 0;
++#endif
+             for (int i = 0; i < csounds; i++)
+             {
+                pool.enqueue(
+@@ -1630,7 +1640,11 @@ HRESULT PinTable::LoadGameFromFilename(const std::filesystem::path &filename, VP
+ 
+             assert(m_vimage.empty());
+             m_vimage.resize(ctextures);
++#ifdef __SWITCH__
++            std::atomic<int> nLoadedImages{0};
++#else
+             int nLoadedImages = 0;
++#endif
+             for (int i = 0; i < ctextures; i++)
+             {
+                pool.enqueue(
+@@ -1945,7 +1959,13 @@ HRESULT PinTable::LoadGameFromFilename(const std::filesystem::path &filename, VP
              // Resolve collection parts
              for (int i = 0; i < m_vcollection.size(); i++)
                 m_vcollection[i].InitPostLoad(this);
@@ -612,6 +671,90 @@ index bb6d25d..2c60e36 100644
              ppb = new PinBinary();
              ppb->m_buffer.resize(FreeImage_TellMemory(memStream));
              ppb->m_name = name;
+diff --git a/src/shaders/hlsl_glsl/DMDShader.glfx b/src/shaders/hlsl_glsl/DMDShader.glfx
+index 839d9ee..03dda90 100644
+--- a/src/shaders/hlsl_glsl/DMDShader.glfx
++++ b/src/shaders/hlsl_glsl/DMDShader.glfx
+@@ -87,6 +87,24 @@ void main()
+    VS_CLIP_DISTANCE(pos);
+ }
+ 
++////vs_segment_world
++
++layout(location=0) in vec3 vPosition;
++layout(location=2) in vec2 tc;
++
++VS_OUT(vec2, tex0);
++
++uniform vec4 clip_plane;
++
++void main()
++{
++   vec4 pos = vec4(vPosition, 1.0);
++   VS_EYE;
++   VS_POSITION(matWorldViewProj[eye_vs] * pos, pos);
++   VS_VARYING(tex0, tc);
++   VS_CLIP_DISTANCE(pos);
++}
++
+ ////gs_simple_main
+ 
+ in vec2 tex0_gs[];
+@@ -261,6 +279,49 @@ void main()
+    color = float4(InvGamma(vColor_Intensity.xyz * vColor_Intensity.w), 1.0);
+ }
+ 
++////ps_segment
++
++// OpenGL port of the segmented display in bgfx/fs_display.sc.
++in vec2 tex0;
++uniform vec4 alphaSegState[4];
++uniform vec4 staticColor_Alpha;
++uniform vec4 glassTint_Roughness;
++uniform vec4 w_h_height;
++uniform sampler2D displayTex;
++uniform sampler2D displayGlass;
++
++void main()
++{
++   FS_LAYER_TO_GLOBAL;
++   const vec2 scale = vec2(1.0 + glassPadLeft + glassPadRight, 1.0 + glassPadTop + glassPadBottom);
++   const vec2 displayUv = tex0 * scale - vec2(glassPadLeft, glassPadTop);
++   const bool hasGlass = w_h_height.w != 0.0;
++   const vec4 glass = hasGlass ? texture(displayGlass, glassArea.xy + tex0 * glassArea.zw) : vec4(1.0, 1.0, 1.0, 0.0);
++   const float roughness = mix(glassTint_Roughness.w, 1.0, glass.a);
++   vec4 lit = vec4(0.0), unlit = vec4(0.0);
++   for (int i = 0; i < 4; ++i)
++   {
++      // Each RGBA tile stores distance fields for four of the 16 segments.
++      const vec4 sdf = texture(displayTex, vec2(0.25 * (displayUv.x + float(i)), displayUv.y));
++      const vec4 sharp = smoothstep(vec4(0.475), vec4(0.525), sdf);
++      const vec4 light = mix(sharp, vColor_Intensity.w * sdf * sdf, roughness);
++      unlit = max(light, unlit);
++      lit = max(light * alphaSegState[i], lit);
++   }
++   const float litLevel = max(max(lit.x, lit.y), max(lit.z, lit.w));
++   const float unlitLevel = max(max(unlit.x, unlit.y), max(unlit.z, unlit.w));
++   vec3 luminance = unlitLevel * staticColor_Alpha.rgb + litLevel * vColor_Intensity.rgb;
++   luminance = mix(luminance, w_h_height.rgb, 0.5 * glass.a) * glassTint_Roughness.rgb * glass.rgb;
++   if (staticColor_Alpha.w > 0.0)
++   {
++      float l = min(dot(luminance, vec3(0.176204, 0.812985, 0.0108109)), 1000.0);
++      luminance *= (l * 0.25 + 1.0) / (l + 1.0);
++   }
++   if (staticColor_Alpha.w > 1.0)
++      luminance = FBGamma(luminance);
++   color = vec4(luminance, 1.0);
++}
++
+ ////TECHNIQUES
+ 
+ basic_DMD:P0:vs_main():gs_simple_main():ps_main_DMD()
+@@ -268,3 +329,4 @@ basic_DMD_world:P0:vs_simple_world():gs_simple_world():ps_main_DMD()
+ basic_noDMD:P0:vs_main():gs_simple_main():ps_main_noDMD()
+ basic_noDMD_world:P0:vs_simple_world():gs_simple_world():ps_main_noDMD()
+ basic_noDMD_notex:P0:vs_main():gs_simple_main():ps_main_noDMD_notex()
++display_Seg_world:P0:vs_segment_world():gs_simple_world():ps_segment()
 diff --git a/src/ui/live/LiveUI.cpp b/src/ui/live/LiveUI.cpp
 index 01d17a9..0808e7b 100644
 --- a/src/ui/live/LiveUI.cpp
@@ -658,6 +801,174 @@ index a29f15e..5300a70 100644
  
     ////////////////////////////////////////////////////////////////////////////////////////////////
     AddItem(std::make_unique<InGameUIItem>(InGameUIItem::LabelType::Header, "Settings"s));
+diff --git a/standalone/PoleStorage.cpp b/standalone/PoleStorage.cpp
+index 24dbcc6..0f1fde0 100644
+--- a/standalone/PoleStorage.cpp
++++ b/standalone/PoleStorage.cpp
+@@ -4,6 +4,17 @@
+ 
+ HRESULT PoleStorage::Create(const string& szFilename, const string& szName, IStorage** ppstg)
+ {
++#ifdef __SWITCH__
++   auto container = std::make_shared<TableContainer>(szFilename);
++   if (!container->storage.open() || container->storage.result() != POLE::Storage::Ok)
++      return STG_E_FILENOTFOUND;
++   auto* storage = new PoleStorage();
++   storage->m_szPath = szName;
++   storage->m_container = std::move(container);
++   storage->AddRef();
++   *ppstg = storage;
++   return S_OK;
++#else
+    POLE::Storage* pPOLEStorage = new POLE::Storage(szFilename.c_str());
+ 
+    if (pPOLEStorage->open() && pPOLEStorage->result() == POLE::Storage::Ok) {
+@@ -22,21 +33,45 @@ HRESULT PoleStorage::Create(const string& szFilename, const string& szName, ISto
+    delete pPOLEStorage;
+ 
+    return STG_E_FILENOTFOUND;
++#endif
+ }
+ 
++#ifdef __SWITCH__
++HRESULT PoleStorage::Share(const string& path, IStorage** result)
++{
++   auto* storage = new PoleStorage();
++   storage->m_szPath = path;
++   storage->m_container = m_container;
++   storage->AddRef();
++   *result = storage;
++   return S_OK;
++}
++#endif
++
+ HRESULT PoleStorage::Clone(PoleStorage* pPoleStorage, IStorage** ppstg)
+ {
++#ifdef __SWITCH__
++   return pPoleStorage->Share(pPoleStorage->m_szPath, ppstg);
++#else
+    return PoleStorage::Create(pPoleStorage->m_szFilename, pPoleStorage->m_szPath, ppstg);
++#endif
+ }
+ 
+ HRESULT PoleStorage::StreamExists(const string& szName)
+ {
+-   return m_pPOLEStorage->exists(m_szPath + '/' + szName) ? S_OK : STG_E_INVALIDNAME;
++#ifdef __SWITCH__
++   std::lock_guard lock(GetReadMutex());
++#endif
++   return getPOLEStorage()->exists(m_szPath + '/' + szName) ? S_OK : STG_E_INVALIDNAME;
+ }
+ 
+ POLE::Storage* PoleStorage::getPOLEStorage()
+ {
++#ifdef __SWITCH__
++   return &m_container->storage;
++#else
+    return m_pPOLEStorage;
++#endif
+ }
+ 
+ string PoleStorage::getPath()
+@@ -58,7 +93,9 @@ STDMETHODIMP_(ULONG) PoleStorage::Release()
+    ULONG dwRef = --m_dwRef;
+ 
+    if (dwRef == 0) {
++#ifndef __SWITCH__
+       delete m_pPOLEStorage;
++#endif
+ 
+       delete this;
+    }
+@@ -94,7 +131,11 @@ STDMETHODIMP PoleStorage::OpenStorage(LPCOLESTR pwcsName, IStorage *pstgPriority
+    char szName[1024];
+    WideCharToMultiByte(CP_ACP, 0, pwcsName, -1, szName, sizeof(szName), NULL, NULL);
+ 
++#ifdef __SWITCH__
++   return Share(szName, ppstg);
++#else
+    return Create(m_szFilename, szName, ppstg);
++#endif
+ }
+ 
+ STDMETHODIMP PoleStorage::CopyTo(DWORD ciidExclude, const IID *rgiidExclude, SNB snbExclude, IStorage *pstgDest) { return E_NOTIMPL; }
+diff --git a/standalone/PoleStorage.h b/standalone/PoleStorage.h
+index 8d8efc2..44cec09 100644
+--- a/standalone/PoleStorage.h
++++ b/standalone/PoleStorage.h
+@@ -4,6 +4,10 @@
+ #include "pole/pole.h"
+ 
+ #include <string>
++#ifdef __SWITCH__
++#include <memory>
++#include <mutex>
++#endif
+ using std::string;
+ 
+ class PoleStorage : public IStorage {
+@@ -14,6 +18,9 @@ public:
+    HRESULT StreamExists(const string& szName);
+    POLE::Storage* getPOLEStorage();
+    string getPath();
++#ifdef __SWITCH__
++   std::mutex& GetReadMutex() { return m_container->mutex; }
++#endif
+ 
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject);
+    ULONG STDMETHODCALLTYPE AddRef();
+@@ -36,7 +43,17 @@ public:
+    STDMETHOD(Stat)(STATSTG *pstatstg, DWORD grfStatFlag);
+ 
+ private:
++#ifdef __SWITCH__
++  struct TableContainer {
++     explicit TableContainer(const std::string& filename) : storage(filename.c_str()) {}
++     POLE::Storage storage;
++     std::mutex mutex;
++  };
++  std::shared_ptr<TableContainer> m_container;
++  HRESULT Share(const string& path, IStorage** storage);
++#else
+   POLE::Storage* m_pPOLEStorage = nullptr;
++#endif
+   string m_szFilename;
+   string m_szPath;
+ 
+diff --git a/standalone/PoleStream.cpp b/standalone/PoleStream.cpp
+index 6f2db06..c7f5572 100644
+--- a/standalone/PoleStream.cpp
++++ b/standalone/PoleStream.cpp
+@@ -3,6 +3,9 @@
+ 
+ HRESULT PoleStream::Create(PoleStorage* pStorage, const string& szName, IStream** ppstm)
+ {
++#ifdef __SWITCH__
++   std::lock_guard lock(pStorage->GetReadMutex());
++#endif
+    PoleStream* pStm = new PoleStream();
+    pStm->m_pPOLEStream = new POLE::Stream(pStorage->getPOLEStorage(), pStorage->getPath() + '/' + szName);
+    pStm->m_pStorage = pStorage;
+@@ -70,10 +73,19 @@ STDMETHODIMP PoleStream::Clone(IStream **ppstm) { return E_NOTIMPL; }
+ 
+ STDMETHODIMP PoleStream::Read(void *pv, ULONG cb, ULONG *pcbRead)
+ {
++#ifdef __SWITCH__
++   // The OLE directory and block chains are read-only. The file cursor and
++   // sector cache are shared, so each physical read runs under this lock.
++   std::lock_guard lock(m_pStorage->GetReadMutex());
++#endif
+    ULONG bytesRead = m_pPOLEStream->read((unsigned char*)pv, cb);
+    if (pcbRead)
+       *pcbRead = bytesRead;
++#ifdef __SWITCH__
++   return bytesRead == cb ? S_OK : S_FALSE;
++#else
+    return S_OK;
++#endif
+ }
+ 
+ STDMETHODIMP PoleStream::Write(const void *pv, ULONG cb, ULONG *pcbWritten) { return E_NOTIMPL; }
 diff --git a/third-party/include/ThreadPool.h b/third-party/include/ThreadPool.h
 index d4ff56c..44b0a32 100644
 --- a/third-party/include/ThreadPool.h
@@ -756,3 +1067,112 @@ index 7d1359a..73bcb89 100644
      t.S = _mkgmtime(ptm);
  #else
      t.S = timegm(ptm);
+diff --git a/third-party/include/pole/pole.cpp b/third-party/include/pole/pole.cpp
+index 49847e4..7d0431f 100644
+--- a/third-party/include/pole/pole.cpp
++++ b/third-party/include/pole/pole.cpp
+@@ -63,6 +63,10 @@
+ #include <cassert>
+ 
+ #include "pole.h"
++#if defined(__SWITCH__) || defined(GAMECLUB_TEST_POLE_CACHE)
++#include "table_read_cache.hpp"
++#include <cstdio>
++#endif
+ 
+ #ifdef POLE_USE_UTF16_FILENAMES
+ #include <codecvt>
+@@ -187,6 +191,9 @@ class StorageIO final
+     Storage* storage;         // owner
+     std::string filename;     // filename
+     std::fstream file;        // associated with above name
++#if defined(__SWITCH__) || defined(GAMECLUB_TEST_POLE_CACHE)
++    gameclub::TableReadCache readCache;
++#endif
+     int64 result;               // result of operation
+     bool opened;              // true if file is opened
+     uint64 filesize;   // size of the file
+@@ -1496,7 +1503,13 @@ void StorageIO::close()
+ {
+   if( !opened ) return;
+   
+-  file.close(); 
++#if defined(__SWITCH__) || defined(GAMECLUB_TEST_POLE_CACHE)
++  if (!writeable && readCache.reads())
++    std::printf("GameClub: VPX storage closed, %llu physical read windows\n",
++        static_cast<unsigned long long>(readCache.reads()));
++  readCache.reset();
++#endif
++  file.close();
+   opened = false;
+   
+   std::list<Stream*>::iterator it;
+@@ -1605,6 +1618,22 @@ uint64 StorageIO::loadBigBlocks( const std::vector<uint64>& blocks,
+     uint64 block = blocks[i];
+     uint64 pos =  bbat->blockSize * ( block+1 );
+     uint64 p = (bbat->blockSize < maxlen-bytes) ? bbat->blockSize : maxlen-bytes;
++#if defined(__SWITCH__) || defined(GAMECLUB_TEST_POLE_CACHE)
++    if (block >= filesize / bbat->blockSize || pos >= filesize)
++      break;
++    p = std::min(p, filesize - pos);
++    const auto readAt = [&](uint64 offset, unsigned char* output, size_t size) {
++      file.seekg(offset);
++      file.read(reinterpret_cast<char*>(output), size);
++      const auto received = static_cast<size_t>(file.gcount());
++      fileCheck(file);
++      return received;
++    };
++    const auto received = writeable ? readAt(pos, data + bytes, static_cast<size_t>(p))
++        : readCache.read(pos, data + bytes, static_cast<size_t>(p), filesize, readAt);
++    bytes += received;
++    if (received != p) break;
++#else
+     if( pos + p > filesize )
+         p = filesize - pos;
+     file.seekg( pos );
+@@ -1612,6 +1641,7 @@ uint64 StorageIO::loadBigBlocks( const std::vector<uint64>& blocks,
+     fileCheck(file);
+     // should use gcount to see how many bytes were really returned - eof check...
+     bytes += p;
++#endif
+   }
+ 
+   return bytes;
+@@ -1704,7 +1734,10 @@ uint64 StorageIO::loadSmallBlocks( const std::vector<uint64>& blocks,
+     uint64 bbindex = pos / bbat->blockSize;
+     if( bbindex >= sb_blocks.size() ) break;
+ 
+-    loadBigBlock( sb_blocks[ (size_t)bbindex ], buf, bbat->blockSize );
++    const uint64 received = loadBigBlock(sb_blocks[(size_t)bbindex], buf, bbat->blockSize);
++#if defined(__SWITCH__) || defined(GAMECLUB_TEST_POLE_CACHE)
++    if (received != bbat->blockSize) break;
++#endif
+ 
+     // copy the data
+     uint64 offset = pos % bbat->blockSize;
+@@ -2063,7 +2096,12 @@ uint64 StreamIO::read( uint64 pos, unsigned char* data, uint64 maxlen )
+     while( totalbytes < maxlen )
+     {
+       if( index >= blocks.size() ) break;
++#if defined(__SWITCH__) || defined(GAMECLUB_TEST_POLE_CACHE)
++      if (io->loadSmallBlock(blocks[(size_t)index], buf, io->sbat->blockSize) != io->sbat->blockSize)
++        break;
++#else
+       io->loadSmallBlock( blocks[(size_t)index], buf, io->bbat->blockSize );
++#endif
+       uint64 count = io->sbat->blockSize - offset;
+       if( count > maxlen-totalbytes ) count = maxlen-totalbytes;
+       assert(count <= std::numeric_limits<size_t>::max());
+@@ -2088,7 +2126,12 @@ uint64 StreamIO::read( uint64 pos, unsigned char* data, uint64 maxlen )
+     while( totalbytes < maxlen )
+     {
+       if( index >= blocks.size() ) break;
++#if defined(__SWITCH__) || defined(GAMECLUB_TEST_POLE_CACHE)
++      if (io->loadBigBlock(blocks[(size_t)index], buf, io->bbat->blockSize) != io->bbat->blockSize)
++        break;
++#else
+       io->loadBigBlock( blocks[(size_t)index], buf, io->bbat->blockSize );
++#endif
+       uint64 count = io->bbat->blockSize - offset;
+       if( count > maxlen-totalbytes ) count = maxlen-totalbytes;
+       assert(count <= std::numeric_limits<size_t>::max());

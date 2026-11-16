@@ -32,6 +32,17 @@ void checkTable(const fs::path &path) {
     if (f.gcount() != 8 || std::string(bytes, 8) != magic)
         throw std::runtime_error("El paquete no contiene una mesa VPX válida");
 }
+void seedNvram(const fs::path &cache, const fs::path &state, const Json &files) {
+    for (const auto &item : files) {
+        const fs::path relative = item.at("destination").get<std::string>();
+        if (relative.parent_path() != "nvram" || lower(relative.extension().string()) != ".nv" ||
+            !safeId(relative.stem().string()))
+            continue;
+        const auto source = cache / relative, target = state / relative;
+        if (fs::is_regular_file(source))
+            fs::copy_file(source, target, fs::copy_options::skip_existing);
+    }
+}
 void publishCache(const fs::path &staging, const fs::path &cache) {
     std::error_code error;
     fs::rename(staging, cache, error);
@@ -131,11 +142,13 @@ void unpack(const fs::path &package, const fs::path &staging, const Json &manife
 
 Launch preparePinball(const fs::path &root, const Config &config, const Game &game,
                       const std::atomic<bool> &cancel, Progress progress, Status status) {
+    const auto began = std::chrono::steady_clock::now();
     const auto logPath = root / "pinball-prepare.log";
     writeText(logPath, "GameClub: preparación de pinball " + game.id + "\n");
     auto phase = [&](const std::string &text) {
         std::ofstream log(logPath, std::ios::app);
-        log << text << '\n';
+        log << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - began).count()
+            << " ms: " << text << '\n';
         log.flush();
         if (status) status(text);
     };
@@ -156,12 +169,12 @@ Launch preparePinball(const fs::path &root, const Config &config, const Game &ga
     const auto library = libraryRoot(root, config);
     const auto folder = library / "pinball" / game.id;
     const auto package = folder / "package.bin";
-    phase("Descargando paquete de la mesa...");
-    fetchFile(config, cancel, "/api/games/" + game.id + "/download", package,
-              manifest.at("size").get<uint64_t>(), manifest.at("revision").get<std::string>(), progress);
     const auto cache = folder / signature;
     result.rom = cache / table;
     if (!fs::is_regular_file(cache / ".gameclub-pinball-ready") || !fs::is_regular_file(result.rom)) {
+        phase("Descargando paquete de la mesa...");
+        fetchFile(config, cancel, "/api/games/" + game.id + "/download", package,
+                  manifest.at("size").get<uint64_t>(), manifest.at("revision").get<std::string>(), progress);
         const auto staging = folder / ("extract-" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
         fs::create_directories(staging);
         try {
@@ -184,6 +197,8 @@ Launch preparePinball(const fs::path &root, const Config &config, const Game &ga
             fs::remove_all(staging);
             throw;
         }
+    } else {
+        phase("Usando la mesa ya preparada en la SD...");
     }
     checkTable(result.rom);
     if (cancel) throw std::runtime_error("Preparación cancelada");
@@ -191,6 +206,8 @@ Launch preparePinball(const fs::path &root, const Config &config, const Game &ga
     const auto prefs = library / "pinball-state" / game.id;
     for (const auto *name : {"nvram", "cfg", "hi"})
         fs::create_directories(prefs / name);
+    if (manifest.contains("files"))
+        seedNvram(cache, prefs, manifest.at("files"));
     result.config = prefs / "VPinballX.ini";
     if (!fs::exists(result.config))
         writeText(result.config, "[Player]\nPlayfieldWidth=1280\nPlayfieldHeight=720\nPlayfieldFSWidth=1280\nPlayfieldFSHeight=720\nPlayfieldFullScreen=1\nMaxTexDimension=1024\nMSAASamples=0\nFXAA=0\n\n[Backglass]\nBackglassOutput=0\n\n[Plugin.PinMAME]\nEnable=1\n");

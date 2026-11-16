@@ -1,4 +1,4 @@
-# Visual Pinball + PinMAME para Switch · GameClub 0.13.7
+# Visual Pinball + PinMAME para Switch · GameClub 0.13.8
 
 Port nativo experimental para Horizon/libnx. Incluye el reproductor de Visual
 Pinball X, la biblioteca de emulación PinMAME y los complementos estáticos
@@ -10,7 +10,7 @@ estas mejoras deben comprobarse en una Switch física. No se incluyen mesas, ROM
 
 ## Instalación y primera prueba
 
-1. Extrae `GameClub-Switch-Pinball-0.13.7.zip` en la raíz de la SD. Quedarán
+1. Extrae `GameClub-Switch-Pinball-0.13.8.zip` en la raíz de la SD. Quedarán
    `switch/gameclub/GameClub-Switch.nro` y
    `switch/gameclub/pinball/GameClubPinball.nro`, junto a los recursos del motor.
 2. Conserva todos los archivos de `switch/gameclub/pinball/`. Copiar solo el NRO
@@ -37,8 +37,9 @@ mesas; no es necesario reinstalar el servidor para esta ruta de reproducción.
 | L / ZL | Flipper izquierdo |
 | R / ZR | Flipper derecho |
 | A | Lanzar bola; confirmar en menús |
-| X / − | Insertar moneda |
-| Y / + | Iniciar partida |
+| X / − | Insertar moneda en la ranura 1 |
+| Y | Insertar moneda en la ranura 2 |
+| + | Iniciar partida |
 | B | Abrir el menú de GameClub; continuar si ya está abierto |
 | Cruceta | Desplazarse por el menú |
 | Pulsar stick izquierdo / derecho | Teclas de servicio 7 / 8 |
@@ -46,9 +47,10 @@ mesas; no es necesario reinstalar el servidor para esta ruta de reproducción.
 El menú contiene **Continuar** y **Salir**. Selecciona con la cruceta y confirma
 con A. B vuelve a la mesa sin cerrarla. Cada apertura arranca una emulación nueva y carga la
 mesa desde el principio. No se crean ni restauran instantáneas de partida.
-Se conserva NVRAM, configuración de la máquina y ajustes del reproductor por mesa.
-Al cerrar normalmente el motor se solicita abrir GameClub otra vez para elegir
-otra mesa. Si el lanzador falta o la carga falla, se vuelve al entorno homebrew.
+Se conserva la NVRAM y los ajustes por mesa. La primera vez se usa la NVRAM
+inicial del paquete si existe y la consola aún no tiene una propia.
+Cuando el motor termina se solicita abrir GameClub otra vez. Si el motor devuelve
+un error controlado, GameClub muestra un aviso y conserva el registro.
 
 ## Registros para la prueba física
 
@@ -67,7 +69,8 @@ Cada mesa tiene una carpeta privada bajo:
 
 `sd:/switch/gameclub/libraries/<servidor>/pinball-state/<id-mesa>/`
 
-- `switch-player.log`: registro de arranque y errores del motor.
+- `switch-player.log`: registro de arranque y errores del motor. Si aparece
+  `switch-player.stderr.log`, recoge mensajes adicionales del último intento.
 - `switch-player.previous.log` y `switch-player.previous2.log`: los dos intentos
   anteriores, conservados desde 0.13.5. Si falla un segundo arranque, envía también
   el registro anterior para poder revisar ambos intentos.
@@ -82,6 +85,9 @@ registro. Los paquetes originales de la Raspberry no se modifican.
 
 ## Alcance y límites
 
+- Se lee el índice del contenedor VPX una vez por apertura y se agrupan las
+  lecturas en bloques reutilizables de hasta 256 KiB. Si la mesa ya está extraída,
+  se abre desde la microSD sin depender del ZIP descargado.
 - Salida 1280×720, render interno al 66,7 % por eje (853×480), texturas a 1024,
   reflejos estáticos y AO/SSR/bloom/MSAA/FXAA desactivados. No se altera la
   velocidad de la física ni de la emulación, ni se cambian frecuencias de reloj.
@@ -151,7 +157,7 @@ compilar los targets de `switch-client`. Para repetir además la prueba de
 compilación/enlace en la GPU de un PC Windows con OpenGL 4.3 y SDL3:
 
 ```powershell
-.\.venv\Scripts\python.exe tools/check_switch_shaders.py --dll dist/windows-0.13.7/SDL3.dll --sections dist/switch-checks/glfx/sections --output dist/switch-shader-gpu-0.13.6 --strict-compiler "$env:LOCALAPPDATA/Android/sdk/ndk/28.2.13676358/shader-tools/windows-x86_64/glslc.exe"
+.\.venv\Scripts\python.exe tools/check_switch_shaders.py --dll dist/windows-0.13.8/SDL3.dll --sections dist/switch-checks/glfx/sections --output dist/switch-shader-gpu-0.13.6 --strict-compiler "$env:LOCALAPPDATA/Android/sdk/ndk/28.2.13676358/shader-tools/windows-x86_64/glslc.exe"
 ```
 
 Esta prueba local comprueba shaders; no sustituye el arranque en Switch.

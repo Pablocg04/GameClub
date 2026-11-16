@@ -520,7 +520,8 @@ class App {
                  {"version", GAMECLUB_SWITCH_VERSION} };
     }
     std::string startupDetail;
-    App(SDL_Renderer *r, fs::path data, fs::path resources, std::string q, int initialTab, std::string detail, bool showAll)
+    App(SDL_Renderer *r, fs::path data, fs::path resources, std::string q, int initialTab, std::string detail, bool showAll,
+        bool pinballError)
         : renderer(r), root(std::move(data)), assets(std::move(resources)), query(std::move(q)),
           choosingConsole(!showAll && query.empty() && detail.empty()), tab(std::clamp(initialTab, int(Library), int(Settings))),
           pickId(std::move(detail)) {
@@ -536,6 +537,8 @@ class App {
         }
         loadCached();
         reload();
+        if (pinballError && message.empty())
+            message = "El motor de pinball terminó con un error. Revisa switch-player.log en la carpeta de la mesa.";
     }
     ~App() {
         worker.stop();
@@ -988,8 +991,9 @@ int main(int argc, char **argv) {
     fs::path assets, root;
     std::string screenshot, query, detail;
     int frames = 0, tab = 0;
-    bool headless = false, exerciseCovers = false, showAll = false;
+    bool headless = false, exerciseCovers = false, showAll = false, pinballError = false;
 #ifdef __SWITCH__
+    pinballError = argc > 1 && std::strcmp(argv[1], "--pinball-error") == 0;
     romfsInit();
     auto socketResult = socketInitializeDefault();
     curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -1059,7 +1063,7 @@ int main(int argc, char **argv) {
             throw std::runtime_error(SDL_GetError());
         SDL_RenderSetLogicalSize(renderer, 1280, 720);
         {
-            App app(renderer, root, assets, query, tab, detail, showAll || exerciseCovers);
+            App app(renderer, root, assets, query, tab, detail, showAll || exerciseCovers, pinballError);
             uint64_t lastMove = 0;
             const auto began = SDL_GetTicks64();
             uint64_t drawnFrames = 0;

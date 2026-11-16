@@ -170,9 +170,13 @@ int main(int argc, char **argv) {
             check(native.args.find("--gameclub-state") != std::string::npos && native.args.find("-Play") != std::string::npos &&
                   native.args.find("--appendconfig") == std::string::npos, "VPX: lanzamiento nativo");
             auto nvram = native.config.parent_path()/"nvram/fixture.nv";
+            check(fs::is_regular_file(nvram) && fs::file_size(nvram) == 21, "VPX: aplicar NVRAM inicial empaquetada");
             writeText(nvram, "machine configuration");
+            fs::remove(native.rom.parent_path().parent_path()/"package.bin");
             auto repeated = prepareLaunch(root, config, pin, cancel, {});
-            check(native.config == repeated.config && fs::file_size(nvram) == 21, "VPX: NVRAM estable entre sesiones");
+            std::ifstream machine(nvram);
+            std::string state(std::istreambuf_iterator<char>(machine), {});
+            check(native.config == repeated.config && state == "machine configuration", "VPX: NVRAM estable entre sesiones");
             auto hostile = pin; hostile.id = "pinball-evil";
             rejects([&] { prepareLaunch(root, config, hostile, cancel, {}); }, "VPX: traversal del manifiesto rechazado");
             hostile.id = "pinball-crc";

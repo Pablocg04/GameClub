@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
     const auto log = (state / "switch-player.log").string();
     const bool rotated = gameclub::rotateSessionLogs(state);
     std::freopen(log.c_str(), rotated ? "w" : "a", stdout);
-    std::freopen(log.c_str(), "a", stderr);
+    std::freopen((state / "switch-player.stderr.log").string().c_str(), "w", stderr);
     std::setvbuf(stdout, nullptr, _IONBF, 0);
     std::setvbuf(stderr, nullptr, _IONBF, 0);
     std::puts("GameClub " GAMECLUB_PINBALL_VERSION ": VPX/PinMAME nativo para Horizon/libnx");
@@ -89,17 +89,20 @@ int main(int argc, char **argv) {
     try {
         status = WinMain(nullptr, nullptr, nullptr, 0);
     } catch (const std::exception &error) {
-        std::fprintf(stderr, "GameClub: excepción del motor: %s\n", error.what());
+        std::printf("GameClub: excepción del motor: %s\n", error.what());
         SDL_Quit();
     } catch (...) {
-        std::fprintf(stderr, "GameClub: excepción desconocida del motor\n");
+        std::puts("GameClub: excepción desconocida del motor");
         SDL_Quit();
     }
     std::printf("GameClub: salida del motor, código %d\n", status);
-    if (status == 0 && std::filesystem::is_regular_file("/switch/gameclub/GameClub-Switch.nro", error)) {
-        const auto result = envSetNextLoad("sdmc:/switch/gameclub/GameClub-Switch.nro",
-                                          "sdmc:/switch/gameclub/GameClub-Switch.nro");
+    if (std::filesystem::is_regular_file("/switch/gameclub/GameClub-Switch.nro", error)) {
+        constexpr auto launcher = "sdmc:/switch/gameclub/GameClub-Switch.nro";
+        const auto result = envSetNextLoad(launcher, status == 0 ? launcher :
+            "sdmc:/switch/gameclub/GameClub-Switch.nro --pinball-error");
         std::printf("GameClub: volver a la biblioteca, resultado %u\n", result);
+        if (R_SUCCEEDED(result))
+            status = 0;
     }
     fsdevCommitDevice("sdmc");
     romfsExit();

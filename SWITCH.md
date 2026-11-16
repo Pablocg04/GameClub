@@ -1,4 +1,4 @@
-# GameClub para Nintendo Switch · 0.13.8
+# GameClub para Nintendo Switch · 0.13.9
 
 Cliente **homebrew nativo ARM64**, independiente de Flutter, distribuido como
 `GameClub-Switch.nro`. Se conecta al mismo servidor de la Raspberry que PC,
@@ -24,7 +24,7 @@ Switch física. La interfaz de 0.13.7 se ha comprobado en escritorio.
    y sus núcleos. La carpeta predeterminada es `sdmc:/retroarch/cores` y se puede
    cambiar en Ajustes. Se necesita un entorno Homebrew Menu que permita abrir
    otro NRO; RetroArch recomienda ejecutarlo con acceso completo a memoria.
-6. Para las mesas **Visual Pinball**, instala `GameClub-Switch-Pinball-0.13.8.zip`
+6. Para las mesas **Visual Pinball**, instala `GameClub-Switch-Pinball-0.13.9.zip`
    en la raíz de la SD. Incluye GameClub, el motor nativo y sus recursos; estas
    mesas se abren con VPX/PinMAME y no utilizan RetroArch.
 
@@ -132,13 +132,13 @@ Para renderizar sin abrir una ventana:
 switch-client/build-host/Release/gameclub_switch_preview.exe --headless --frames 240 --screenshot dist/switch-preview.png
 ```
 
-**Comprobado:** compilación cruzada y estructura de los NRO; 174 comprobaciones
+**Comprobado:** compilación cruzada y estructura de los NRO; 178 comprobaciones
 nativas con API aislada y fixtures propios; siete vistas del lanzador, tres del
 menú de pinball, navegación por secciones y recorrido después de llenar la caché. Los fixtures no son juegos.
 El propietario confirma navegación fluida desde 0.13.2 y South Park funcionando
 con 0.13.5, aunque con pocos FPS y sin marcador visible.
 
-Las pruebas incluyen 52 comprobaciones de transporte, extracción de VPX, CRC,
+Las pruebas incluyen 56 comprobaciones de transporte, extracción y copia de VPX, CRC,
 rutas inseguras, progreso, cancelación, NVRAM y caché LRU; 8 de hilos, 9 de formatos,
 73 GLFX y 32 de controles, lecturas de VPX, cola de texturas, logs y menú de pausa.
 **Pendiente en hardware:** marcador superpuesto, rendimiento real del perfil

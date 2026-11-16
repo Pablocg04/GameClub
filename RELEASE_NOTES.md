@@ -1,4 +1,10 @@
-# GameClub 0.13.8
+# GameClub 0.13.9
+
+- Switch copia los archivos de configuración inicial de PinMAME con una operación compatible con la microSD. Esto evita el error de preparación que bloqueaba Apollo 13 y AC/DC en 0.13.8.
+- Recupera la configuración inicial si el intento anterior dejó un archivo NVRAM vacío y conserva los archivos de configuración que contienen datos.
+- La misma copia por bloques permite preparar archivos VPX sueltos y muestra su progreso. Las mesas ya extraídas se reutilizan al actualizar.
+
+## Versión anterior · 0.13.8
 
 - Switch lee una sola vez el índice del VPX y agrupa las lecturas de la microSD. En PC, la lectura de las tres mesas reales estudiadas pasó de 2,5–6,4 s a 0,37–0,62 s, con el mismo contenido. Falta medir el arranque completo en Switch.
 - El lanzador reutiliza la mesa extraída aunque falte el ZIP original. Usa la NVRAM inicial del paquete si la mesa todavía no tiene una propia.

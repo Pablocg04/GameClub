@@ -32,15 +32,57 @@ void checkTable(const fs::path &path) {
     if (f.gcount() != 8 || std::string(bytes, 8) != magic)
         throw std::runtime_error("El paquete no contiene una mesa VPX válida");
 }
-void seedNvram(const fs::path &cache, const fs::path &state, const Json &files) {
+void copyPinballFile(const fs::path &source, const fs::path &target,
+                     const std::atomic<bool> &cancel, const Progress &progress = {}) {
+    // libnx's SD device does not implement fchmod, which std::filesystem::copy_file uses.
+    const auto size = fs::file_size(source);
+    std::ifstream input(source, std::ios::binary);
+    if (!input)
+        throw std::runtime_error("No se pudo leer " + source.filename().string() + " de la SD");
+    std::ofstream output(target, std::ios::binary);
+    if (!output)
+        throw std::runtime_error("No se pudo escribir " + target.filename().string() + " en la SD");
+    std::vector<char> buffer(256 * 1024);
+    uint64_t copied = 0;
+    while (input && output && !cancel) {
+        input.read(buffer.data(), buffer.size());
+        const auto count = input.gcount();
+        output.write(buffer.data(), count);
+        copied += count;
+        if (progress && count && output) progress(copied, size);
+    }
+    output.close();
+    if (cancel)
+        throw std::runtime_error("Preparación cancelada");
+    if (input.bad() || !input.eof() || !output || copied != size)
+        throw std::runtime_error("Copia incompleta de " + source.filename().string() + " en la SD");
+}
+void seedNvram(const fs::path &cache, const fs::path &state, const Json &files,
+               const std::atomic<bool> &cancel) {
     for (const auto &item : files) {
         const fs::path relative = item.at("destination").get<std::string>();
         if (relative.parent_path() != "nvram" || lower(relative.extension().string()) != ".nv" ||
             !safeId(relative.stem().string()))
             continue;
         const auto source = cache / relative, target = state / relative;
-        if (fs::is_regular_file(source))
-            fs::copy_file(source, target, fs::copy_options::skip_existing);
+        if (!fs::is_regular_file(source) || fs::is_empty(source) ||
+            (fs::exists(target) && (!fs::is_regular_file(target) || !fs::is_empty(target))))
+            continue;
+        const auto temp = fs::path(target.string() + ".part");
+        try {
+            copyPinballFile(source, temp, cancel);
+            // The failed copy in 0.13.8 could leave an empty file before writing any data.
+            if (fs::is_regular_file(target) && fs::is_empty(target))
+                fs::remove(target);
+            if (fs::exists(target))
+                fs::remove(temp);
+            else
+                fs::rename(temp, target);
+        } catch (...) {
+            std::error_code ignored;
+            fs::remove(temp, ignored);
+            throw;
+        }
     }
 }
 void publishCache(const fs::path &staging, const fs::path &cache) {
@@ -180,7 +222,7 @@ Launch preparePinball(const fs::path &root, const Config &config, const Game &ga
         try {
             phase("Extrayendo mesa y recursos...");
             if (manifest.value("raw_table", false))
-                fs::copy_file(package, staging / table);
+                copyPinballFile(package, staging / table, cancel, progress);
             else
                 unpack(package, staging, manifest, cancel, progress);
             if (cancel) throw std::runtime_error("Preparación cancelada");
@@ -207,7 +249,7 @@ Launch preparePinball(const fs::path &root, const Config &config, const Game &ga
     for (const auto *name : {"nvram", "cfg", "hi"})
         fs::create_directories(prefs / name);
     if (manifest.contains("files"))
-        seedNvram(cache, prefs, manifest.at("files"));
+        seedNvram(cache, prefs, manifest.at("files"), cancel);
     result.config = prefs / "VPinballX.ini";
     if (!fs::exists(result.config))
         writeText(result.config, "[Player]\nPlayfieldWidth=1280\nPlayfieldHeight=720\nPlayfieldFSWidth=1280\nPlayfieldFSHeight=720\nPlayfieldFullScreen=1\nMaxTexDimension=1024\nMSAASamples=0\nFXAA=0\n\n[Backglass]\nBackglassOutput=0\n\n[Plugin.PinMAME]\nEnable=1\n");

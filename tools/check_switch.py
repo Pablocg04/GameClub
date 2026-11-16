@@ -33,8 +33,9 @@ def main():
             'favorite':s=='nes','cover_url':'/api/games/'+s+'/cover'}
            for s,t in [('nes','Mi clásico NES'),('gba','Aventura GBA'),('mame','Arcade de prueba')]]
     pinball_buffer=io.BytesIO()
+    raw_table=bytes.fromhex('d0cf11e0a1b11ae1')+b'GameClub fixture' * 300000
     with zipfile.ZipFile(pinball_buffer,'w',zipfile.ZIP_DEFLATED) as z:
-        z.writestr('Folder/Fixture.vpx',bytes.fromhex('d0cf11e0a1b11ae1')+b'GameClub fixture' * 300000)
+        z.writestr('Folder/Fixture.vpx',raw_table)
         z.writestr('Folder/fixture.zip',b'GameClub transport fixture, not a ROM')
         z.writestr('Folder/fixture.nv',b'factory configuration')
     pinball=pinball_buffer.getvalue()
@@ -59,6 +60,11 @@ def main():
             if url.path=='/api/games':return self.reply(200,games)
             if url.path=='/api/games/cover-039/cover':return self.reply(200,b'broken fixture','image/jpeg')
             if url.path.endswith('/cover'):return self.reply(200,cover,'image/jpeg')
+            if url.path=='/api/games/pinball-raw/pinball':
+                return self.reply(200,{'table':'Fixture.vpx','signature':'raw123','revision':'1',
+                                       'size':len(raw_table),'raw_table':True})
+            if url.path=='/api/games/pinball-raw/download':
+                return self.reply(200,raw_table,'application/octet-stream')
             if url.path.endswith('/pinball'):
                 value=copy.deepcopy(pinball_manifest)
                 if '/pinball-evil/' in url.path:value['files'][0]['destination']='../escape.vpx'

@@ -1,4 +1,4 @@
-# Visual Pinball + PinMAME para Switch · GameClub 0.13.8
+# Visual Pinball + PinMAME para Switch · GameClub 0.13.9
 
 Port nativo experimental para Horizon/libnx. Incluye el reproductor de Visual
 Pinball X, la biblioteca de emulación PinMAME y los complementos estáticos
@@ -10,7 +10,7 @@ estas mejoras deben comprobarse en una Switch física. No se incluyen mesas, ROM
 
 ## Instalación y primera prueba
 
-1. Extrae `GameClub-Switch-Pinball-0.13.8.zip` en la raíz de la SD. Quedarán
+1. Extrae `GameClub-Switch-Pinball-0.13.9.zip` en la raíz de la SD. Quedarán
    `switch/gameclub/GameClub-Switch.nro` y
    `switch/gameclub/pinball/GameClubPinball.nro`, junto a los recursos del motor.
 2. Conserva todos los archivos de `switch/gameclub/pinball/`. Copiar solo el NRO
@@ -157,7 +157,7 @@ compilar los targets de `switch-client`. Para repetir además la prueba de
 compilación/enlace en la GPU de un PC Windows con OpenGL 4.3 y SDL3:
 
 ```powershell
-.\.venv\Scripts\python.exe tools/check_switch_shaders.py --dll dist/windows-0.13.8/SDL3.dll --sections dist/switch-checks/glfx/sections --output dist/switch-shader-gpu-0.13.6 --strict-compiler "$env:LOCALAPPDATA/Android/sdk/ndk/28.2.13676358/shader-tools/windows-x86_64/glslc.exe"
+.\.venv\Scripts\python.exe tools/check_switch_shaders.py --dll dist/windows-0.13.9/SDL3.dll --sections dist/switch-checks/glfx/sections --output dist/switch-shader-gpu --strict-compiler "$env:LOCALAPPDATA/Android/sdk/ndk/28.2.13676358/shader-tools/windows-x86_64/glslc.exe"
 ```
 
 Esta prueba local comprueba shaders; no sustituye el arranque en Switch.

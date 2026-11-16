@@ -170,13 +170,34 @@ int main(int argc, char **argv) {
             check(native.args.find("--gameclub-state") != std::string::npos && native.args.find("-Play") != std::string::npos &&
                   native.args.find("--appendconfig") == std::string::npos, "VPX: lanzamiento nativo");
             auto nvram = native.config.parent_path()/"nvram/fixture.nv";
-            check(fs::is_regular_file(nvram) && fs::file_size(nvram) == 21, "VPX: aplicar NVRAM inicial empaquetada");
+            auto readNvram = [&] {
+                std::ifstream machine(nvram, std::ios::binary);
+                return std::string(std::istreambuf_iterator<char>(machine), {});
+            };
+            check(readNvram() == "factory configuration", "VPX: copiar los bytes de la NVRAM inicial");
+            writeText(nvram, "");
+            rejects([&] {
+                prepareLaunch(root, config, pin, cancel, {}, [&](const std::string &text) {
+                    if (text.find("Preparando la configuración") != std::string::npos) cancel = true;
+                });
+            }, "VPX: cancelar durante la preparación de NVRAM");
+            check(fs::is_empty(nvram) && !fs::exists(nvram.string() + ".part"),
+                  "VPX: una copia interrumpida no publica una NVRAM parcial");
+            cancel = false;
+            prepareLaunch(root, config, pin, cancel, {});
+            check(readNvram() == "factory configuration", "VPX: reparar NVRAM vacía de 0.13.8");
             writeText(nvram, "machine configuration");
             fs::remove(native.rom.parent_path().parent_path()/"package.bin");
             auto repeated = prepareLaunch(root, config, pin, cancel, {});
-            std::ifstream machine(nvram);
-            std::string state(std::istreambuf_iterator<char>(machine), {});
-            check(native.config == repeated.config && state == "machine configuration", "VPX: NVRAM estable entre sesiones");
+            check(native.config == repeated.config && readNvram() == "machine configuration",
+                  "VPX: conservar NVRAM de la mesa entre sesiones");
+            auto raw = pin; raw.id = "pinball-raw";
+            bool copying = false, copiedInChunks = false;
+            auto rawLaunch = prepareLaunch(root, config, raw, cancel, [&](uint64_t done, uint64_t total) {
+                if (copying && done > 0 && done < total) copiedInChunks = true;
+            }, [&](const std::string &text) { copying = text.find("Extrayendo") != std::string::npos; });
+            check(copiedInChunks && fs::file_size(rawLaunch.rom) == fs::file_size(native.rom),
+                  "VPX: preparar una mesa sin ZIP mediante copia por bloques");
             auto hostile = pin; hostile.id = "pinball-evil";
             rejects([&] { prepareLaunch(root, config, hostile, cancel, {}); }, "VPX: traversal del manifiesto rechazado");
             hostile.id = "pinball-crc";
